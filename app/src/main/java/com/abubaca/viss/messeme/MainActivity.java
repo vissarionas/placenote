@@ -87,7 +87,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 cursor.moveToPosition(position);
-                Toast.makeText(getApplicationContext(), cursor.getString(0), Toast.LENGTH_SHORT).show();
+                startNoteActivity(cursor.getString(0));
+//                Toast.makeText(getApplicationContext(), cursor.getString(0), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -131,6 +132,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             confirmDropDb();
             return true;
         }
+        if (id == R.id.action_drop_notes) {
+            confirmDropNotes();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -150,6 +155,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         startActivity(intent);
     }
 
+    private void startNoteActivity(String placeName){
+        Intent intent = new Intent(MainActivity.this , NoteActivity.class);
+        intent.putExtra("placeName" , placeName);
+        startActivity(intent);
+    }
+
     private void startBackgroundListener(Double lat , Double lgn){
         Intent intent = new Intent(getBaseContext() , BackgroundListener.class);
         intent.putExtra("lat" , lat);
@@ -164,6 +175,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         db.execSQL("DROP TABLE IF EXISTS PLACES");
+                        populateList();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void confirmDropNotes(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to delete all notes?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        db.execSQL("DELETE FROM NOTES");
                         populateList();
                     }
                 })
