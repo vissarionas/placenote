@@ -138,12 +138,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         startActivity(intent);
     }
 
+    private void startBackgroundListener(){
+        Intent intent = new Intent(getBaseContext() , BackgroundListener.class);
+        intent.putExtra("name" , "vissarionas");
+        startService(intent);
+    }
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-      lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-//        if (lastLocation != null){
-//            Toast.makeText(getApplicationContext() , "Got location" , Toast.LENGTH_SHORT).show();
-//        }
+        lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (lastLocation != null){
+            startBackgroundListener();
+        }
     }
 
     @Override
