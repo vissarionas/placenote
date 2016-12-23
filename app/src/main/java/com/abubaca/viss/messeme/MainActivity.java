@@ -1,5 +1,6 @@
 package com.abubaca.viss.messeme;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,14 +9,17 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -29,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected GoogleApiClient mGoogleApiClient;
     protected Location lastLocation;
     protected SQLiteDatabase db;
+    private Double latitude;
+    private Double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +52,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 startMapActivity();
             }
         });
+
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
+
+        populateList();
+
+//        ListView list_view = (ListView) findViewById(R.id.list_view);
+//        ArrayList<String> list = new ArrayList<>();
+//        while (cursor.moveToNext()) {
+//            list.add(cursor.getPosition(), cursor.getString(0));
+//        }
+//        list_view.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, list));
+//        list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                cursor.moveToPosition(position);
+//                Toast.makeText(getApplicationContext(), cursor.getString(0), Toast.LENGTH_LONG).show();
+//            }
+//        });
+
+        buildGoogleApiClient();
+    }
+
+    private void populateList(){
         db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
         final Cursor cursor = db.rawQuery("SELECT NAME FROM PLACES", null);
-
         ListView list_view = (ListView) findViewById(R.id.list_view);
         ArrayList<String> list = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -60,11 +87,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 cursor.moveToPosition(position);
-                Toast.makeText(getApplicationContext(), cursor.getString(0), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), cursor.getString(0), Toast.LENGTH_SHORT).show();
             }
         });
-
-        buildGoogleApiClient();
     }
 
     @Override
@@ -84,21 +109,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onResume() {
         super.onResume();
-        db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-        final Cursor cursor = db.rawQuery("SELECT NAME FROM PLACES", null);
-        ListView list_view = (ListView) findViewById(R.id.list_view);
-        ArrayList<String> list = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            list.add(cursor.getPosition(), cursor.getString(0));
-        }
-        list_view.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, list));
-        list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                cursor.moveToPosition(position);
-                Toast.makeText(getApplicationContext(), cursor.getString(0), Toast.LENGTH_LONG).show();
-            }
-        });
+        populateList();
     }
 
     @Override
@@ -116,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_drop_db) {
+            confirmDropDb();
             return true;
         }
 
@@ -138,17 +150,39 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         startActivity(intent);
     }
 
-    private void startBackgroundListener(){
+    private void startBackgroundListener(Double lat , Double lgn){
         Intent intent = new Intent(getBaseContext() , BackgroundListener.class);
-        intent.putExtra("name" , "vissarionas");
+        intent.putExtra("lat" , lat);
+        intent.putExtra("lgn" , lgn);
         startService(intent);
+    }
+
+    private void confirmDropDb(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to delete all places?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        db.execSQL("DROP TABLE IF EXISTS PLACES");
+                        populateList();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (lastLocation != null){
-            startBackgroundListener();
+            latitude = lastLocation.getLatitude();
+            longitude =lastLocation.getLongitude();
+            startBackgroundListener(latitude , longitude);
         }
     }
 
@@ -161,4 +195,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+
 }

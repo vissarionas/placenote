@@ -40,11 +40,16 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps" />
 
         <service
             android:name=".BackgroundListener"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity
+            android:name=".EditPlace"
+            android:label="@string/title_activity_edit_place"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

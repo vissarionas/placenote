@@ -1,14 +1,10 @@
 package com.abubaca.viss.messeme;
 
-import android.app.Dialog;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AlertDialog;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,10 +26,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLng latlng;
     private Geocoder geocoder;
     private Marker marker;
-    private Dialog dialog;
-    private String placeName;
-    private EditText editName;
-    private AlertDialog.Builder alert;
+    public String placeAddress;
+    private Double lat , lgn;
+
 
 
     @Override
@@ -56,13 +51,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng , 15.0f));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
                 latlng = point;
-
+                lat = latlng.latitude;
+                lgn = latlng.longitude;
                 List<Address> addresses = new ArrayList<>();
                 try {
                     addresses = geocoder.getFromLocation(point.latitude, point.longitude,1);
@@ -77,7 +72,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     for (int i = 0; i < address.getMaxAddressLineIndex(); i++){
                         sb.append(address.getAddressLine(i) + "\n");
                     }
-                    Toast.makeText(MapsActivity.this, sb.toString(), Toast.LENGTH_LONG).show();
+
+//                    Toast.makeText(MapsActivity.this, sb.toString(), Toast.LENGTH_LONG).show();
+                    placeAddress = sb.toString();
+                    startEditPlaceActivity(lat , lgn , placeAddress);
                 }
 
                 //remove previously placed Marker
@@ -93,10 +91,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    private void writeToDatabase(){
-        String stringsForInsert = "'"+placeName+"','"+String.valueOf(latlng.latitude)+"' , '"+String.valueOf(latlng.longitude)+"'";
-        SQLiteDatabase db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
-        db.execSQL("INSERT INTO PLACES (NAME,LAT,LGN) VALUES ("+stringsForInsert+")");
+    private void startEditPlaceActivity(Double lat, Double lgn , String address){
+        Intent intent = new Intent(MapsActivity.this, EditPlace.class);
+        intent.putExtra("lat" , lat);
+        intent.putExtra("lgn" , lgn);
+        intent.putExtra("address" , address);
+        startActivity(intent);
+        this.finish();
     }
 }

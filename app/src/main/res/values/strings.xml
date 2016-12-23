@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Messeme</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_drop_db">Drop database</string>
     <string name="title_activity_map">MapActivity</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_edit_place">EditPlace</string>
 </resources>
