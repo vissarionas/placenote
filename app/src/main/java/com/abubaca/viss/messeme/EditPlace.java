@@ -57,10 +57,11 @@ public class EditPlace extends AppCompatActivity {
     private void writeToDatabase(){
         placeName = editPlace.getText().toString();
         if(!TextUtils.isEmpty(placeName)) {
-            String stringsForInsert = "'" + placeName + "','" + String.valueOf(lat) + "' , '" + String.valueOf(lgn) + "'";
+            String stringsForInsert = "'" + placeName + "','" + String.valueOf(lat) + "' , '" + String.valueOf(lgn) + "' , ''";
             db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-            db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
-            db.execSQL("INSERT INTO PLACES (NAME,LAT,LGN) VALUES (" + stringsForInsert + ")");
+            db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LGN,NOTE) VALUES ("+stringsForInsert+")");
+//            db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
+//            db.execSQL("INSERT INTO PLACES (NAME,LAT,LGN) VALUES (" + stringsForInsert + ")");
             finish();
         }else{
             Snackbar.make(mView, "set a place name", Snackbar.LENGTH_LONG)

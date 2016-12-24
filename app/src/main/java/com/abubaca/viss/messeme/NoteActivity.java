@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 public class NoteActivity extends AppCompatActivity {
 
+    final String TAG = "NOTE_ACTIVITY";
     private String placeName, note, previousNote;
     SQLiteDatabase db;
     EditText editNote;
@@ -32,7 +33,6 @@ public class NoteActivity extends AppCompatActivity {
 
         editNote = (EditText) findViewById(R.id.edit_note);
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS NOTES(PLACE TEXT, NOTE TEXT)");
         placeName = getIntent().getStringExtra("placeName");
 
         populateNote(placeName);
@@ -44,8 +44,7 @@ public class NoteActivity extends AppCompatActivity {
                 note = editNote.getText().toString();
 
                 if (!TextUtils.isEmpty(note)) {
-                    Snackbar.make(view, "Note inserted", Snackbar.LENGTH_SHORT)
-                            .setAction("Action", null).show();
+                    Toast.makeText(getApplicationContext() , "note "+note+" inserted" , Toast.LENGTH_SHORT).show();
                     insertNoteIntoDb(placeName, note);
                     finish();
                 } else {
@@ -84,7 +83,9 @@ public class NoteActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        db.execSQL("DELETE FROM NOTES WHERE PLACE ='"+placeName+"'");
+//                        db.execSQL("DELETE FROM NOTES WHERE PLACE ='"+placeName+"'");
+                        db.execSQL("UPDATE PLACENOTES SET NOTE='' WHERE PLACE='"+placeName+"'");
+                        Log.i(TAG , "note deleted - null");
                         NoteActivity.this.finish();
                     }
                 })
@@ -110,26 +111,21 @@ public class NoteActivity extends AppCompatActivity {
 //    }
 
     private void populateNote(String placeName) {
-        final Cursor cursor = db.rawQuery("SELECT * FROM NOTES WHERE PLACE = '" + placeName + "'", null);
+        final Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE PLACE = '" + placeName + "'", null);
         cursor.moveToFirst();
-        while(cursor.moveToNext()){
-            previousNote = cursor.getString(1);
+        if(cursor.getCount()>0) {
+            previousNote = cursor.getString(0);
             editNote.setText(previousNote);
-            Log.e("CURSOR CHECK NULL", String.valueOf(cursor == null));
         }
     }
 
     private void insertNoteIntoDb(String placeName, String noteText) {
-        String stringForInsert = placeName + "','" + noteText;
+//        String stringForInsert = placeName + "','" + noteText;
+//        if(TextUtils.isEmpty(previousNote)){
+//            db.execSQL("UPDATE PLACENOTES SET NOTE='"+noteText+"' WHERE PLACE='"+placeName+"'");
+//        }else{
+        db.execSQL("UPDATE PLACENOTES SET NOTE='"+noteText+"' WHERE PLACE='"+placeName+"'");
 
-        final Cursor cursor = db.rawQuery("SELECT * FROM NOTES WHERE PLACE = '" + placeName + "'", null);
-        if(previousNote == null) {
-            db.execSQL("INSERT INTO NOTES (PLACE , NOTE) VALUES ('" + stringForInsert + "')");
-        }
-        else{
-            cursor.moveToFirst();
-            db.execSQL("UPDATE NOTES SET NOTE ='"+noteText+"' WHERE PLACE = '"+placeName+"'");
-        }
     }
 
 

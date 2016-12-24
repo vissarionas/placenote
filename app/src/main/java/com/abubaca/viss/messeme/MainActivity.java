@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    final String TAG = "MAIN_ACTIVITY";
     protected GoogleApiClient mGoogleApiClient;
     protected Location lastLocation;
     protected SQLiteDatabase db;
@@ -57,15 +58,24 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void populateList(){
-        db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS NOTES(PLACE TEXT, NOTE TEXT)");
-        final Cursor cursor = db.rawQuery("SELECT NAME FROM PLACES", null);
+        db.execSQL("CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT)");
+        final Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES" ,null);
         ListView list_view = (ListView) findViewById(R.id.list_view);
         ArrayList<String> list = new ArrayList<>();
         while (cursor.moveToNext()) {
             list.add(cursor.getPosition(), cursor.getString(0));
         }
         list_view.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, list));
+
+        list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                cursor.moveToPosition(position);
+                confirmDropPlace(cursor.getString(0));
+                return true;
+            }
+        });
+
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -73,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 startNoteActivity(cursor.getString(0));
             }
         });
+
+
     }
 
     private boolean serviceRunning(Class<?> serviceClass) {
@@ -86,7 +98,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private Boolean notesExist(){
-        Cursor cursor = db.rawQuery("SELECT * FROM NOTES" , null );
+        Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE NOTE NOT LIKE ''" , null );
+        Log.i(TAG , String.valueOf(cursor.getCount()));
         return (cursor.getCount()>0) ? true  :false ;
     }
 
@@ -109,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onResume();
         if(notesExist()) {
             startService(new Intent(getBaseContext(), BackgroundListener.class));
-        } else {
+        } else{
             stopService(new Intent(getBaseContext(), BackgroundListener.class));
         }
         populateList();
@@ -171,7 +184,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        db.execSQL("DROP TABLE IF EXISTS PLACES");
+//                        db.execSQL("DROP TABLE IF EXISTS PLACES");
+                        db.execSQL("DROP TABLE IF EXISTS PLACENOTES");
                         populateList();
                     }
                 })
@@ -190,7 +204,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        db.execSQL("DELETE FROM NOTES");
+//                        db.execSQL("DELETE FROM NOTES");
+                        db.execSQL("UPDATE PLACENOTES SET NOTE=''");
                         stopService(new Intent(getBaseContext(), BackgroundListener.class));
                         populateList();
                     }
@@ -204,8 +219,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         alert.show();
     }
 
-    private void viewReport(){
-
+    private void confirmDropPlace(final String place){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to delete this place?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        db.delete("PLACENOTES" ,"PLACE='"+place+"'" , null);
+                        populateList();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override

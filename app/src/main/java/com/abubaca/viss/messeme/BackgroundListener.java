@@ -18,6 +18,7 @@ import android.util.Log;
 
 public class BackgroundListener extends Service {
 
+    final String TAG = "BACKGROUND_SERVICE";
     private LocationManager mLocationManager;
     public LocationListener mLocationListener;
     private static double latitude =0;
@@ -28,19 +29,18 @@ public class BackgroundListener extends Service {
 
     @Override
     public void onDestroy() {
-        Log.i("BACKGROUND_SERVICE" , "service destroyed");
+        Log.i(TAG , "background service destroyed");
         mLocationManager.removeUpdates(mLocationListener);
         super.onDestroy();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG , "started background service");
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
         placeLocation = new Location("");
-        Log.i("BACKGROUND_SERVICE" , "started background service");
         mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 , 10 , mLocationListener = new LocationListener() {
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000 , 10 , mLocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 currentLocation = location;
@@ -48,7 +48,7 @@ public class BackgroundListener extends Service {
                 longitude = location.getLongitude();
                 accuracy = location.getAccuracy();
                 findNearbyLocations();
-                Log.i("POSITION: " , latitude+" "+longitude+" "+accuracy);
+                Log.i(TAG , "location changed");
             }
 
             @Override
@@ -76,13 +76,14 @@ public class BackgroundListener extends Service {
         return null;
     }
 
-    private void showNotification(String note) {
+    private void showNotification(String title, String note) {
         NotificationCompat.Builder mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.notification_icon)
-                        .setContentTitle("Place Note")
+                        .setContentTitle(title)
                         .setContentText(note);
-        Intent resultIntent = new Intent(this, MainActivity.class);
+        Intent resultIntent = new Intent(this, NoteActivity.class);
+        resultIntent.putExtra("placeName" , title);
 
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -106,32 +107,15 @@ public class BackgroundListener extends Service {
     }
 
     private void findNearbyLocations(){
-        Cursor placeCursor = db.rawQuery("SELECT NAME,LAT,LGN FROM PLACES" ,null);
-        placeCursor.moveToFirst();
-        if(placeCursor.getCount()>0){
-            Cursor noteCursor = db.rawQuery("SELECT * FROM NOTES WHERE PLACE='"+placeCursor.getString(0)+"'" ,null);
-            noteCursor.moveToFirst();
-            do {
-                placeLocation.setLatitude(Double.valueOf(placeCursor.getString(1)));
-                placeLocation.setLongitude(Double.valueOf(placeCursor.getDouble(2)));
-                float distanceInMeters = placeLocation.distanceTo(currentLocation);
-                if (distanceInMeters < 100) {
-                    Log.i("DISTANCE ", String.valueOf(distanceInMeters));
-                    showNotification(getPlaceNote(placeCursor.getString(0)));
-                }
-            }while(placeCursor.moveToNext());
-        }
-    }
-
-    private String getPlaceNote(String placeName){
-        String note = "";
-        Cursor cursor = db.rawQuery("SELECT NOTE FROM NOTES WHERE PLACE = '"+placeName+"'" , null);
+        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''" ,null);
         cursor.moveToFirst();
         if(cursor.getCount()>0){
-         note =  cursor.getString(0);
+            placeLocation.setLatitude(Double.valueOf(cursor.getString(1)));
+            placeLocation.setLongitude(Double.valueOf(cursor.getString(2)));
+            float distance = placeLocation.distanceTo(currentLocation);
+            if(distance<200){
+                showNotification(cursor.getString(0) , cursor.getString(3));
+            }
         }
-        return note;
     }
-
-
 }
