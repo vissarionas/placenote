@@ -16,8 +16,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import java.util.ArrayList;
-
 public class BackgroundListener extends Service {
 
     private LocationManager mLocationManager;
@@ -29,15 +27,20 @@ public class BackgroundListener extends Service {
     private Location placeLocation , currentLocation;
 
     @Override
+    public void onDestroy() {
+        Log.i("BACKGROUND_SERVICE" , "service destroyed");
+        mLocationManager.removeUpdates(mLocationListener);
+        super.onDestroy();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
         db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
-        latitude = intent.getDoubleExtra("lat" , 0.0);
-        longitude = intent.getDoubleExtra("lgn" , 0.0);
         placeLocation = new Location("");
-        Log.i("LATITUDE - LONGITUDE" , latitude +" "+longitude);
+        Log.i("BACKGROUND_SERVICE" , "started background service");
         mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500 , 10 , mLocationListener = new LocationListener() {
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 , 10 , mLocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 currentLocation = location;
@@ -103,21 +106,20 @@ public class BackgroundListener extends Service {
     }
 
     private void findNearbyLocations(){
-        Cursor cursor = db.rawQuery("SELECT NAME,LAT,LGN FROM PLACES" ,null);
-        cursor.moveToFirst();
-        Log.i("CURSOR LENGTH " ,  String.valueOf(cursor.getCount()));
-        if(cursor.getCount()>0){
+        Cursor placeCursor = db.rawQuery("SELECT NAME,LAT,LGN FROM PLACES" ,null);
+        placeCursor.moveToFirst();
+        if(placeCursor.getCount()>0){
+            Cursor noteCursor = db.rawQuery("SELECT * FROM NOTES WHERE PLACE='"+placeCursor.getString(0)+"'" ,null);
+            noteCursor.moveToFirst();
             do {
-                placeLocation.setLatitude(Double.valueOf(cursor.getString(1)));
-                placeLocation.setLongitude(Double.valueOf(cursor.getDouble(2)));
-                Log.i("CURSOR LOCATION ", cursor.getString(0) + "  " + cursor.getString(1));
+                placeLocation.setLatitude(Double.valueOf(placeCursor.getString(1)));
+                placeLocation.setLongitude(Double.valueOf(placeCursor.getDouble(2)));
                 float distanceInMeters = placeLocation.distanceTo(currentLocation);
-                Log.i("DISTANCE ", String.valueOf(distanceInMeters));
                 if (distanceInMeters < 100) {
-                    Log.i("PLACE NAME " , cursor.getString(0));
-                    showNotification(getPlaceNote(cursor.getString(0)));
+                    Log.i("DISTANCE ", String.valueOf(distanceInMeters));
+                    showNotification(getPlaceNote(placeCursor.getString(0)));
                 }
-            }while(cursor.moveToNext());
+            }while(placeCursor.moveToNext());
         }
     }
 

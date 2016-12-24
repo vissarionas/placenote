@@ -85,6 +85,7 @@ public class NoteActivity extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         db.execSQL("DELETE FROM NOTES WHERE PLACE ='"+placeName+"'");
+                        NoteActivity.this.finish();
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -96,15 +97,25 @@ public class NoteActivity extends AppCompatActivity {
         alert.show();
     }
 
+//    private void populateNote(String placeName) {
+//        final Cursor cursor = db.rawQuery("SELECT * FROM NOTES WHERE PLACE = '" + placeName + "'", null);
+//        if(cursor.getCount()>0) {
+//            do {
+//                cursor.moveToFirst();
+//                previousNote = cursor.getString(1);
+//                editNote.setText(previousNote);
+//                Log.e("CURSOR CHECK NULL", String.valueOf(cursor == null));
+//            } while (cursor.moveToNext());
+//        }
+//    }
+
     private void populateNote(String placeName) {
         final Cursor cursor = db.rawQuery("SELECT * FROM NOTES WHERE PLACE = '" + placeName + "'", null);
-        if(cursor.getCount()>0) {
-            do {
-                cursor.moveToFirst();
-                previousNote = cursor.getString(1);
-                editNote.setText(previousNote);
-                Log.e("CURSOR CHECK NULL", String.valueOf(cursor == null));
-            } while (cursor.moveToNext());
+        cursor.moveToFirst();
+        while(cursor.moveToNext()){
+            previousNote = cursor.getString(1);
+            editNote.setText(previousNote);
+            Log.e("CURSOR CHECK NULL", String.valueOf(cursor == null));
         }
     }
 

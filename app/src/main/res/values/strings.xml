@@ -7,4 +7,5 @@
     <string name="title_activity_note">NoteActivity</string>
     <string name="action_drop_notes">Drop notes</string>
     <string name="action_drop_note">Drop note</string>
+    <string name="action_view_report">View report</string>
 </resources>

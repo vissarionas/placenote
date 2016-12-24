@@ -1,5 +1,7 @@
 package com.abubaca.viss.messeme;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,15 +14,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -47,35 +47,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
                 startMapActivity();
             }
         });
 
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-
         populateList();
-
-//        ListView list_view = (ListView) findViewById(R.id.list_view);
-//        ArrayList<String> list = new ArrayList<>();
-//        while (cursor.moveToNext()) {
-//            list.add(cursor.getPosition(), cursor.getString(0));
-//        }
-//        list_view.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, list));
-//        list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                cursor.moveToPosition(position);
-//                Toast.makeText(getApplicationContext(), cursor.getString(0), Toast.LENGTH_LONG).show();
-//            }
-//        });
-
         buildGoogleApiClient();
     }
 
     private void populateList(){
         db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS NOTES(PLACE TEXT, NOTE TEXT)");
         final Cursor cursor = db.rawQuery("SELECT NAME FROM PLACES", null);
         ListView list_view = (ListView) findViewById(R.id.list_view);
         ArrayList<String> list = new ArrayList<>();
@@ -88,9 +71,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 cursor.moveToPosition(position);
                 startNoteActivity(cursor.getString(0));
-//                Toast.makeText(getApplicationContext(), cursor.getString(0), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private boolean serviceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Boolean notesExist(){
+        Cursor cursor = db.rawQuery("SELECT * FROM NOTES" , null );
+        return (cursor.getCount()>0) ? true  :false ;
     }
 
     @Override
@@ -110,6 +107,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onResume() {
         super.onResume();
+        if(notesExist()) {
+            startService(new Intent(getBaseContext(), BackgroundListener.class));
+        } else {
+            stopService(new Intent(getBaseContext(), BackgroundListener.class));
+        }
         populateList();
     }
 
@@ -136,7 +138,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             confirmDropNotes();
             return true;
         }
-
+        if (id == R.id.action_view_report) {
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -159,13 +163,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Intent intent = new Intent(MainActivity.this , NoteActivity.class);
         intent.putExtra("placeName" , placeName);
         startActivity(intent);
-    }
-
-    private void startBackgroundListener(Double lat , Double lgn){
-        Intent intent = new Intent(getBaseContext() , BackgroundListener.class);
-        intent.putExtra("lat" , lat);
-        intent.putExtra("lgn" , lgn);
-        startService(intent);
     }
 
     private void confirmDropDb(){
@@ -194,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         db.execSQL("DELETE FROM NOTES");
+                        stopService(new Intent(getBaseContext(), BackgroundListener.class));
                         populateList();
                     }
                 })
@@ -206,13 +204,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         alert.show();
     }
 
+    private void viewReport(){
+
+    }
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (lastLocation != null){
             latitude = lastLocation.getLatitude();
             longitude =lastLocation.getLongitude();
-            startBackgroundListener(latitude , longitude);
         }
     }
 
