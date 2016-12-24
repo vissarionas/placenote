@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -87,14 +88,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-    private boolean serviceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
+//    private boolean serviceRunning(Class<?> serviceClass) {
+//        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+//            if (serviceClass.getName().equals(service.service.getClassName())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+    private void viewReport(){
+        String report = "PLACE : NOTE\r\n\n";
+        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''" , null);
+        cursor.moveToFirst();
+        if(cursor.getCount()>0){
+            do {
+                String row = cursor.getString(0) + " : " + cursor.getString(3);
+                report = report.concat(row+"\r\n\n");
+            }while (cursor.moveToNext());
+            Toast.makeText(getApplicationContext() , report , Toast.LENGTH_LONG).show();
         }
-        return false;
     }
 
     private Boolean notesExist(){
@@ -152,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return true;
         }
         if (id == R.id.action_view_report) {
+            viewReport();
             return true;
         }
         return super.onOptionsItemSelected(item);

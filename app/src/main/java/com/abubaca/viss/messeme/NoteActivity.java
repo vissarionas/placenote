@@ -42,7 +42,6 @@ public class NoteActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 note = editNote.getText().toString();
-
                 if (!TextUtils.isEmpty(note)) {
                     Toast.makeText(getApplicationContext() , "note "+note+" inserted" , Toast.LENGTH_SHORT).show();
                     insertNoteIntoDb(placeName, note);
@@ -97,18 +96,6 @@ public class NoteActivity extends AppCompatActivity {
         AlertDialog alert = builder.create();
         alert.show();
     }
-
-//    private void populateNote(String placeName) {
-//        final Cursor cursor = db.rawQuery("SELECT * FROM NOTES WHERE PLACE = '" + placeName + "'", null);
-//        if(cursor.getCount()>0) {
-//            do {
-//                cursor.moveToFirst();
-//                previousNote = cursor.getString(1);
-//                editNote.setText(previousNote);
-//                Log.e("CURSOR CHECK NULL", String.valueOf(cursor == null));
-//            } while (cursor.moveToNext());
-//        }
-//    }
 
     private void populateNote(String placeName) {
         final Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE PLACE = '" + placeName + "'", null);
