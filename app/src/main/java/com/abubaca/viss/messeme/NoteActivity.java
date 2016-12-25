@@ -107,10 +107,6 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void insertNoteIntoDb(String placeName, String noteText) {
-//        String stringForInsert = placeName + "','" + noteText;
-//        if(TextUtils.isEmpty(previousNote)){
-//            db.execSQL("UPDATE PLACENOTES SET NOTE='"+noteText+"' WHERE PLACE='"+placeName+"'");
-//        }else{
         db.execSQL("UPDATE PLACENOTES SET NOTE='"+noteText+"' WHERE PLACE='"+placeName+"'");
 
     }

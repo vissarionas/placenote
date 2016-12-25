@@ -1,7 +1,10 @@
 package com.abubaca.viss.messeme;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -22,6 +25,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -35,7 +40,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.ArrayList;
@@ -72,9 +76,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         createGoogleApiClient();
     }
 
-    private void populateList(){
+    private void populateList() {
         db.execSQL("CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT)");
-        final Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES" ,null);
+        final Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES", null);
         ListView list_view = (ListView) findViewById(R.id.list_view);
         ArrayList<String> list = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -95,40 +99,40 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 cursor.moveToPosition(position);
-                startNoteActivity(cursor.getString(0));
+                showEditNoteDialog(cursor.getString(0));
             }
         });
 
 
     }
 
-    private void viewReport(){
+    private void viewReport() {
         String report = "PLACE : NOTE\r\n\n";
-        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''" , null);
+        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
         cursor.moveToFirst();
-        if(cursor.getCount()>0){
+        if (cursor.getCount() > 0) {
             do {
                 String row = cursor.getString(0) + " : " + cursor.getString(3);
-                report = report.concat(row+"\r\n\n");
-            }while (cursor.moveToNext());
-            Toast.makeText(getApplicationContext() , report , Toast.LENGTH_LONG).show();
+                report = report.concat(row + "\r\n\n");
+            } while (cursor.moveToNext());
+            Toast.makeText(getApplicationContext(), report, Toast.LENGTH_LONG).show();
         }
     }
 
-    private Boolean notesExist(){
-        Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE NOTE NOT LIKE ''" , null );
-        Log.i(TAG , String.valueOf(cursor.getCount()));
-        return (cursor.getCount()>0) ? true  :false ;
+    private Boolean notesExist() {
+        Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
+        Log.i(TAG, String.valueOf(cursor.getCount()));
+        return (cursor.getCount() > 0) ? true : false;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
     }
 
     @Override
     protected void onResume() {
+        mGoogleApiClient.connect();
         populateList();
         super.onResume();
     }
@@ -176,8 +180,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setExpirationDuration(1000*60*60*10);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -191,12 +196,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onResult(LocationSettingsResult locationSettingsResult) {
                 Status status = locationSettingsResult.getStatus();
-                LocationSettingsStates state = locationSettingsResult.getLocationSettingsStates();
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
                         // All location settings are satisfied. The client can
                         // initialize location requests here.
-                        Log.e("TAG" , "location settings ok");
+                        Log.e("TAG", "location settings ok");
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         // Location settings are not satisfied, but this can be fixed
@@ -228,23 +232,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
 
     private void startMapActivity() {
-        if(currentLocation !=null) {
+        if (currentLocation != null) {
             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
             intent.putExtra("lat", currentLocation.getLatitude());
             intent.putExtra("lgn", currentLocation.getLongitude());
             startActivity(intent);
-        }else{
-            Toast.makeText(getApplicationContext() , "merry christmas" , Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "merry christmas", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void startNoteActivity(String placeName){
-        Intent intent = new Intent(MainActivity.this , NoteActivity.class);
-        intent.putExtra("placeName" , placeName);
-        startActivity(intent);
-    }
-
-    private void confirmDropDb(){
+    private void confirmDropDb() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you want to delete all places?")
                 .setCancelable(false)
@@ -264,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         alert.show();
     }
 
-    private void confirmDropNotes(){
+    private void confirmDropNotes() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you want to delete all notes?")
                 .setCancelable(false)
@@ -284,13 +282,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         alert.show();
     }
 
-    private void confirmDropPlace(final String place){
+    private void confirmDropPlace(final String place) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you want to delete this place?")
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        db.delete("PLACENOTES" ,"PLACE='"+place+"'" , null);
+                        db.delete("PLACENOTES", "PLACE='" + place + "'", null);
                         populateList();
                     }
                 })
@@ -322,23 +320,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        if(notesExist()){
+        if (notesExist()) {
             findNearbyLocations(location);
         }
         currentLocation = location;
-        Log.i(TAG , "location changed. Accuracy = "+currentLocation.getAccuracy());
+        Log.i(TAG, "location changed. Accuracy = " + currentLocation.getAccuracy());
     }
 
-    private void findNearbyLocations(Location currentLocation){
+    private void findNearbyLocations(Location currentLocation) {
         Location noteLocation = new Location("");
-        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''" ,null);
+        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
         cursor.moveToFirst();
-        if(cursor.getCount()>0){
+        if (cursor.getCount() > 0) {
             noteLocation.setLatitude(Double.valueOf(cursor.getString(1)));
             noteLocation.setLongitude(Double.valueOf(cursor.getString(2)));
             float distance = noteLocation.distanceTo(currentLocation);
-            if(distance<300){
-                showNotification(cursor.getString(0) , cursor.getString(3));
+            if (distance < 100 && currentLocation.getAccuracy()<300) {
+                showNotification(cursor.getString(0), cursor.getString(3));
             }
         }
     }
@@ -349,8 +347,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         .setSmallIcon(R.drawable.notification_icon)
                         .setContentTitle(title)
                         .setContentText(note);
-        Intent resultIntent = new Intent(this, NoteActivity.class);
-        resultIntent.putExtra("placeName" , title);
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.putExtra("placeName", title);
 
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -360,6 +358,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
         mBuilder.setContentIntent(resultPendingIntent);
+        mBuilder.setAutoCancel(true);
 
 //        Sets an ID for the notification
         int mNotificationId = 001;
@@ -369,4 +368,42 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 //        Builds the notification and issues it.
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
+
+    private void showEditNoteDialog(final String placeName) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+        alertDialog.setTitle("Edit your place note");
+        final EditText input = new EditText(MainActivity.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        alertDialog.setView(input);
+        final Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE PLACE='"+placeName+"'" ,null);
+        if(cursor.getCount()>0) {
+            cursor.moveToFirst();
+            input.setText(cursor.getString(0));
+        }
+        alertDialog.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        db.execSQL("UPDATE PLACENOTES SET NOTE='"+input.getText().toString()+"' WHERE PLACE='"+placeName+"'");
+                        if(!notesExist()){
+                            if(mGoogleApiClient.isConnected()){
+                                mGoogleApiClient.disconnect();                            }
+                        }
+                    }
+                });
+
+        alertDialog.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        alertDialog.show();
+    }
+
 }
+
+

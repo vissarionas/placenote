@@ -65,4 +65,9 @@
             android:screenOrientation="portrait" ></activity>
     </application>
 
+    <receiver
+        android:name="com.my.app.receiver.NotificationDismissedReceiver"
+        android:exported="false" >
+    </receiver>
+
 </manifest>
