@@ -1,9 +1,10 @@
 package com.abubaca.viss.messeme;
 
-import android.app.ActivityManager;
-import android.content.Context;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
@@ -13,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -25,18 +27,30 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    final String TAG = "MAIN_ACTIVITY";
-    protected GoogleApiClient mGoogleApiClient;
-    protected Location lastLocation;
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+    static final String TAG = "MAIN_ACTIVITY";
+
+    public GoogleApiClient mGoogleApiClient;
+    public Location currentLocation;
+    public LocationRequest mLocationRequest;
+
     protected SQLiteDatabase db;
-    private Double latitude;
-    private Double longitude;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
         populateList();
-        buildGoogleApiClient();
+        createGoogleApiClient();
     }
 
     private void populateList(){
@@ -88,16 +102,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-//    private boolean serviceRunning(Class<?> serviceClass) {
-//        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-//            if (serviceClass.getName().equals(service.service.getClassName())) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
     private void viewReport(){
         String report = "PLACE : NOTE\r\n\n";
         Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''" , null);
@@ -124,22 +128,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-    }
-
-    @Override
     protected void onResume() {
-        super.onResume();
-        if(notesExist()) {
-            startService(new Intent(getBaseContext(), BackgroundListener.class));
-        } else{
-            stopService(new Intent(getBaseContext(), BackgroundListener.class));
-        }
         populateList();
+        super.onResume();
     }
 
     @Override
@@ -172,19 +163,79 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return super.onOptionsItemSelected(item);
     }
 
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+    private void createGoogleApiClient() {
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+        createLocationRequest();
     }
 
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        final PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+                        builder.build());
+
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult locationSettingsResult) {
+                Status status = locationSettingsResult.getStatus();
+                LocationSettingsStates state = locationSettingsResult.getLocationSettingsStates();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        // All location settings are satisfied. The client can
+                        // initialize location requests here.
+                        Log.e("TAG" , "location settings ok");
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied, but this can be fixed
+                        // by showing the user a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            status.startResolutionForResult(
+                                    MainActivity.this,
+                                    REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way
+                        // to fix the settings so we won't show the dialog.
+                        break;
+
+                }
+            }
+        });
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
+
     private void startMapActivity() {
-        Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-        intent.putExtra("lat" , lastLocation.getLatitude());
-        intent.putExtra("lgn" , lastLocation.getLongitude());
-        startActivity(intent);
+        if(currentLocation !=null) {
+            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+            intent.putExtra("lat", currentLocation.getLatitude());
+            intent.putExtra("lgn", currentLocation.getLongitude());
+            startActivity(intent);
+        }else{
+            Toast.makeText(getApplicationContext() , "merry christmas" , Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void startNoteActivity(String placeName){
@@ -221,7 +272,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     public void onClick(DialogInterface dialog, int id) {
 //                        db.execSQL("DELETE FROM NOTES");
                         db.execSQL("UPDATE PLACENOTES SET NOTE=''");
-                        stopService(new Intent(getBaseContext(), BackgroundListener.class));
                         populateList();
                     }
                 })
@@ -255,11 +305,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (lastLocation != null){
-            latitude = lastLocation.getLatitude();
-            longitude =lastLocation.getLongitude();
-        }
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        startLocationUpdates();
     }
 
     @Override
@@ -273,4 +320,53 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+        if(notesExist()){
+            findNearbyLocations(location);
+        }
+        currentLocation = location;
+        Log.i(TAG , "location changed. Accuracy = "+currentLocation.getAccuracy());
+    }
+
+    private void findNearbyLocations(Location currentLocation){
+        Location noteLocation = new Location("");
+        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''" ,null);
+        cursor.moveToFirst();
+        if(cursor.getCount()>0){
+            noteLocation.setLatitude(Double.valueOf(cursor.getString(1)));
+            noteLocation.setLongitude(Double.valueOf(cursor.getString(2)));
+            float distance = noteLocation.distanceTo(currentLocation);
+            if(distance<300){
+                showNotification(cursor.getString(0) , cursor.getString(3));
+            }
+        }
+    }
+
+    private void showNotification(String title, String note) {
+        NotificationCompat.Builder mBuilder =
+                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.notification_icon)
+                        .setContentTitle(title)
+                        .setContentText(note);
+        Intent resultIntent = new Intent(this, NoteActivity.class);
+        resultIntent.putExtra("placeName" , title);
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+
+//        Sets an ID for the notification
+        int mNotificationId = 001;
+//        Gets an instance of the NotificationManager service
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+    }
 }

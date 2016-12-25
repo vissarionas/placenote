@@ -53,10 +53,6 @@
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait" />
 
-        <service
-            android:name=".BackgroundListener"
-            android:exported="false" />
-
         <activity
             android:name=".EditPlace"
             android:label="@string/title_activity_edit_place"
