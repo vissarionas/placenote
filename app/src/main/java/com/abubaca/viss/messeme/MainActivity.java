@@ -1,13 +1,12 @@
 package com.abubaca.viss.messeme;
 
-import android.app.Notification;
+import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
@@ -15,6 +14,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
     static final String TAG = "MAIN_ACTIVITY";
+    private static final int MY_PERMISSIONS_REQUEST_COARSE_LOCATION = 0x2;
 
     public GoogleApiClient mGoogleApiClient;
     public Location currentLocation;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     protected SQLiteDatabase db;
 
+    private Boolean hasPermission = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
         populateList();
+        checkPermission();
         createGoogleApiClient();
+//        Log.i(TAG , String.valueOf(Build.VERSION.SDK_INT));
+//        if(Build.VERSION.SDK_INT>22){
+//            checkPermission();
+//        }
     }
 
     private void populateList() {
@@ -132,8 +140,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     protected void onResume() {
-        mGoogleApiClient.connect();
-        populateList();
+        if(hasPermission){
+            mGoogleApiClient.connect();
+            populateList();
+        }else{
+            checkPermission();
+        }
         super.onResume();
     }
 
@@ -167,15 +179,56 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return super.onOptionsItemSelected(item);
     }
 
-    private void createGoogleApiClient() {
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
+    private void checkPermission(){
+        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.ACCESS_COARSE_LOCATION);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
+        }else{
+            hasPermission = true;
         }
-        createLocationRequest();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_COARSE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG , "granted permission for location");
+                    hasPermission =  true;
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    Log.i(TAG , "permission for location denied");
+                    Log.e(TAG , "permission for location denied");
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+
+    }
+
+
+    private void createGoogleApiClient() {
+        if(hasPermission) {
+            if (mGoogleApiClient == null) {
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API)
+                        .build();
+            }
+            createLocationRequest();
+        }else{
+            checkPermission();
+        }
     }
 
     protected void createLocationRequest() {
@@ -226,8 +279,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     protected void startLocationUpdates() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
+        if(hasPermission) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
+        }else{
+            checkPermission();
+        }
     }
 
 
@@ -303,8 +360,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        startLocationUpdates();
+        Log.i(TAG , "connected with google api");
+        if(hasPermission){
+            currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            startLocationUpdates();
+        }
     }
 
     @Override
@@ -320,11 +380,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        if (notesExist()) {
-            findNearbyLocations(location);
-        }
-        currentLocation = location;
         Log.i(TAG, "location changed. Accuracy = " + currentLocation.getAccuracy());
+        if(hasPermission) {
+            if (notesExist()) {
+                findNearbyLocations(location);
+            }
+            currentLocation = location;
+        }else{
+            checkPermission();
+        }
     }
 
     private void findNearbyLocations(Location currentLocation) {
