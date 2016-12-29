@@ -45,19 +45,24 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.ArrayList;
 
+import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
+
 public class MainActivity extends AppCompatActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
     static final String TAG = "MAIN_ACTIVITY";
     private static final int MY_PERMISSIONS_REQUEST_COARSE_LOCATION = 0x2;
+    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 0x3;
 
-    public GoogleApiClient mGoogleApiClient;
-    public Location currentLocation;
-    public LocationRequest mLocationRequest;
+    private static GoogleApiClient mGoogleApiClient;
+    private Location currentLocation;
+    private LocationRequest mLocationRequest;
+    private float accuracy;
 
     protected SQLiteDatabase db;
 
-    private Boolean hasPermission = false;
+    private int[] priority = {PRIORITY_BALANCED_POWER_ACCURACY, PRIORITY_HIGH_ACCURACY};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
         populateList();
-        checkPermission();
         createGoogleApiClient();
 //        Log.i(TAG , String.valueOf(Build.VERSION.SDK_INT));
 //        if(Build.VERSION.SDK_INT>22){
@@ -88,11 +92,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         db.execSQL("CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT)");
         final Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES", null);
         ListView list_view = (ListView) findViewById(R.id.list_view);
-        ArrayList<String> list = new ArrayList<>();
+        String[] places = new String[cursor.getCount()];
+        String[] notes = new String[cursor.getCount()];
         while (cursor.moveToNext()) {
-            list.add(cursor.getPosition(), cursor.getString(0));
+            places[cursor.getPosition()] = cursor.getString(0);
+            notes[cursor.getPosition()] = cursor.getString(3);
         }
-        list_view.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, list));
+        PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext() , places, notes);
+        list_view.setAdapter(adapter);
 
         list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -129,23 +136,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     private Boolean notesExist() {
         Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
-        Log.i(TAG, String.valueOf(cursor.getCount()));
         return (cursor.getCount() > 0) ? true : false;
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     protected void onResume() {
-        if(hasPermission){
-            mGoogleApiClient.connect();
-            populateList();
-        }else{
-            checkPermission();
-        }
+        mGoogleApiClient.connect();
+        populateList();
         super.onResume();
     }
 
@@ -179,64 +176,63 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkPermission(){
-        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.ACCESS_COARSE_LOCATION);
-        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
-        }else{
-            hasPermission = true;
-        }
-    }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_COARSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG , "granted permission for location");
-                    hasPermission =  true;
+                    Log.i(TAG, "granted permission for coarse location");
                     // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                    // location-related task you need to do.
 
                 } else {
-                    Log.i(TAG , "permission for location denied");
-                    Log.e(TAG , "permission for location denied");
+                    Log.i(TAG, "permission for location denied");
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
                 return;
             }
+            case MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, "granted permission for fine location");
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
 
-            // other 'case' lines to check for other
-            // permissions this app might request
+                } else {
+                    Log.i(TAG, "permission for location denied");
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+                // other 'case' lines to check for other
+                // permissions this app might request
+            }
         }
-
     }
 
 
     private void createGoogleApiClient() {
-        if(hasPermission) {
-            if (mGoogleApiClient == null) {
-                mGoogleApiClient = new GoogleApiClient.Builder(this)
-                        .addConnectionCallbacks(this)
-                        .addOnConnectionFailedListener(this)
-                        .addApi(LocationServices.API)
-                        .build();
-            }
-            createLocationRequest();
-        }else{
-            checkPermission();
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
         }
+        createLocationRequest();
     }
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setExpirationDuration(1000*60*60*10);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setInterval(60000);
+        mLocationRequest.setFastestInterval(60000);
+        mLocationRequest.setExpirationDuration(1000 * 60 * 60 * 24);
+        mLocationRequest.setPriority(priority[0]);
+        Log.e(TAG, "priority = " + priority[0]);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
@@ -253,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     case LocationSettingsStatusCodes.SUCCESS:
                         // All location settings are satisfied. The client can
                         // initialize location requests here.
-                        Log.e("TAG", "location settings ok");
+                        Log.i(TAG, "location settings ok");
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         // Location settings are not satisfied, but this can be fixed
@@ -279,12 +275,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     protected void startLocationUpdates() {
-        if(hasPermission) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, mLocationRequest, this);
-        }else{
-            checkPermission();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
+
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
     }
 
 
@@ -293,6 +299,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
             intent.putExtra("lat", currentLocation.getLatitude());
             intent.putExtra("lgn", currentLocation.getLongitude());
+            intent.putExtra("accuracy", accuracy);
             startActivity(intent);
         } else {
             Toast.makeText(getApplicationContext(), "merry christmas", Toast.LENGTH_SHORT).show();
@@ -360,11 +367,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG , "connected with google api");
-        if(hasPermission){
-            currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            startLocationUpdates();
-        }
+        Log.i(TAG, "connected with google api");
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
+
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        startLocationUpdates();
     }
 
     @Override
@@ -380,15 +399,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, "location changed. Accuracy = " + currentLocation.getAccuracy());
-        if(hasPermission) {
-            if (notesExist()) {
-                findNearbyLocations(location);
-            }
-            currentLocation = location;
-        }else{
-            checkPermission();
+        currentLocation = location;
+        accuracy = location.getAccuracy();
+        Log.i(TAG, "location changed. Accuracy = " + accuracy);
+        if (notesExist()) {
+            findNearbyLocations(location);
         }
+
     }
 
     private void findNearbyLocations(Location currentLocation) {

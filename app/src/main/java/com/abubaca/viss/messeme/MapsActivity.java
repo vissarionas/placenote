@@ -28,7 +28,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker marker;
     public String placeAddress;
     private Double lat , lgn;
-
+    private float accuracy;
+    private float mapZoom;
 
 
     @Override
@@ -37,8 +38,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         Bundle extras = getIntent().getExtras();
 
-
         latlng = new LatLng(extras.getDouble("lat") , extras.getDouble("lgn"));
+        accuracy = extras.getFloat("accuracy");
+        mapZoom = accuracy < 100 ? 18.0f : 15.0f;
         geocoder = new Geocoder(this, Locale.getDefault());
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -50,8 +52,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng , mapZoom));
+        mMap.addMarker(new MarkerOptions()
+                .position(latlng)
+                .title("You are here"));
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng , 15.0f));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
