@@ -55,8 +55,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private Location currentLocation;
     private LocationRequest mLocationRequest;
     private float accuracy;
+    private IntervalGenerator intervalGenerator;
 
     protected SQLiteDatabase db;
+
+    public  String[] places;
+    public String[] notes;
+
+    public long interval = 20000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         });
 
         db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
+        intervalGenerator = new IntervalGenerator();
 //        Log.i(TAG , String.valueOf(Build.VERSION.SDK_INT));
 //        if(Build.VERSION.SDK_INT>22){
 //            checkPermission();
@@ -84,8 +91,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         db.execSQL("CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT)");
         final Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES", null);
         ListView list_view = (ListView) findViewById(R.id.list_view);
-        String[] places = new String[cursor.getCount()];
-        String[] notes = new String[cursor.getCount()];
+        places = new String[cursor.getCount()];
+        notes = new String[cursor.getCount()];
         while (cursor.moveToNext()) {
             places[cursor.getPosition()] = cursor.getString(0);
             notes[cursor.getPosition()] = cursor.getString(3);
@@ -109,8 +116,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 showEditNoteDialog(cursor.getString(0));
             }
         });
-
-
     }
 
     private void viewReport() {
@@ -134,9 +139,28 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     protected void onResume() {
         Log.i(TAG , "onResume");
-        createGoogleApiClient();
         populateList();
+        createGoogleApiClient();
         super.onResume();
+    }
+
+    private Location[] getPlaceLocations(){
+        Cursor cursor = db.rawQuery("SELECT LAT,LGN FROM PLACENOTES" , null);
+        Location[] placeLocations = new Location[cursor.getCount()];
+        Location singlePlaceLocation = new Location("");
+        Double lat , lgn;
+
+
+        cursor.moveToFirst();
+        if(cursor.getCount()>0){
+            lat = Double.valueOf(cursor.getString(0));
+            lgn = Double.valueOf(cursor.getString(1));
+            singlePlaceLocation.setLatitude(lat);
+            singlePlaceLocation.setLongitude(lgn);
+            placeLocations[cursor.getPosition()] = singlePlaceLocation;
+            Log.i(TAG , "location added to array");
+        }
+        return placeLocations;
     }
 
     @Override
@@ -227,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
+        mLocationRequest.setInterval(interval);
         mLocationRequest.setFastestInterval(4000);
         mLocationRequest.setExpirationDuration(1000 * 60 * 60 * 24);
         mLocationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
@@ -385,6 +409,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onLocationChanged(Location location) {
         currentLocation = location;
+        interval = intervalGenerator.getInterval(currentLocation , getPlaceLocations());
         accuracy = location.getAccuracy();
         Log.i(TAG, "location changed. Accuracy = " + accuracy);
         if (notesExist()) {
