@@ -5,6 +5,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,10 +53,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng , mapZoom));
-        mMap.addMarker(new MarkerOptions()
-                .position(latlng)
-                .title("You are here"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, mapZoom));
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -63,9 +61,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 latlng = point;
                 lat = latlng.latitude;
                 lgn = latlng.longitude;
+
                 List<Address> addresses = new ArrayList<>();
                 try {
-                    addresses = geocoder.getFromLocation(point.latitude, point.longitude,1);
+                    addresses = geocoder.getFromLocation(lat, lgn , 1);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -74,14 +73,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if (address != null) {
                     StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < address.getMaxAddressLineIndex(); i++){
+                    for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
                         sb.append(address.getAddressLine(i) + "\n");
                     }
-
-//                    Toast.makeText(MapsActivity.this, sb.toString(), Toast.LENGTH_LONG).show();
                     placeAddress = sb.toString();
-                    startEditPlaceActivity(lat , lgn , placeAddress);
                 }
+                Toast.makeText(getApplicationContext() , "You clicked on "+placeAddress , Toast.LENGTH_SHORT).show();
 
                 //remove previously placed Marker
                 if (marker != null) {
@@ -89,9 +86,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 //place marker where user just clicked
-                marker = mMap.addMarker(new MarkerOptions().position(point).title("Marker")
+                marker = mMap.addMarker(new MarkerOptions().position(point)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
 
+
+            }
+        });
+
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                latlng = marker.getPosition();
+                lat = latlng.latitude;
+                lgn = latlng.longitude;
+
+                startEditPlaceActivity(lat, lgn, placeAddress);
+
+                return false;
             }
         });
     }
