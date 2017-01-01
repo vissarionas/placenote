@@ -10,6 +10,9 @@ import android.util.Log;
 
 public class IntervalGenerator {
 
+    private long interval;
+    private float distance;
+
     private final String TAG = "INTERVAL_GENERATOR";
 
     public IntervalGenerator() {
@@ -17,10 +20,9 @@ public class IntervalGenerator {
     }
 
     public long getInterval(Location currentLocation , Location[] locations){
-        long interval = 20000;
-        Float distance;
         if(locations.length>0){
             distance = currentLocation.distanceTo(locations[0]);
+            Log.e(TAG , String.valueOf(distance));
             for(int i = 1; i < locations.length ; i++){
                 if(currentLocation.distanceTo(locations[i])<distance){
                     distance = currentLocation.distanceTo(locations[i]);
@@ -29,7 +31,7 @@ public class IntervalGenerator {
             interval = Math.round((long)(distance*30));
         }
 
-        Log.i(TAG , "interval set to "+String.valueOf(interval));
+        Log.i(TAG , "interval set to "+String.valueOf(interval)+" - Closest place was "+String.valueOf(distance)+" far");
         return interval;
     }
 }

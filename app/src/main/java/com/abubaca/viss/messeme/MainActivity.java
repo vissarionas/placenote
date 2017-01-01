@@ -49,20 +49,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
     static final String TAG = "MAIN_ACTIVITY";
     private static final int MY_PERMISSIONS_REQUEST_COARSE_LOCATION = 0x2;
-    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 0x3;
 
     private static GoogleApiClient mGoogleApiClient;
-    private Location currentLocation;
+    static Location currentLocation;
     private LocationRequest mLocationRequest;
     private float accuracy;
     private IntervalGenerator intervalGenerator;
 
     protected SQLiteDatabase db;
 
-    public  String[] places;
-    public String[] notes;
+    public  String[] places , notes;
 
-    public long interval = 20000;
+    public long interval;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,19 +116,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         });
     }
 
-    private void viewReport() {
-        String report = "PLACE : NOTE\r\n\n";
-        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            do {
-                String row = cursor.getString(0) + " : " + cursor.getString(3);
-                report = report.concat(row + "\r\n\n");
-            } while (cursor.moveToNext());
-            Toast.makeText(getApplicationContext(), report, Toast.LENGTH_LONG).show();
-        }
-    }
-
     private Boolean notesExist() {
         Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
         return (cursor.getCount() > 0) ? true : false;
@@ -138,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     protected void onResume() {
+        intervalGenerator = new IntervalGenerator();
         Log.i(TAG , "onResume");
         populateList();
         createGoogleApiClient();
@@ -145,20 +131,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private Location[] getPlaceLocations(){
-        Cursor cursor = db.rawQuery("SELECT LAT,LGN FROM PLACENOTES" , null);
+        Cursor cursor = db.rawQuery("SELECT LAT,LGN FROM PLACENOTES WHERE NOTE NOT LIKE ''" , null);
+        Log.e(TAG , String.valueOf(cursor.getCount()));
         Location[] placeLocations = new Location[cursor.getCount()];
         Location singlePlaceLocation = new Location("");
         Double lat , lgn;
 
-
         cursor.moveToFirst();
         if(cursor.getCount()>0){
-            lat = Double.valueOf(cursor.getString(0));
-            lgn = Double.valueOf(cursor.getString(1));
-            singlePlaceLocation.setLatitude(lat);
-            singlePlaceLocation.setLongitude(lgn);
-            placeLocations[cursor.getPosition()] = singlePlaceLocation;
-            Log.i(TAG , "location added to array");
+            do {
+                lat = Double.valueOf(cursor.getString(0));
+                lgn = Double.valueOf(cursor.getString(1));
+                singlePlaceLocation.setLatitude(lat);
+                singlePlaceLocation.setLongitude(lgn);
+                placeLocations[cursor.getPosition()] = singlePlaceLocation;
+                Log.i(TAG, "location added to array");
+            } while (cursor.moveToNext());
         }
         return placeLocations;
     }
@@ -186,10 +174,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             confirmDropNotes();
             return true;
         }
-        if (id == R.id.action_view_report) {
-            viewReport();
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -211,23 +195,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 }
                 return;
             }
-            case MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG, "granted permission for fine location");
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
-
-                } else {
-                    Log.i(TAG, "permission for location denied");
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-                // other 'case' lines to check for other
-                // permissions this app might request
-            }
         }
     }
 
@@ -246,10 +213,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         }else{
             mGoogleApiClient.connect();
         }
-        createLocationRequest();
     }
 
     protected void createLocationRequest() {
+        Log.i(TAG , "created location requests with interval "+String.valueOf(interval));
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(interval);
         mLocationRequest.setFastestInterval(4000);
@@ -297,9 +264,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     protected void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
             return;
         }
@@ -307,7 +272,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
-
 
     private void startMapActivity() {
         if (currentLocation != null) {
@@ -383,17 +347,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        createLocationRequest();
         Log.i(TAG, "google api connected");
-//            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG , "permission needed");
-//            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
             return;
         }
         currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        startLocationUpdates();
+        if(notesExist()) {
+            startLocationUpdates();
+        }
     }
 
     @Override
@@ -465,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         alertDialog.setTitle("Edit your place note");
         final EditText input = new EditText(MainActivity.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(lp);
         alertDialog.setView(input);
@@ -478,10 +442,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         db.execSQL("UPDATE PLACENOTES SET NOTE='"+input.getText().toString()+"' WHERE PLACE='"+placeName+"'");
-                        if(!notesExist()){
-                            if(mGoogleApiClient.isConnected()){
-                                mGoogleApiClient.disconnect();                            }
-                        }
+                        populateList();
+//                        if(!notesExist()){
+//                            if(mGoogleApiClient.isConnected()){
+//                                mGoogleApiClient.disconnect();                            }
+//                        }
                     }
                 });
 
@@ -494,7 +459,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         alertDialog.show();
     }
-
 }
 
 
