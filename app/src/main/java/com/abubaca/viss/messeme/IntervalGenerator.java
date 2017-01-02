@@ -1,8 +1,9 @@
 package com.abubaca.viss.messeme;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.util.Log;
+
+import java.util.List;
 
 /**
  * Created by viss on 31/12/2016.
@@ -10,28 +11,30 @@ import android.util.Log;
 
 public class IntervalGenerator {
 
-    private long interval;
-    private float distance;
+    private static long interval;
+    private static float smallestDistance;
 
-    private final String TAG = "INTERVAL_GENERATOR";
+    private final static String TAG = "INTERVAL_GENERATOR";
 
     public IntervalGenerator() {
         Log.i(TAG , "IntervalGenerator object created");
     }
 
-    public long getInterval(Location currentLocation , Location[] locations){
-        if(locations.length>0){
-            distance = currentLocation.distanceTo(locations[0]);
-            Log.e(TAG , String.valueOf(distance));
-            for(int i = 1; i < locations.length ; i++){
-                if(currentLocation.distanceTo(locations[i])<distance){
-                    distance = currentLocation.distanceTo(locations[i]);
+    public long getInterval(Location currentLocation , List<Location> locations){
+        if(locations.size()>0){
+            smallestDistance = currentLocation.distanceTo(locations.get(0));
+            Log.e(TAG , "First place distance = "+String.valueOf(smallestDistance));
+            for(int i = 0; i < locations.size() ; i++){
+                Log.e(TAG , i+" "+locations.get(i).toString());
+                if(currentLocation.distanceTo(locations.get(i))<smallestDistance){
+                    smallestDistance = currentLocation.distanceTo(locations.get(i));
+                    Log.e(TAG , "Distance = "+String.valueOf(smallestDistance));
                 }
             }
-            interval = Math.round((long)(distance*30));
+            interval = (int)(smallestDistance*40);
         }
 
-        Log.i(TAG , "interval set to "+String.valueOf(interval)+" - Closest place was "+String.valueOf(distance)+" far");
+        Log.i(TAG , "interval set to "+String.valueOf(interval)+" - Closest place was "+String.valueOf(smallestDistance)+" far");
         return interval;
     }
 }

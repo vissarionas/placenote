@@ -14,10 +14,10 @@ import android.widget.TextView;
 
 public class PlaceNoteAdapter extends BaseAdapter {
 
-    private Context context;
-    private String[] place , note;
-    private LayoutInflater layoutInflater;
-    TextView placeText , noteText;
+    private static Context context;
+    private static String[] place , note;
+    private static LayoutInflater layoutInflater;
+    private static TextView placeText , noteText;
 
     public PlaceNoteAdapter(Context context , String[] place , String[] note){
         this.context = context;
