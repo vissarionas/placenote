@@ -1,10 +1,20 @@
 package com.abubaca.viss.messeme;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,23 +41,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Double lat , lgn;
     private float accuracy;
     private float mapZoom;
+    private Button addPlaceButton;
+    private DBHandler dbHandler;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        dbHandler = new DBHandler(getApplicationContext());
+        addPlaceButton = (Button)findViewById(R.id.add_place_button);
         Bundle extras = getIntent().getExtras();
 
         latlng = new LatLng(extras.getDouble("lat") , extras.getDouble("lgn"));
         accuracy = extras.getFloat("accuracy");
-        mapZoom = accuracy < 100 ? 18.0f : 15.0f;
-        geocoder = new Geocoder(this, Locale.getDefault());
+        mapZoom = accuracy < 100 ? 19.0f : 15.0f;
+        geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
     }
 
     @Override
@@ -68,7 +81,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
                 android.location.Address address = addresses.get(0);
 
                 if (address != null) {
@@ -77,8 +89,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         sb.append(address.getAddressLine(i) + "\n");
                     }
                     placeAddress = sb.toString();
+                    addPlaceButton.setVisibility(View.VISIBLE);
+                    addPlaceButton.setText("add place "+ placeAddress);
                 }
-                Toast.makeText(getApplicationContext() , "You clicked on "+placeAddress , Toast.LENGTH_SHORT).show();
 
                 //remove previously placed Marker
                 if (marker != null) {
@@ -97,23 +110,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                latlng = marker.getPosition();
-                lat = latlng.latitude;
-                lgn = latlng.longitude;
-
-                startEditPlaceActivity(lat, lgn, placeAddress);
-
+                if (marker != null) {
+                    marker.remove();
+                }
                 return false;
+            }
+        });
+
+        addPlaceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addPlaceDialog(lat, lgn);
             }
         });
     }
 
-    private void startEditPlaceActivity(Double lat, Double lgn , String address){
-        Intent intent = new Intent(MapsActivity.this, EditPlace.class);
-        intent.putExtra("lat" , lat);
-        intent.putExtra("lgn" , lgn);
-        intent.putExtra("address" , address);
-        startActivity(intent);
-        this.finish();
+    private void addPlaceDialog(final Double lat , final Double lgn){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage("Name your place.");
+
+        final EditText nameEditText = new EditText(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        nameEditText.setLayoutParams(params);
+        alertDialog.setView(nameEditText);
+        alertDialog.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(!nameEditText.getText().toString().isEmpty()){
+                            dbHandler.insertToDb(dbHandler , nameEditText.getText().toString() , String.valueOf(lat) , String.valueOf(lgn) , "");
+                            MapsActivity.this.finish();
+                        }
+                    }
+                });
+        alertDialog.show();
+
     }
 }

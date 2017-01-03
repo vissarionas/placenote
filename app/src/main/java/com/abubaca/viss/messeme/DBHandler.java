@@ -1,5 +1,6 @@
 package com.abubaca.viss.messeme;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.util.Log;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -18,11 +20,11 @@ import java.util.Objects;
 public class DBHandler extends SQLiteOpenHelper {
 
     private static int databaseVersion = 1;
-    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT REAL , LGN REAL , NOTE TEXT)";
+    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT)";
 
     private static SQLiteDatabase db;
     private final static String TAG = "DBHandler";
-    private Cursor cursor;
+    public Cursor cursor;
 
     public DBHandler(Context context) {
         super(context, "messeme" , null , databaseVersion);
@@ -32,7 +34,6 @@ public class DBHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(createTableQuery);
-        Log.i(TAG , "created table!!!");
     }
 
     private final void dbInit(DBHandler dbHandler){
@@ -81,26 +82,6 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("UPDATE PLACENOTES SET PLACE='"+newName+"' WHERE PLACE='"+place+"'");
     }
 
-    public void updatePlaceLocation(DBHandler dbHandler , String place , Location newLocation){
-        dbInit(dbHandler);
-        Double lat , lgn;
-        lat = newLocation.getLatitude();
-        lgn = newLocation.getLongitude();
-        db.execSQL("UPDATE PLACENOTES SET LAT='"+String.valueOf(lat)+"', LGN='"+String.valueOf(lgn)+"' WHERE PLACE='"+place+"'");
-    }
-
-    public List<String> getPlaces(DBHandler dbHandler){
-        dbInit(dbHandler);
-        List<String> places = new ArrayList<>();
-        if(cursor.getCount()>0) {
-            cursor.moveToFirst();
-            while (cursor.moveToNext()) {
-                places.add(cursor.getPosition(), cursor.getString(0));
-            }
-        }
-        return places;
-    }
-
     public List<PlaceNote> getPlaceNotes(DBHandler dbHandler){
         dbInit(dbHandler);
         List<PlaceNote> placeNotes = new ArrayList<>();
@@ -113,30 +94,24 @@ public class DBHandler extends SQLiteOpenHelper {
         return placeNotes;
     }
 
-    public Cursor getPlaceNotesCursor(DBHandler dbHandler){
-        dbInit(dbHandler);
-        return cursor;
-    }
-
     public List<Location> getNotesLocations(DBHandler dbHandler){
         dbInit(dbHandler);
-        List<Location> placeLocations = new ArrayList<>();
         Double lat , lgn;
-
-        cursor.moveToFirst();
+        List<Location> placeLocations = new ArrayList<>();
 
         if(cursor.getCount()>0){
-            for (int i = 0 ; i < cursor.getCount() ; i++) {
-                Location singlePlaceLocation = new Location("");
-                lat = Double.valueOf(cursor.getString(1));
-                lgn = Double.valueOf(cursor.getString(2));
-                singlePlaceLocation.setLatitude(lat);
-                singlePlaceLocation.setLongitude(lgn);
+            do{
+                if(!cursor.getString(3).isEmpty()) {
+                    Location singlePlaceLocation = new Location("");
+                    lat = Double.valueOf(cursor.getString(1));
+                    lgn = Double.valueOf(cursor.getString(2));
+                    singlePlaceLocation.setLatitude(lat);
+                    singlePlaceLocation.setLongitude(lgn);
 
-                placeLocations.add(singlePlaceLocation);
-
-                Log.i(TAG, "location added to array " + cursor.getPosition() + " " + singlePlaceLocation);
-            }
+                    placeLocations.add(singlePlaceLocation);
+                    Log.i(TAG, "location added to array " + cursor.getPosition() + " " + singlePlaceLocation);
+                }
+            }while(cursor.moveToNext());
         }
         return placeLocations;
     }
@@ -152,6 +127,29 @@ public class DBHandler extends SQLiteOpenHelper {
             }while(cursor.moveToNext());
         }
         return note;
+    }
+
+    public String getPlaceFromLocation(DBHandler dbHandler , Location location){
+        dbInit(dbHandler);
+        String place = "";
+        DecimalFormat df = new DecimalFormat("#.####");
+        String lat = String.valueOf(df.format(location.getLatitude()));
+        String lgn = String.valueOf(df.format(location.getLongitude()));
+        Log.i(TAG , String.valueOf(df.format(location.getLongitude())));
+        Log.i(TAG , String.valueOf(df.format(location.getLatitude())));
+        if(cursor.getCount()>0){
+            do {
+                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lgn)){
+                    place = cursor.getString(0);
+                }
+            }while(cursor.moveToNext());
+        }
+        return place;
+    }
+
+    public Cursor getFullCursor(DBHandler dbHandler){
+        dbInit(dbHandler);
+        return this.cursor;
     }
 
     public int noteCounter(DBHandler dbHandler){

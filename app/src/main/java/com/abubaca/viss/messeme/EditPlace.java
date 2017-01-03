@@ -1,9 +1,13 @@
 package com.abubaca.viss.messeme;
 
+import android.content.DialogInterface;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -12,61 +16,110 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class EditPlace extends AppCompatActivity {
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-    private EditText editPlace;
+public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
+
+    private DBHandler dbHandler;
+    private Cursor cursor;
     private String placeName;
-    private TextView addressView;
-    private String address;
-    private Double lat ,lgn;
-    protected SQLiteDatabase db;
-    protected View mView;
-
+    private TextView placeView , coordinatesView;
+    private Double lat , lgn;
+    private GoogleMap mMap;
+    private Marker marker;
+    private Button deleteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_place);
 
-        Bundle bundle = new Bundle(getIntent().getExtras());
-        address = bundle.getString("address");
-        lat = bundle.getDouble("lat");
-        lgn = bundle.getDouble("lgn");
+        dbHandler = new DBHandler(getApplicationContext());
+        cursor = dbHandler.getFullCursor(dbHandler);
+        placeName = getIntent().getStringExtra("placeName");
+        placeView = (TextView)findViewById(R.id.place_view);
+        coordinatesView = (TextView)findViewById(R.id.coordinates_view);
+        deleteButton = (Button)findViewById(R.id.delete_button);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
-        editPlace = (EditText) findViewById(R.id.edit_place);
-        addressView = (TextView)findViewById(R.id.address);
+    }
 
-        addressView.setText(address);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+    @Override
+    protected void onResume() {
+        placeView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                mView = view;
-                writeToDatabase();
+            public void onClick(View v) {
+                showEditPlaceDialog(placeName);
             }
         });
-    }
-
-    private void writeToDatabase(){
-        placeName = editPlace.getText().toString();
-        if(!TextUtils.isEmpty(placeName)) {
-            String stringsForInsert = "'" + placeName + "','" + String.valueOf(lat) + "' , '" + String.valueOf(lgn) + "' , ''";
-            db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-            db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LGN,NOTE) VALUES ("+stringsForInsert+")");
-//            db.execSQL("CREATE TABLE IF NOT EXISTS PLACES(NAME TEXT, LAT TEXT , LGN TEXT)");
-//            db.execSQL("INSERT INTO PLACES (NAME,LAT,LGN) VALUES (" + stringsForInsert + ")");
-            finish();
-        }else{
-            Snackbar.make(mView, "set a place name", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dbHandler.deletePlace(dbHandler , placeName);
+                EditPlace.this.finish();
+            }
+        });
+        cursor.moveToFirst();
+        if(cursor.getCount()>0){
+            do{
+                if(cursor.getString(0).contentEquals(placeName)){
+                    placeView.setText(cursor.getString(0));
+                    coordinatesView.setText(cursor.getString(1)+" - "+cursor.getString(2));
+                    lat = cursor.getDouble(1);
+                    lgn = cursor.getDouble(2);
+                }
+            }while(cursor.moveToNext());
         }
+        super.onResume();
+
     }
 
+    private void showEditPlaceDialog(final String place){
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage("Change place name.");
+
+        final EditText nameEditText = new EditText(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        nameEditText.setLayoutParams(params);
+        nameEditText.setText(place);
+        alertDialog.setView(nameEditText);
+        alertDialog.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dbHandler.updatePlaceName(dbHandler, place , nameEditText.getText().toString());
+                        placeView.setText(nameEditText.getText().toString());
+                    }
+                });
+        alertDialog.show();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat , lgn), 17.0f));
+        //remove previously placed Marker
+        if (marker != null) {
+            marker.remove();
+        }
+
+        //place marker where user just clicked
+        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lgn))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+    }
 }

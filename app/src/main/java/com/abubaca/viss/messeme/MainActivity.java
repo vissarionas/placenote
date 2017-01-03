@@ -3,6 +3,7 @@ package com.abubaca.viss.messeme;
 import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -24,8 +25,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +45,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,46 +70,40 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     private DBHandler dbHandler;
 
+    private TextView noPlacesTextview;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        noPlacesTextview = (TextView)findViewById(R.id.no_places_textview);
         dbHandler = new DBHandler(getApplicationContext());
-
-//        dbHandler.insertToDb(dbHandler , "home" , "27.35" , "34.28" , "this is a note");
-//        dbHandler.insertToDb(dbHandler , "buddy" , "27.35" , "34.28" , "this is another note");
-//        dbHandler.insertToDb(dbHandler , "work" , "27.35" , "34.28" , "this is a third note");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                noPlacesTextview.setVisibility(View.INVISIBLE);
                 startMapActivity();
             }
         });
         intervalGenerator = new IntervalGenerator();
-//        Log.i(TAG , String.valueOf(Build.VERSION.SDK_INT));
-//        if(Build.VERSION.SDK_INT>22){
-//            checkPermission();
-//        }
     }
 
     private void populateList() {
-//        final Cursor cursor = db.rawQuery("SELECT PLACE,NOTE FROM PLACENOTES", null);
-//        places = new String[cursor.getCount()];
-//        notes = new String[cursor.getCount()];
-//        while (cursor.moveToNext()) {
-//            places[cursor.getPosition()] = cursor.getString(0);
-//            notes[cursor.getPosition()] = cursor.getString(1);
-//        }
+        List<PlaceNote> placeNotes= dbHandler.getPlaceNotes(dbHandler);
         ListView list_view = (ListView) findViewById(R.id.list_view);
-        final PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext() , dbHandler.getPlaceNotes(dbHandler));
+        if(placeNotes.size()==0) {
+            noPlacesTextview.setVisibility(View.VISIBLE);
+            noPlacesTextview.setText("You have no places in your placelist.\nHit the bottom-right button and find your first place");
+        }
+        final PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
         list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                confirmDropPlace(adapter.getPlace(position));
+                startEditPlaceActivity(adapter.getPlace(position));
                 populateList();
                 return true;
             }
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                editNote(adapter.getPlace(position).toString());
+                viewNote(adapter.getPlace(position));
                 populateList();
             }
         });
@@ -122,13 +122,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     protected void onResume() {
-        dbHandler.deleteDb(dbHandler);
-        dbHandler.insertToDb(dbHandler , "home" , "27.35" , "34.28" , "this is a note");
-        dbHandler.insertToDb(dbHandler , "buddy" , "27.35" , "34.28" , "");
-        dbHandler.insertToDb(dbHandler , "work" , "27.35" , "34.28" , "this is a third note");
-        dbHandler.insertToDb(dbHandler , "coffee shop" , "27.24" , "34.28" , "");
-        dbHandler.insertToDb(dbHandler , "mountain" , "27.35" , "34.28" , "this is another note");
-
         dbHandler.noteCounter(dbHandler);
         intervalGenerator = new IntervalGenerator();
         Log.i(TAG , "onResume");
@@ -322,30 +315,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     private void confirmDropNote(final String placeName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you want to delete all notes?")
+        builder.setMessage("Are you sure you want to delete "+placeName+" note?")
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.updateNote(dbHandler , placeName , "");
-                        populateList();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-
-    private void confirmDropPlace(final String place) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you want to delete this place?")
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.deletePlace(dbHandler , place);
                         populateList();
                     }
                 })
@@ -363,7 +337,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         createLocationRequest();
         Log.i(TAG, "google api connected");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG , "permission needed");
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
             return;
         }
@@ -393,34 +366,33 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         accuracy = location.getAccuracy();
         Log.i(TAG, "location changed. Accuracy = " + accuracy);
         if(dbHandler.noteCounter(dbHandler)>0) {
-            //findNearbyLocations(location);
+            findNearbyLocations(location);
         }
 
     }
 
-//    private void findNearbyLocations(Location currentLocation) {
-//        Location noteLocation = new Location("");
-//        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
-//        cursor.moveToFirst();
-//        if (cursor.getCount()>0) {
-//            while(cursor.moveToNext()){
-//                noteLocation.setLatitude(Double.valueOf(cursor.getString(1)));
-//                noteLocation.setLongitude(Double.valueOf(cursor.getString(2)));
-//                float distance = noteLocation.distanceTo(currentLocation);
-//                if (distance < 100 && currentLocation.getAccuracy()<300) {
-//                    showNotification(cursor.getString(0), cursor.getString(3));
-//                }
-//            }
-//        }
-//        cursor.close();
-//    }
+    private void findNearbyLocations(Location currentLocation) {
+        List<Location> noteLocations = dbHandler.getNotesLocations(dbHandler);
+        if(noteLocations.size()>0){
+            for(int i =0 ; i < noteLocations.size() ; i++){
+                float distance = noteLocations.get(i).distanceTo(currentLocation);
+                Log.i(TAG , "DISTANCE: "+distance);
+                if (distance<100 && currentLocation.getAccuracy()<300) {
+                    showNotification(dbHandler.getPlaceFromLocation(dbHandler , noteLocations.get(i)));
+                }
+            }
+        }
 
-    private void showNotification(String place, String note) {
+
+
+    }
+
+    private void showNotification(String place) {
         NotificationCompat.Builder mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.notification_icon)
                         .setContentTitle(place)
-                        .setContentText(note)
+                        .setContentText(dbHandler.getPlaceNote(dbHandler , place))
                         .setOnlyAlertOnce(true)
                         .setTicker("this is a ticker");
         Intent resultIntent = new Intent(this, MainActivity.class);
@@ -445,26 +417,34 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
-    private void editNote(final String placeName){
+    private void viewNote(final String placeName){
         LayoutInflater inflater = getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
+        editView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setView(editView);
 
-        Button btnEdit , btnDelete , btnOk;
+        Button btnDelete , btnOk;
         final TextView placeTextView, noteTextView;
-        btnEdit = (Button)editView.findViewById(R.id.btn_edit);
         btnDelete = (Button)editView.findViewById(R.id.btn_delete);
+        if(dbHandler.getPlaceNote(dbHandler, placeName).isEmpty()){
+            btnDelete.setVisibility(View.INVISIBLE);
+        }
         btnOk = (Button)editView.findViewById(R.id.btn_ok);
         placeTextView = (TextView)editView.findViewById(R.id.place_text_view);
         noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
 
-        btnEdit.setOnClickListener(new View.OnClickListener() {
+        noteTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                editNoteDialog(placeName);
+                alertDialog.dismiss();
             }
         });
+
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -476,15 +456,48 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onResume();
                 alertDialog.dismiss();
             }
         });
 
         placeTextView.setText(placeName);
-        noteTextView.setText(dbHandler.getPlaceNote(dbHandler , placeName));
+        String note = dbHandler.getPlaceNote(dbHandler , placeName);
+        if(!note.isEmpty()) {
+            noteTextView.setText(note);
+        }
 
         alertDialog.show();
 
+    }
+
+    private void editNoteDialog(final String place){
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage("Write a note.");
+
+        final EditText noteEditText = new EditText(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        noteEditText.setLayoutParams(params);
+        noteEditText.setText(dbHandler.getPlaceNote(dbHandler, place));
+        alertDialog.setView(noteEditText);
+        alertDialog.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dbHandler.updateNote(dbHandler, place , noteEditText.getText().toString());
+                        populateList();
+                        MainActivity.this.onResume();
+                    }
+                });
+        alertDialog.show();
+    }
+
+    private void startEditPlaceActivity(String placeName){
+        Intent intent = new Intent(MainActivity.this, EditPlace.class);
+        intent.putExtra("placeName" , placeName);
+        startActivity(intent);
     }
 }
 
