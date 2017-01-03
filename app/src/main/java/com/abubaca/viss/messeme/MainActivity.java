@@ -26,10 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +42,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
-import java.io.LineNumberInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,11 +60,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private float accuracy;
     private IntervalGenerator intervalGenerator;
 
-    protected SQLiteDatabase db;
-
-    public static String[] places , notes;
-
     public long interval;
+
+    private DBHandler dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        dbHandler = new DBHandler(getApplicationContext());
+
+//        dbHandler.insertToDb(dbHandler , "home" , "27.35" , "34.28" , "this is a note");
+//        dbHandler.insertToDb(dbHandler , "buddy" , "27.35" , "34.28" , "this is another note");
+//        dbHandler.insertToDb(dbHandler , "work" , "27.35" , "34.28" , "this is a third note");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -84,9 +83,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 startMapActivity();
             }
         });
-
-        db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT)");
         intervalGenerator = new IntervalGenerator();
 //        Log.i(TAG , String.valueOf(Build.VERSION.SDK_INT));
 //        if(Build.VERSION.SDK_INT>22){
@@ -95,76 +91,50 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void populateList() {
-        final Cursor cursor = db.rawQuery("SELECT PLACE,NOTE FROM PLACENOTES", null);
-        places = new String[cursor.getCount()];
-        notes = new String[cursor.getCount()];
-        while (cursor.moveToNext()) {
-            places[cursor.getPosition()] = cursor.getString(0);
-            notes[cursor.getPosition()] = cursor.getString(1);
-        }
+//        final Cursor cursor = db.rawQuery("SELECT PLACE,NOTE FROM PLACENOTES", null);
+//        places = new String[cursor.getCount()];
+//        notes = new String[cursor.getCount()];
+//        while (cursor.moveToNext()) {
+//            places[cursor.getPosition()] = cursor.getString(0);
+//            notes[cursor.getPosition()] = cursor.getString(1);
+//        }
         ListView list_view = (ListView) findViewById(R.id.list_view);
-        PlaceNoteAdapter adapter = new PlaceNoteAdapter(getBaseContext() , places, notes);
-        list_view.setAdapter(adapter);
-
-
+        final PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext() , dbHandler.getPlaceNotes(dbHandler));
         list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                cursor.moveToPosition(position);
-                confirmDropPlace(cursor.getString(0));
+                confirmDropPlace(adapter.getPlace(position));
                 populateList();
                 return true;
             }
         });
 
+        list_view.setAdapter(adapter);
+
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                cursor.moveToPosition(position);
-//                showEditNoteDialog(cursor.getString(0));
-                editNote(cursor.getString(0));
+                editNote(adapter.getPlace(position).toString());
                 populateList();
             }
         });
-        cursor.moveToFirst();
-    }
-
-    private Boolean notesExist() {
-        Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
-        return (cursor.getCount() > 0) ? true : false;
     }
 
     @Override
     protected void onResume() {
+        dbHandler.deleteDb(dbHandler);
+        dbHandler.insertToDb(dbHandler , "home" , "27.35" , "34.28" , "this is a note");
+        dbHandler.insertToDb(dbHandler , "buddy" , "27.35" , "34.28" , "");
+        dbHandler.insertToDb(dbHandler , "work" , "27.35" , "34.28" , "this is a third note");
+        dbHandler.insertToDb(dbHandler , "coffee shop" , "27.24" , "34.28" , "");
+        dbHandler.insertToDb(dbHandler , "mountain" , "27.35" , "34.28" , "this is another note");
+
+        dbHandler.noteCounter(dbHandler);
         intervalGenerator = new IntervalGenerator();
         Log.i(TAG , "onResume");
         populateList();
         createGoogleApiClient();
         super.onResume();
-    }
-
-    private List<Location> getPlaceLocations(){
-        Cursor cursor = db.rawQuery("SELECT LAT,LGN FROM PLACENOTES WHERE NOTE NOT LIKE ''" , null);
-        List<Location> placeLocations = new ArrayList<>();
-        Double lat , lgn;
-
-        cursor.moveToFirst();
-
-        if(cursor.getCount()>0){
-            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                Location singlePlaceLocation = new Location("");
-                lat = Double.valueOf(cursor.getString(0));
-                lgn = Double.valueOf(cursor.getString(1));
-                singlePlaceLocation.setLatitude(lat);
-                singlePlaceLocation.setLongitude(lgn);
-
-                placeLocations.add(singlePlaceLocation);
-
-                Log.i(TAG, "location added to array " + cursor.getPosition() + " " + singlePlaceLocation);
-            }
-            cursor.close();
-        }
-        return placeLocations;
     }
 
     @Override
@@ -217,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     protected void onPause() {
         super.onPause();
-        if(!notesExist()){
+        if(dbHandler.noteCounter(dbHandler)==0){
             if(mGoogleApiClient.isConnected()){
                 mGoogleApiClient.disconnect();
                 Log.i(TAG , "onPause() google api client disconected");
@@ -318,12 +288,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-//                        db.execSQL("DROP TABLE IF EXISTS PLACES");
-                        db.execSQL("DROP TABLE IF EXISTS PLACENOTES");
+                        dbHandler.deleteDb(dbHandler);
                         populateList();
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -338,12 +307,30 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-//                        db.execSQL("DELETE FROM NOTES");
-                        db.execSQL("UPDATE PLACENOTES SET NOTE=''");
+                        dbHandler.deleteNotes(dbHandler);
                         populateList();
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void confirmDropNote(final String placeName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to delete all notes?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dbHandler.updateNote(dbHandler , placeName , "");
+                        populateList();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -358,11 +345,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        db.delete("PLACENOTES", "PLACE='" + place + "'", null);
+                        dbHandler.deletePlace(dbHandler , place);
                         populateList();
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -381,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             return;
         }
         currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if(notesExist()) {
+        if(dbHandler.noteCounter(dbHandler)>0) {
             startLocationUpdates();
         }
     }
@@ -399,34 +386,34 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onLocationChanged(Location location) {
         currentLocation = location;
-        interval = intervalGenerator.getInterval(currentLocation , getPlaceLocations());
+        interval = intervalGenerator.getInterval(currentLocation , dbHandler.getNotesLocations(dbHandler));
         if(interval<3000){
             interval = 3000;
         }
         accuracy = location.getAccuracy();
         Log.i(TAG, "location changed. Accuracy = " + accuracy);
-        if (notesExist()) {
-            findNearbyLocations(location);
+        if(dbHandler.noteCounter(dbHandler)>0) {
+            //findNearbyLocations(location);
         }
 
     }
 
-    private void findNearbyLocations(Location currentLocation) {
-        Location noteLocation = new Location("");
-        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
-        cursor.moveToFirst();
-        if (cursor.getCount()>0) {
-            while(cursor.moveToNext()){
-                noteLocation.setLatitude(Double.valueOf(cursor.getString(1)));
-                noteLocation.setLongitude(Double.valueOf(cursor.getString(2)));
-                float distance = noteLocation.distanceTo(currentLocation);
-                if (distance < 100 && currentLocation.getAccuracy()<300) {
-                    showNotification(cursor.getString(0), cursor.getString(3));
-                }
-            }
-        }
-        cursor.close();
-    }
+//    private void findNearbyLocations(Location currentLocation) {
+//        Location noteLocation = new Location("");
+//        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
+//        cursor.moveToFirst();
+//        if (cursor.getCount()>0) {
+//            while(cursor.moveToNext()){
+//                noteLocation.setLatitude(Double.valueOf(cursor.getString(1)));
+//                noteLocation.setLongitude(Double.valueOf(cursor.getString(2)));
+//                float distance = noteLocation.distanceTo(currentLocation);
+//                if (distance < 100 && currentLocation.getAccuracy()<300) {
+//                    showNotification(cursor.getString(0), cursor.getString(3));
+//                }
+//            }
+//        }
+//        cursor.close();
+//    }
 
     private void showNotification(String place, String note) {
         NotificationCompat.Builder mBuilder =
@@ -458,49 +445,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
-    private void showEditNoteDialog(final String placeName) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-        alertDialog.setTitle("Edit your place note");
-        final EditText input = new EditText(MainActivity.this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-        alertDialog.setView(input);
-        final Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE PLACE='"+placeName+"'" ,null);
-        if(cursor.getCount()>0) {
-            cursor.moveToFirst();
-            input.setText(cursor.getString(0));
-        }
-        alertDialog.setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        db.execSQL("UPDATE PLACENOTES SET NOTE='"+input.getText().toString()+"' WHERE PLACE='"+placeName+"'");
-                    }
-                });
-
-        alertDialog.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-        alertDialog.show();
-    }
-
-
     private void editNote(final String placeName){
-        LayoutInflater inflater = (LayoutInflater)this.getSystemService(LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setView(editView);
+
         Button btnEdit , btnDelete , btnOk;
-        TextView placeTextView, noteTextView;
+        final TextView placeTextView, noteTextView;
         btnEdit = (Button)editView.findViewById(R.id.btn_edit);
         btnDelete = (Button)editView.findViewById(R.id.btn_delete);
         btnOk = (Button)editView.findViewById(R.id.btn_ok);
         placeTextView = (TextView)editView.findViewById(R.id.place_text_view);
         noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
+
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -510,26 +468,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.execSQL("UPDATE PLACENOTES SET NOTE='' WHERE PLACE = '"+placeName+"'");
+                confirmDropNote(placeName);
                 populateList();
-
+                alertDialog.dismiss();
             }
         });
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                alertDialog.dismiss();
             }
         });
+
         placeTextView.setText(placeName);
-        final Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE PLACE='"+placeName+"'" ,null);
-        if(cursor.getCount()>0) {
-            cursor.moveToFirst();
-            noteTextView.setText(cursor.getString(0));
-        }
+        noteTextView.setText(dbHandler.getPlaceNote(dbHandler , placeName));
 
-
-        alertDialog.setView(editView);
         alertDialog.show();
 
     }
