@@ -1,6 +1,7 @@
 package com.abubaca.viss.messeme;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -10,7 +11,10 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.location.Location;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -71,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private DBHandler dbHandler;
 
     private TextView noPlacesTextview;
+    private Boolean notificationSuccess = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +83,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         noPlacesTextview = (TextView)findViewById(R.id.no_places_textview);
+        noPlacesTextview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                noPlacesTextview.setVisibility(View.INVISIBLE);
+                startMapActivity();
+            }
+        });
         dbHandler = new DBHandler(getApplicationContext());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -97,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         ListView list_view = (ListView) findViewById(R.id.list_view);
         if(placeNotes.size()==0) {
             noPlacesTextview.setVisibility(View.VISIBLE);
-            noPlacesTextview.setText("You have no places in your placelist.\nHit the bottom-right button and find your first place");
+            noPlacesTextview.setText("You have no places in your placelist.\n\nClick this or the compass button and set your first place");
         }
         final PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
         list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -122,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     protected void onResume() {
+        String placeName = getIntent().getStringExtra("placeName");
+        if(placeName!=null){
+            viewNote(placeName);
+        }
         dbHandler.noteCounter(dbHandler);
         intervalGenerator = new IntervalGenerator();
         Log.i(TAG , "onResume");
@@ -377,8 +394,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             for(int i =0 ; i < noteLocations.size() ; i++){
                 float distance = noteLocations.get(i).distanceTo(currentLocation);
                 Log.i(TAG , "DISTANCE: "+distance);
-                if (distance<100 && currentLocation.getAccuracy()<300) {
-                    showNotification(dbHandler.getPlaceFromLocation(dbHandler , noteLocations.get(i)));
+                if (distance<50) {
+                    if(!notificationSuccess) {
+                        showNotification(dbHandler.getPlaceFromLocation(dbHandler, noteLocations.get(i)));
+                    }
                 }
             }
         }
@@ -388,15 +407,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void showNotification(String place) {
+        notificationSuccess = true;
+        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.notification_icon)
                         .setContentTitle(place)
                         .setContentText(dbHandler.getPlaceNote(dbHandler , place))
-                        .setOnlyAlertOnce(true)
-                        .setTicker("this is a ticker");
+                        .setAutoCancel(true)
+                        .setContentInfo("messeme")
+                        .setLights(Color.GREEN , 1000 , 3000)
+                        .setSound(sound);
+
         Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
         resultIntent.putExtra("placeName", place);
+        resultIntent.putExtra("NotificationSuccess" , true);
 
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -406,14 +434,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
         mBuilder.setContentIntent(resultPendingIntent);
-        mBuilder.setAutoCancel(true);
 
-//        Sets an ID for the notification
+
         int mNotificationId = 001;
-//        Gets an instance of the NotificationManager service
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        Builds the notification and issues it.
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 

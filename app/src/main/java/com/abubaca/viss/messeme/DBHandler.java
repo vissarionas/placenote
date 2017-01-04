@@ -132,13 +132,15 @@ public class DBHandler extends SQLiteOpenHelper {
     public String getPlaceFromLocation(DBHandler dbHandler , Location location){
         dbInit(dbHandler);
         String place = "";
-        DecimalFormat df = new DecimalFormat("#.####");
-        String lat = String.valueOf(df.format(location.getLatitude()));
-        String lgn = String.valueOf(df.format(location.getLongitude()));
-        Log.i(TAG , String.valueOf(df.format(location.getLongitude())));
-        Log.i(TAG , String.valueOf(df.format(location.getLatitude())));
+        //DecimalFormat df = new DecimalFormat("#.####");
+        //then use with df.format(Double goes here)
+        String lat = String.valueOf(location.getLatitude());
+        String lgn = String.valueOf(location.getLongitude());
+        Log.i(TAG , String.valueOf(location.getLongitude()));
+        Log.i(TAG , String.valueOf(location.getLatitude()));
         if(cursor.getCount()>0){
             do {
+                Log.i(TAG , "cursor lat / lgn"+cursor.getString(1)+ " - "+ cursor.getString(2));
                 if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lgn)){
                     place = cursor.getString(0);
                 }

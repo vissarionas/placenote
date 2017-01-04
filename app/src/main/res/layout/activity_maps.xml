@@ -11,7 +11,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/add_place_button"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textAlignment="center"
+        android:textAllCaps="false"/>
 
     <fragment
         android:id="@+id/map"

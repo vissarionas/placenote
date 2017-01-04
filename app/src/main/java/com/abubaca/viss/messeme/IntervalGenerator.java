@@ -11,7 +11,7 @@ import java.util.List;
 
 public class IntervalGenerator {
 
-    private static long interval;
+    private static long interval = 10000;
     private static float smallestDistance;
 
     private final static String TAG = "INTERVAL_GENERATOR";
@@ -31,7 +31,9 @@ public class IntervalGenerator {
                     Log.e(TAG , "Distance = "+String.valueOf(smallestDistance));
                 }
             }
-            interval = (int)(smallestDistance*40);
+            if(smallestDistance*40>interval) {
+                interval = (int) (smallestDistance * 40);
+            }
         }
 
         Log.i(TAG , "interval set to "+String.valueOf(interval)+" - Closest place was "+String.valueOf(smallestDistance)+" far");

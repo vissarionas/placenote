@@ -85,12 +85,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if (address != null) {
                     StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                        sb.append(address.getAddressLine(i) + "\n");
+                    for (int i = 0; i < address.getMaxAddressLineIndex() -1; i++) {
+                        sb.append(address.getAddressLine(i));
                     }
                     placeAddress = sb.toString();
                     addPlaceButton.setVisibility(View.VISIBLE);
-                    addPlaceButton.setText("add place "+ placeAddress);
+                    addPlaceButton.setText("Add "+ placeAddress+" to your placelist");
                 }
 
                 //remove previously placed Marker
