@@ -25,10 +25,5 @@ public class PlaceNote {
     public String getNote(){
         return this.note;
     }
-    public void changePlace(String placeName){
-        this.place = placeName;
-    }
-    public void changeNote(String note){
-        this.note = note;
-    }
+
 }

@@ -4,10 +4,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +48,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button addPlaceButton;
     private DBHandler dbHandler;
 
+    protected static final String TAG = "MAP_ACTIVITY";
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +59,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
+
         Bundle extras = getIntent().getExtras();
 
         latlng = new LatLng(extras.getDouble("lat") , extras.getDouble("lgn"));
+
         accuracy = extras.getFloat("accuracy");
         mapZoom = accuracy < 100 ? 19.0f : 15.0f;
         geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
@@ -62,6 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -125,7 +136,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    private void addPlaceDialog(final Double lat , final Double lgn){
+    private void addPlaceDialog(final Double lat , final Double lgn) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setMessage("Name your place.");
 
@@ -139,13 +150,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(!nameEditText.getText().toString().isEmpty()){
-                            dbHandler.insertToDb(dbHandler , nameEditText.getText().toString() , String.valueOf(lat) , String.valueOf(lgn) , "");
+                        if (!nameEditText.getText().toString().isEmpty()) {
+                            dbHandler.insertToDb(dbHandler, nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lgn), "");
                             MapsActivity.this.finish();
                         }
                     }
                 });
         alertDialog.show();
-
     }
 }
