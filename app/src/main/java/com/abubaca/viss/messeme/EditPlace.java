@@ -46,7 +46,7 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
         setContentView(R.layout.activity_edit_place);
 
         dbHandler = new DBHandler(getApplicationContext());
-        cursor = dbHandler.getFullCursor(dbHandler);
+        cursor = dbHandler.getFullCursor();
         placeName = getIntent().getStringExtra("placeName");
         placeView = (TextView)findViewById(R.id.place_view);
         coordinatesView = (TextView)findViewById(R.id.coordinates_view);
@@ -68,7 +68,7 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dbHandler.deletePlace(dbHandler , placeName);
+                dbHandler.deletePlace(placeName);
                 EditPlace.this.finish();
             }
         });
@@ -102,7 +102,7 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dbHandler.updatePlaceName(dbHandler, place , nameEditText.getText().toString());
+                        dbHandler.updatePlaceName(place , nameEditText.getText().toString());
                         placeView.setText(nameEditText.getText().toString());
                     }
                 });

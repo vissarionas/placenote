@@ -1,6 +1,5 @@
 package com.abubaca.viss.messeme;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,10 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.util.Log;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by viss on 1/2/17.
@@ -28,7 +25,6 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public DBHandler(Context context) {
         super(context, "messeme" , null , databaseVersion);
-        Log.i(TAG , "created database!!!");
     }
 
     @Override
@@ -36,8 +32,8 @@ public class DBHandler extends SQLiteOpenHelper {
         database.execSQL(createTableQuery);
     }
 
-    private final void dbInit(DBHandler dbHandler){
-        db = dbHandler.getWritableDatabase();
+    private final void dbInit(){
+        db = this.getWritableDatabase();
         cursor = db.rawQuery("SELECT * FROM PLACENOTES" , null);
         cursor.moveToFirst();
     }
@@ -47,43 +43,43 @@ public class DBHandler extends SQLiteOpenHelper {
 
     }
 
-    public void deleteDb(DBHandler dbHandler){
-        dbInit(dbHandler);
+    public void deleteDb(){
+        dbInit();
         if(cursor.getCount()>0) {
             db.execSQL("DELETE FROM PLACENOTES");
             Log.i(TAG, "database cleared");
         }
     }
 
-    public void deleteNotes(DBHandler dbHandler){
-        dbInit(dbHandler);
+    public void deleteNotes(){
+        dbInit();
         db.execSQL("UPDATE PLACENOTES SET NOTE=''");
         Log.i(TAG , "notes cleared");
     }
 
-    public void deletePlace(DBHandler dbHandler , String place){
-        dbInit(dbHandler);
+    public void deletePlace(String place){
+        dbInit();
         db.delete("PLACENOTES", "PLACE='" + place + "'", null);
         Log.i(TAG , "deleted place: "+place);
     }
 
-    public void insertToDb(DBHandler dbHnadler , String place, String lat, String lgn , String note){
-        dbInit(dbHnadler);
+    public void insertToDb(String place, String lat, String lgn , String note){
+        dbInit();
         db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LGN,NOTE) VALUES ('"+place+"','"+lat+"','"+lgn+"','"+note+"')");
     }
 
-    public void updateNote(DBHandler dbHandler , String place , String newNote){
-        dbInit(dbHandler);
+    public void updateNote(String place , String newNote){
+        dbInit();
         db.execSQL("UPDATE PLACENOTES SET NOTE='"+newNote+"' WHERE PLACE='"+place+"'");
     }
 
-    public void updatePlaceName(DBHandler dbHandler , String place, String newName){
-        dbInit(dbHandler);
+    public void updatePlaceName(String place, String newName){
+        dbInit();
         db.execSQL("UPDATE PLACENOTES SET PLACE='"+newName+"' WHERE PLACE='"+place+"'");
     }
 
-    public List<PlaceNote> getPlaceNotes(DBHandler dbHandler){
-        dbInit(dbHandler);
+    public List<PlaceNote> getPlaceNotes(){
+        dbInit();
         List<PlaceNote> placeNotes = new ArrayList<>();
         if(cursor.getCount()>0) {
             do {
@@ -94,8 +90,8 @@ public class DBHandler extends SQLiteOpenHelper {
         return placeNotes;
     }
 
-    public List<Location> getNotesLocations(DBHandler dbHandler){
-        dbInit(dbHandler);
+    public List<Location> getNotesLocations(){
+        dbInit();
         Double lat , lgn;
         List<Location> placeLocations = new ArrayList<>();
 
@@ -116,8 +112,8 @@ public class DBHandler extends SQLiteOpenHelper {
         return placeLocations;
     }
 
-    public String getPlaceNote(DBHandler dbHandler , String place){
-        dbInit(dbHandler);
+    public String getPlaceNote(String place){
+        dbInit();
         String note = "";
         if(cursor.getCount()>0){
             do {
@@ -129,8 +125,8 @@ public class DBHandler extends SQLiteOpenHelper {
         return note;
     }
 
-    public String getPlaceFromLocation(DBHandler dbHandler , Location location){
-        dbInit(dbHandler);
+    public String getPlaceFromLocation(Location location){
+        dbInit();
         String place = "";
         //DecimalFormat df = new DecimalFormat("#.####");
         //then use with df.format(Double goes here)
@@ -149,13 +145,13 @@ public class DBHandler extends SQLiteOpenHelper {
         return place;
     }
 
-    public Cursor getFullCursor(DBHandler dbHandler){
-        dbInit(dbHandler);
+    public Cursor getFullCursor(){
+        dbInit();
         return this.cursor;
     }
 
-    public int noteCounter(DBHandler dbHandler){
-        dbInit(dbHandler);
+    public int noteCounter(){
+        dbInit();
         int counter = 0;
         if(cursor.getCount()>0){
             do {
@@ -164,7 +160,6 @@ public class DBHandler extends SQLiteOpenHelper {
                 }
             }while (cursor.moveToNext()) ;
         }
-        Log.i(TAG , "Notes counter = "+counter);
         return counter;
     }
 }

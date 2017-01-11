@@ -1,30 +1,18 @@
 package com.abubaca.viss.messeme;
 
 import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
+import android.location.Criteria;
 import android.location.Location;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,51 +29,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
-import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity implements LocationListener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
-
-    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
     static final String TAG = "MAIN_ACTIVITY";
-    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 0x2;
-
-    private static GoogleApiClient mGoogleApiClient;
-    static Location currentLocation;
-    private LocationRequest mLocationRequest;
-    private float accuracy;
-    private IntervalGenerator intervalGenerator;
-
-    public long interval;
+    private static final int MY_PERMISSIONS_REQUEST_COARSE_LOCATION = 0x1;
+    private LocationManager locationManager;
+    private Location lastLocation;
 
     private DBHandler dbHandler;
 
     private TextView noPlacesTextview;
-    private Boolean notificationSuccess = false;
-
-//    List<Geofence> mGeofenceList = new ArrayList<>();
-//    PendingIntent mGeofencePendingIntent;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        locationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+        lastLocation = getLastKnownLocation();
 
         noPlacesTextview = (TextView)findViewById(R.id.no_places_textview);
         noPlacesTextview.setOnClickListener(new View.OnClickListener() {
@@ -111,11 +69,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 startMapActivity();
             }
         });
-        intervalGenerator = new IntervalGenerator();
+    }
+
+    private Location getLastKnownLocation(){
+        Location location;
+        Criteria criteria = new Criteria();
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        String provider = locationManager.getBestProvider(criteria , false);
+        location = locationManager.getLastKnownLocation(provider);
+        Log.i(TAG , "Last known location: "+location);
+        return location;
     }
 
     private void populateList() {
-        List<PlaceNote> placeNotes= dbHandler.getPlaceNotes(dbHandler);
+        List<PlaceNote> placeNotes= dbHandler.getPlaceNotes();
         ListView list_view = (ListView) findViewById(R.id.list_view);
         if(placeNotes.size()==0) {
             noPlacesTextview.setVisibility(View.VISIBLE);
@@ -145,15 +113,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     protected void onResume() {
         String placeName = getIntent().getStringExtra("placeName");
-        if(placeName!=null){
+        if (placeName != null) {
             viewNote(placeName);
         }
-        dbHandler.noteCounter(dbHandler);
-        intervalGenerator = new IntervalGenerator();
-        Log.i(TAG , "onResume");
         populateList();
-        createGoogleApiClient();
+        startStopService();
         super.onResume();
+    }
+
+    private void startStopService(){
+        Intent i = new Intent(this , LocationBackground.class);
+        i.putExtra("notesExist" , dbHandler.noteCounter()>0);
+        startService(i);
     }
 
     @Override
@@ -185,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+            case MY_PERMISSIONS_REQUEST_COARSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -203,98 +174,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if(dbHandler.noteCounter(dbHandler)==0){
-            if(mGoogleApiClient.isConnected()){
-                mGoogleApiClient.disconnect();
-                Log.i(TAG , "onPause() google api client disconected");
-            }
-        }
-    }
-
-    private void createGoogleApiClient() {
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-        Log.i(TAG , "created google api client");
-        if(mGoogleApiClient.isConnected()){
-            mGoogleApiClient.reconnect();
-        }else{
-            mGoogleApiClient.connect();
-        }
-    }
-
-    protected void createLocationRequest() {
-        Log.i(TAG , "created location requests with interval "+String.valueOf(interval));
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(interval);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setExpirationDuration(8000000);
-        mLocationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-
-        final PendingResult<LocationSettingsResult> result =
-                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
-                        builder.build());
-
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(LocationSettingsResult locationSettingsResult) {
-                Status status = locationSettingsResult.getStatus();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        // All location settings are satisfied. The client can
-                        // initialize location requests here.
-                        Log.i(TAG, "location settings ok");
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied, but this can be fixed
-                        // by showing the user a dialog.
-                        try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
-                            status.startResolutionForResult(
-                                    MainActivity.this,
-                                    REQUEST_CHECK_SETTINGS);
-                        } catch (IntentSender.SendIntentException e) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way
-                        // to fix the settings so we won't show the dialog.
-                        break;
-
-                }
-            }
-        });
-    }
-
-    protected void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-            return;
-        }
-        Log.i(TAG , "started location updates");
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
-    }
-
     private void startMapActivity() {
-        if (currentLocation != null) {
-            Log.i(TAG , "current location = "+currentLocation.getLatitude()+" "+currentLocation.getLongitude());
+        if (lastLocation != null) {
+            Log.i(TAG , "Last known location = "+lastLocation.getLatitude()+" "+lastLocation.getLongitude());
             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-            intent.putExtra("lat", currentLocation.getLatitude());
-            intent.putExtra("lgn", currentLocation.getLongitude());
-            intent.putExtra("accuracy", accuracy);
+            intent.putExtra("lat", lastLocation.getLatitude());
+            intent.putExtra("lgn", lastLocation.getLongitude());
             startActivity(intent);
         } else {
             Toast.makeText(getApplicationContext(), "merry christmas", Toast.LENGTH_SHORT).show();
@@ -307,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.deleteDb(dbHandler);
+                        dbHandler.deleteDb();
                         populateList();
                     }
                 })
@@ -326,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.deleteNotes(dbHandler);
+                        dbHandler.deleteNotes();
                         populateList();
                     }
                 })
@@ -345,7 +230,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.updateNote(dbHandler , placeName , "");
+                        dbHandler.updateNote(placeName , "");
+                        onResume();
                         populateList();
                     }
                 })
@@ -357,131 +243,59 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         AlertDialog alert = builder.create();
         alert.show();
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i(TAG , "onStop");
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG , "onStart");
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.i(TAG , "onSaveInstanceState");
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.i(TAG , "onRestoreInstanceState");
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.i(TAG , "onDestroy");
-        startFusedBackground();
-        super.onDestroy();
-
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        createLocationRequest();
-        Log.i(TAG, "google api connected");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-            return;
-        }
-        currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if(dbHandler.noteCounter(dbHandler)>0) {
-            startLocationUpdates();
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        currentLocation = location;
-        interval = intervalGenerator.getInterval(currentLocation , dbHandler.getNotesLocations(dbHandler));
-        if(interval<5000){
-            interval = 5000;
-        }
-        accuracy = location.getAccuracy();
-        Log.i(TAG, "location changed. Accuracy = " + accuracy);
-        if(dbHandler.noteCounter(dbHandler)>0) {
-            findNearbyLocations(location);
-        }
-
-    }
-
-    private void findNearbyLocations(Location currentLocation) {
-        List<Location> noteLocations = dbHandler.getNotesLocations(dbHandler);
-        if(noteLocations.size()>0){
-            for(int i =0 ; i < noteLocations.size() ; i++){
-                float distance = noteLocations.get(i).distanceTo(currentLocation);
-                Log.i(TAG , "DISTANCE: "+distance);
-                if (distance<50) {
-                    if(!notificationSuccess) {
-                        showNotification(dbHandler.getPlaceFromLocation(dbHandler, noteLocations.get(i)));
-                    }
-                }
-            }
-        }
-
-
-
-    }
-
-    private void showNotification(String place) {
-        notificationSuccess = true;
-        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder mBuilder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.notification_icon)
-                        .setContentTitle(place)
-                        .setContentText(dbHandler.getPlaceNote(dbHandler , place))
-                        .setAutoCancel(true)
-                        .setContentInfo("messeme")
-                        .setLights(Color.GREEN , 1000 , 3000)
-                        .setSound(sound);
-
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                            Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        resultIntent.putExtra("placeName", place);
-        resultIntent.putExtra("NotificationSuccess" , true);
-
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-
-
-        int mNotificationId = 001;
-        NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
-    }
+//    private void findNearbyLocations(Location currentLocation) {
+//        List<Location> noteLocations = dbHandler.getNotesLocations(dbHandler);
+//        if(noteLocations.size()>0){
+//            for(int i =0 ; i < noteLocations.size() ; i++){
+//                float distance = noteLocations.get(i).distanceTo(currentLocation);
+//                Log.i(TAG , "DISTANCE: "+distance);
+//                if (distance<50) {
+//                    if(!notificationSuccess) {
+//                        showNotification(dbHandler.getPlaceFromLocation(dbHandler, noteLocations.get(i)));
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//
+//    }
+//
+//    private void showNotification(String place) {
+//        notificationSuccess = true;
+//        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//        NotificationCompat.Builder mBuilder =
+//                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.notification_icon)
+//                        .setContentTitle(place)
+//                        .setContentText(dbHandler.getPlaceNote(dbHandler , place))
+//                        .setAutoCancel(true)
+//                        .setContentInfo("messeme")
+//                        .setLights(Color.GREEN , 1000 , 3000)
+//                        .setSound(sound);
+//
+//        Intent resultIntent = new Intent(this, MainActivity.class);
+//        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+//                            Intent.FLAG_ACTIVITY_SINGLE_TOP |
+//                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        resultIntent.putExtra("placeName", place);
+//        resultIntent.putExtra("NotificationSuccess" , true);
+//
+//        PendingIntent resultPendingIntent =
+//                PendingIntent.getActivity(
+//                        this,
+//                        0,
+//                        resultIntent,
+//                        PendingIntent.FLAG_UPDATE_CURRENT
+//                );
+//        mBuilder.setContentIntent(resultPendingIntent);
+//
+//
+//        int mNotificationId = 001;
+//        NotificationManager mNotifyMgr =
+//                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+//    }
 
     private void viewNote(final String placeName){
         LayoutInflater inflater = getLayoutInflater();
@@ -496,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         Button btnDelete , btnOk;
         final TextView placeTextView, noteTextView;
         btnDelete = (Button)editView.findViewById(R.id.btn_delete);
-        if(dbHandler.getPlaceNote(dbHandler, placeName).isEmpty()){
+        if(dbHandler.getPlaceNote(placeName).isEmpty()){
             btnDelete.setVisibility(View.INVISIBLE);
         }
         btnOk = (Button)editView.findViewById(R.id.btn_ok);
@@ -515,20 +329,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(View v) {
                 confirmDropNote(placeName);
-                populateList();
                 alertDialog.dismiss();
             }
         });
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onResume();
                 alertDialog.dismiss();
             }
         });
 
         placeTextView.setText(placeName);
-        String note = dbHandler.getPlaceNote(dbHandler , placeName);
+        String note = dbHandler.getPlaceNote(placeName);
         if(!note.isEmpty()) {
             noteTextView.setText(note);
         }
@@ -538,26 +350,28 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void editNoteDialog(final String place){
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setMessage("Write a note.");
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setMessage("Write a note.");
 
         final EditText noteEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         noteEditText.setLayoutParams(params);
-        noteEditText.setText(dbHandler.getPlaceNote(dbHandler, place));
-        alertDialog.setView(noteEditText);
-        alertDialog.setPositiveButton("OK",
+        noteEditText.setText(dbHandler.getPlaceNote(place));
+        dialogBuilder.setView(noteEditText);
+        dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dbHandler.updateNote(dbHandler, place , noteEditText.getText().toString());
+                        dbHandler.updateNote(place , noteEditText.getText().toString());
                         populateList();
                         MainActivity.this.onResume();
                     }
                 });
-        alertDialog.show();
+        Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
     }
 
     private void startEditPlaceActivity(String placeName){
@@ -565,49 +379,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         intent.putExtra("placeName" , placeName);
         startActivity(intent);
     }
-
-    private void startFusedBackground(){
-        Intent serviceIntent = new Intent(this, FusedBackground.class);
-        serviceIntent.setData(Uri.parse("test leme"));
-        this.startService(serviceIntent);
-    }
-//    private void addGeofence(Double lat, Double lgn) {
-//        mGeofenceList.add(new Geofence.Builder()
-//                .setRequestId("addGeofence")
-//                .setCircularRegion(lat, lgn,100)
-//                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-//                        Geofence.GEOFENCE_TRANSITION_EXIT)
-//                .build());
-//    }
-//
-//    private GeofencingRequest getGeofencingRequest() {
-//        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-//        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-//        builder.addGeofences(mGeofenceList);
-//        return builder.build();
-//    }
-//
-//    private PendingIntent getGeofencePendingIntent() {
-//        // Reuse the PendingIntent if we already have it.
-//        if (mGeofencePendingIntent != null) {
-//            return mGeofencePendingIntent;
-//        }
-//        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-//        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-//        // calling addGeofences() and removeGeofences().
-//        return PendingIntent.getService(this, 0, intent, PendingIntent.
-//                FLAG_UPDATE_CURRENT);
-//    }
-//
-//    private void addGeofences(){
-//        LocationServices.GeofencingApi.addGeofences(
-//                mGoogleApiClient,
-//                getGeofencingRequest(),
-//                getGeofencePendingIntent()
-//        ).setResultCallback(this);
-//
-//
-//    }
 }
 
 

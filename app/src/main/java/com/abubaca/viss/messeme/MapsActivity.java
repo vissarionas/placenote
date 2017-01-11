@@ -1,25 +1,17 @@
 package com.abubaca.viss.messeme;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -137,25 +129,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void addPlaceDialog(final Double lat , final Double lgn) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setMessage("Name your place.");
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setMessage("Name your place.");
 
         final EditText nameEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         nameEditText.setLayoutParams(params);
-        alertDialog.setView(nameEditText);
-        alertDialog.setPositiveButton("OK",
+        dialogBuilder.setView(nameEditText);
+        dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (!nameEditText.getText().toString().isEmpty()) {
-                            dbHandler.insertToDb(dbHandler, nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lgn), "");
+                            dbHandler.insertToDb(nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lgn), "");
                             MapsActivity.this.finish();
                         }
                     }
                 });
-        alertDialog.show();
+        Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
     }
 }
