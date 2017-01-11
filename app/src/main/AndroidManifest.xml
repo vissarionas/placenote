@@ -7,9 +7,6 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the 'MyLocation' functionality. 
     -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <supports-screens
@@ -58,16 +55,19 @@
             android:label="@string/title_activity_edit_place"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".NoteActivity"
-            android:label="@string/title_activity_note"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait" ></activity>
+
+        <service
+            android:name=".FusedBackground"
+            android:exported="false"/>
+
+        <service android:name=".LocationBackground"/>
+
     </application>
 
     <receiver
         android:name="com.my.app.receiver.NotificationDismissedReceiver"
         android:exported="false" >
     </receiver>
+
 
 </manifest>

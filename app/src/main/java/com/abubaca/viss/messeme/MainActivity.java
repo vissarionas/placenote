@@ -1,63 +1,46 @@
 package com.abubaca.viss.messeme;
 
 import android.Manifest;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
+import java.util.List;
 
-import java.util.ArrayList;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
-    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
     static final String TAG = "MAIN_ACTIVITY";
-    private static final int MY_PERMISSIONS_REQUEST_COARSE_LOCATION = 0x2;
+    private static final int MY_PERMISSIONS_REQUEST_COARSE_LOCATION = 0x1;
+    private LocationManager locationManager;
+    private Location lastLocation;
 
-    public GoogleApiClient mGoogleApiClient;
-    public Location currentLocation;
-    public LocationRequest mLocationRequest;
+    private DBHandler dbHandler;
 
-    protected SQLiteDatabase db;
-
-    private Boolean hasPermission = false;
+    private TextView noPlacesTextview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,88 +48,83 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        locationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+        lastLocation = getLastKnownLocation();
+
+        noPlacesTextview = (TextView)findViewById(R.id.no_places_textview);
+        noPlacesTextview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                noPlacesTextview.setVisibility(View.INVISIBLE);
+                startMapActivity();
+            }
+        });
+        dbHandler = new DBHandler(getApplicationContext());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                noPlacesTextview.setVisibility(View.INVISIBLE);
                 startMapActivity();
             }
         });
+    }
 
-        db = openOrCreateDatabase("messeme", MODE_PRIVATE, null);
-        populateList();
-        checkPermission();
-        createGoogleApiClient();
-//        Log.i(TAG , String.valueOf(Build.VERSION.SDK_INT));
-//        if(Build.VERSION.SDK_INT>22){
-//            checkPermission();
-//        }
+    private Location getLastKnownLocation(){
+        Location location;
+        Criteria criteria = new Criteria();
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        String provider = locationManager.getBestProvider(criteria , false);
+        location = locationManager.getLastKnownLocation(provider);
+        Log.i(TAG , "Last known location: "+location);
+        return location;
     }
 
     private void populateList() {
-        db.execSQL("CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT)");
-        final Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES", null);
+        List<PlaceNote> placeNotes= dbHandler.getPlaceNotes();
         ListView list_view = (ListView) findViewById(R.id.list_view);
-        ArrayList<String> list = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            list.add(cursor.getPosition(), cursor.getString(0));
+        if(placeNotes.size()==0) {
+            noPlacesTextview.setVisibility(View.VISIBLE);
+            noPlacesTextview.setText("You have no places in your placelist.\n\nClick this or the compass button and set your first place");
         }
-        list_view.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, list));
-
+        final PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
         list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                cursor.moveToPosition(position);
-                confirmDropPlace(cursor.getString(0));
+                startEditPlaceActivity(adapter.getPlace(position));
+                populateList();
                 return true;
             }
         });
 
+        list_view.setAdapter(adapter);
+
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                cursor.moveToPosition(position);
-                showEditNoteDialog(cursor.getString(0));
+                viewNote(adapter.getPlace(position));
+                populateList();
             }
         });
-
-
-    }
-
-    private void viewReport() {
-        String report = "PLACE : NOTE\r\n\n";
-        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            do {
-                String row = cursor.getString(0) + " : " + cursor.getString(3);
-                report = report.concat(row + "\r\n\n");
-            } while (cursor.moveToNext());
-            Toast.makeText(getApplicationContext(), report, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private Boolean notesExist() {
-        Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
-        Log.i(TAG, String.valueOf(cursor.getCount()));
-        return (cursor.getCount() > 0) ? true : false;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
     protected void onResume() {
-        if(hasPermission){
-            mGoogleApiClient.connect();
-            populateList();
-        }else{
-            checkPermission();
+        String placeName = getIntent().getStringExtra("placeName");
+        if (placeName != null) {
+            viewNote(placeName);
         }
+        populateList();
+        startStopService();
         super.onResume();
+    }
+
+    private void startStopService(){
+        Intent i = new Intent(this , LocationBackground.class);
+        i.putExtra("notesExist" , dbHandler.noteCounter()>0);
+        startService(i);
     }
 
     @Override
@@ -172,127 +150,36 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             confirmDropNotes();
             return true;
         }
-        if (id == R.id.action_view_report) {
-            viewReport();
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkPermission(){
-        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.ACCESS_COARSE_LOCATION);
-        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
-        }else{
-            hasPermission = true;
-        }
-    }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_COARSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG , "granted permission for location");
-                    hasPermission =  true;
+                    Log.i(TAG, "granted permission for coarse location");
                     // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                    // location-related task you need to do.
 
                 } else {
-                    Log.i(TAG , "permission for location denied");
-                    Log.e(TAG , "permission for location denied");
+                    Log.e(TAG, "permission for location denied");
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-
-    }
-
-
-    private void createGoogleApiClient() {
-        if(hasPermission) {
-            if (mGoogleApiClient == null) {
-                mGoogleApiClient = new GoogleApiClient.Builder(this)
-                        .addConnectionCallbacks(this)
-                        .addOnConnectionFailedListener(this)
-                        .addApi(LocationServices.API)
-                        .build();
-            }
-            createLocationRequest();
-        }else{
-            checkPermission();
         }
     }
-
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setExpirationDuration(1000*60*60*10);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-
-        final PendingResult<LocationSettingsResult> result =
-                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
-                        builder.build());
-
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(LocationSettingsResult locationSettingsResult) {
-                Status status = locationSettingsResult.getStatus();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        // All location settings are satisfied. The client can
-                        // initialize location requests here.
-                        Log.e("TAG", "location settings ok");
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied, but this can be fixed
-                        // by showing the user a dialog.
-                        try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
-                            status.startResolutionForResult(
-                                    MainActivity.this,
-                                    REQUEST_CHECK_SETTINGS);
-                        } catch (IntentSender.SendIntentException e) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way
-                        // to fix the settings so we won't show the dialog.
-                        break;
-
-                }
-            }
-        });
-    }
-
-    protected void startLocationUpdates() {
-        if(hasPermission) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, mLocationRequest, this);
-        }else{
-            checkPermission();
-        }
-    }
-
 
     private void startMapActivity() {
-        if (currentLocation != null) {
+        if (lastLocation != null) {
+            Log.i(TAG , "Last known location = "+lastLocation.getLatitude()+" "+lastLocation.getLongitude());
             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-            intent.putExtra("lat", currentLocation.getLatitude());
-            intent.putExtra("lgn", currentLocation.getLongitude());
+            intent.putExtra("lat", lastLocation.getLatitude());
+            intent.putExtra("lgn", lastLocation.getLongitude());
             startActivity(intent);
         } else {
             Toast.makeText(getApplicationContext(), "merry christmas", Toast.LENGTH_SHORT).show();
@@ -305,12 +192,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-//                        db.execSQL("DROP TABLE IF EXISTS PLACES");
-                        db.execSQL("DROP TABLE IF EXISTS PLACENOTES");
+                        dbHandler.deleteDb();
                         populateList();
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -325,12 +211,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-//                        db.execSQL("DELETE FROM NOTES");
-                        db.execSQL("UPDATE PLACENOTES SET NOTE=''");
+                        dbHandler.deleteNotes();
                         populateList();
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -339,17 +224,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         alert.show();
     }
 
-    private void confirmDropPlace(final String place) {
+    private void confirmDropNote(final String placeName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you want to delete this place?")
+        builder.setMessage("Are you sure you want to delete "+placeName+" note?")
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        db.delete("PLACENOTES", "PLACE='" + place + "'", null);
+                        dbHandler.updateNote(placeName , "");
+                        onResume();
                         populateList();
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -357,117 +243,142 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         AlertDialog alert = builder.create();
         alert.show();
     }
+//    private void findNearbyLocations(Location currentLocation) {
+//        List<Location> noteLocations = dbHandler.getNotesLocations(dbHandler);
+//        if(noteLocations.size()>0){
+//            for(int i =0 ; i < noteLocations.size() ; i++){
+//                float distance = noteLocations.get(i).distanceTo(currentLocation);
+//                Log.i(TAG , "DISTANCE: "+distance);
+//                if (distance<50) {
+//                    if(!notificationSuccess) {
+//                        showNotification(dbHandler.getPlaceFromLocation(dbHandler, noteLocations.get(i)));
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//
+//    }
+//
+//    private void showNotification(String place) {
+//        notificationSuccess = true;
+//        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//        NotificationCompat.Builder mBuilder =
+//                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.notification_icon)
+//                        .setContentTitle(place)
+//                        .setContentText(dbHandler.getPlaceNote(dbHandler , place))
+//                        .setAutoCancel(true)
+//                        .setContentInfo("messeme")
+//                        .setLights(Color.GREEN , 1000 , 3000)
+//                        .setSound(sound);
+//
+//        Intent resultIntent = new Intent(this, MainActivity.class);
+//        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+//                            Intent.FLAG_ACTIVITY_SINGLE_TOP |
+//                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        resultIntent.putExtra("placeName", place);
+//        resultIntent.putExtra("NotificationSuccess" , true);
+//
+//        PendingIntent resultPendingIntent =
+//                PendingIntent.getActivity(
+//                        this,
+//                        0,
+//                        resultIntent,
+//                        PendingIntent.FLAG_UPDATE_CURRENT
+//                );
+//        mBuilder.setContentIntent(resultPendingIntent);
+//
+//
+//        int mNotificationId = 001;
+//        NotificationManager mNotifyMgr =
+//                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+//    }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG , "connected with google api");
-        if(hasPermission){
-            currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            startLocationUpdates();
+    private void viewNote(final String placeName){
+        LayoutInflater inflater = getLayoutInflater();
+        View editView = inflater.inflate(R.layout.edit_note , null);
+        editView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setView(editView);
+
+        Button btnDelete , btnOk;
+        final TextView placeTextView, noteTextView;
+        btnDelete = (Button)editView.findViewById(R.id.btn_delete);
+        if(dbHandler.getPlaceNote(placeName).isEmpty()){
+            btnDelete.setVisibility(View.INVISIBLE);
         }
-    }
+        btnOk = (Button)editView.findViewById(R.id.btn_ok);
+        placeTextView = (TextView)editView.findViewById(R.id.place_text_view);
+        noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
 
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-
-    @Override
-    public void onLocationChanged(Location location) {
-        Log.i(TAG, "location changed. Accuracy = " + currentLocation.getAccuracy());
-        if(hasPermission) {
-            if (notesExist()) {
-                findNearbyLocations(location);
+        noteTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editNoteDialog(placeName);
+                alertDialog.dismiss();
             }
-            currentLocation = location;
-        }else{
-            checkPermission();
-        }
-    }
+        });
 
-    private void findNearbyLocations(Location currentLocation) {
-        Location noteLocation = new Location("");
-        Cursor cursor = db.rawQuery("SELECT * FROM PLACENOTES WHERE NOTE NOT LIKE ''", null);
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            noteLocation.setLatitude(Double.valueOf(cursor.getString(1)));
-            noteLocation.setLongitude(Double.valueOf(cursor.getString(2)));
-            float distance = noteLocation.distanceTo(currentLocation);
-            if (distance < 100 && currentLocation.getAccuracy()<300) {
-                showNotification(cursor.getString(0), cursor.getString(3));
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                confirmDropNote(placeName);
+                alertDialog.dismiss();
             }
+        });
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        placeTextView.setText(placeName);
+        String note = dbHandler.getPlaceNote(placeName);
+        if(!note.isEmpty()) {
+            noteTextView.setText(note);
         }
-    }
-
-    private void showNotification(String title, String note) {
-        NotificationCompat.Builder mBuilder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.notification_icon)
-                        .setContentTitle(title)
-                        .setContentText(note);
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.putExtra("placeName", title);
-
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-        mBuilder.setAutoCancel(true);
-
-//        Sets an ID for the notification
-        int mNotificationId = 001;
-//        Gets an instance of the NotificationManager service
-        NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        Builds the notification and issues it.
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
-    }
-
-    private void showEditNoteDialog(final String placeName) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-        alertDialog.setTitle("Edit your place note");
-        final EditText input = new EditText(MainActivity.this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-        alertDialog.setView(input);
-        final Cursor cursor = db.rawQuery("SELECT NOTE FROM PLACENOTES WHERE PLACE='"+placeName+"'" ,null);
-        if(cursor.getCount()>0) {
-            cursor.moveToFirst();
-            input.setText(cursor.getString(0));
-        }
-        alertDialog.setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        db.execSQL("UPDATE PLACENOTES SET NOTE='"+input.getText().toString()+"' WHERE PLACE='"+placeName+"'");
-                        if(!notesExist()){
-                            if(mGoogleApiClient.isConnected()){
-                                mGoogleApiClient.disconnect();                            }
-                        }
-                    }
-                });
-
-        alertDialog.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
 
         alertDialog.show();
+
     }
 
+    private void editNoteDialog(final String place){
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setMessage("Write a note.");
+
+        final EditText noteEditText = new EditText(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        noteEditText.setLayoutParams(params);
+        noteEditText.setText(dbHandler.getPlaceNote(place));
+        dialogBuilder.setView(noteEditText);
+        dialogBuilder.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dbHandler.updateNote(place , noteEditText.getText().toString());
+                        populateList();
+                        MainActivity.this.onResume();
+                    }
+                });
+        Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
+    private void startEditPlaceActivity(String placeName){
+        Intent intent = new Intent(MainActivity.this, EditPlace.class);
+        intent.putExtra("placeName" , placeName);
+        startActivity(intent);
+    }
 }
 
 
