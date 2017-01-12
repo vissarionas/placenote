@@ -17,7 +17,7 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper {
 
     private static int databaseVersion = 1;
-    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT)";
+    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT , ACTIVE INTEGER DEFAULT 0)";
 
     private static SQLiteDatabase db;
     private final static String TAG = "DBHandler";
@@ -38,6 +38,12 @@ public class DBHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
     }
 
+    private final void dbClose(){
+        if(db.isOpen()){
+            db.close();
+        }
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
@@ -49,33 +55,45 @@ public class DBHandler extends SQLiteOpenHelper {
             db.execSQL("DELETE FROM PLACENOTES");
             Log.i(TAG, "database cleared");
         }
+        dbClose();
     }
 
     public void deleteNotes(){
         dbInit();
         db.execSQL("UPDATE PLACENOTES SET NOTE=''");
         Log.i(TAG , "notes cleared");
+        dbClose();
     }
 
     public void deletePlace(String place){
         dbInit();
         db.delete("PLACENOTES", "PLACE='" + place + "'", null);
         Log.i(TAG , "deleted place: "+place);
+        dbClose();
     }
 
     public void insertToDb(String place, String lat, String lgn , String note){
         dbInit();
         db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LGN,NOTE) VALUES ('"+place+"','"+lat+"','"+lgn+"','"+note+"')");
+        dbClose();
     }
 
     public void updateNote(String place , String newNote){
         dbInit();
         db.execSQL("UPDATE PLACENOTES SET NOTE='"+newNote+"' WHERE PLACE='"+place+"'");
+        dbClose();
+    }
+
+    public void setActive(String place , int active){
+        dbInit();
+        db.execSQL("UPDATE PLACENOTES SET ACTIVE='"+active+"' WHERE PLACE='"+place+"'");
+        dbClose();
     }
 
     public void updatePlaceName(String place, String newName){
         dbInit();
         db.execSQL("UPDATE PLACENOTES SET PLACE='"+newName+"' WHERE PLACE='"+place+"'");
+        dbClose();
     }
 
     public List<PlaceNote> getPlaceNotes(){
@@ -87,6 +105,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 placeNotes.add(placeNote);
             }while(cursor.moveToNext());
         }
+        dbClose();
         return placeNotes;
     }
 
@@ -97,7 +116,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         if(cursor.getCount()>0){
             do{
-                if(!cursor.getString(3).isEmpty()) {
+                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == 1) {
                     Location singlePlaceLocation = new Location("");
                     lat = Double.valueOf(cursor.getString(1));
                     lgn = Double.valueOf(cursor.getString(2));
@@ -107,6 +126,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 }
             }while(cursor.moveToNext());
         }
+        dbClose();
         return placeLocations;
     }
 
@@ -120,6 +140,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 }
             }while(cursor.moveToNext());
         }
+        dbClose();
         return note;
     }
 
@@ -140,11 +161,13 @@ public class DBHandler extends SQLiteOpenHelper {
                 }
             }while(cursor.moveToNext());
         }
+        dbClose();
         return place;
     }
 
     public Cursor getFullCursor(){
         dbInit();
+        dbClose();
         return this.cursor;
     }
 
@@ -158,6 +181,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 }
             }while (cursor.moveToNext()) ;
         }
+        dbClose();
         return counter;
     }
 }
