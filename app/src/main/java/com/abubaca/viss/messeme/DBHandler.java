@@ -103,9 +103,7 @@ public class DBHandler extends SQLiteOpenHelper {
                     lgn = Double.valueOf(cursor.getString(2));
                     singlePlaceLocation.setLatitude(lat);
                     singlePlaceLocation.setLongitude(lgn);
-
                     placeLocations.add(singlePlaceLocation);
-                    Log.i(TAG, "location added to array " + cursor.getPosition() + " " + singlePlaceLocation);
                 }
             }while(cursor.moveToNext());
         }

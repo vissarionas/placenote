@@ -9,6 +9,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -29,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -112,9 +114,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        String placeName = getIntent().getStringExtra("placeName");
-        if (placeName != null) {
-            viewNote(placeName);
+        String place = getIntent().getStringExtra("place");
+        if (place != null) {
+            viewNote(place);
         }
         populateList();
         startStopService();
@@ -123,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void startStopService(){
         Intent i = new Intent(this , LocationBackground.class);
-        i.putExtra("notesExist" , dbHandler.noteCounter()>0);
         startService(i);
     }
 
