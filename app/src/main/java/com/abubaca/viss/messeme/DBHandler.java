@@ -3,7 +3,6 @@ package com.abubaca.viss.messeme;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
@@ -85,7 +84,6 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("NOTE" , newNote);
         db.update("PLACENOTES" , values , "PLACE=?", new String[]{place});
-//        db.execSQL("UPDATE PLACENOTES SET NOTE='"+newNote+"' WHERE PLACE='"+place+"'");
         dbClose();
     }
 
@@ -94,7 +92,6 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("STATE" , active);
         db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
-//        db.execSQL("UPDATE PLACENOTES SET STATE='"+active+"' WHERE PLACE='"+place+"'");
         dbClose();
     }
 
@@ -103,7 +100,6 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("PLACE" , newName);
         db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
-//        db.execSQL("UPDATE PLACENOTES SET PLACE='"+newName+"' WHERE PLACE='"+place+"'");
         dbClose();
     }
 

@@ -1,6 +1,5 @@
 package com.abubaca.viss.messeme;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,9 +8,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,7 +27,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -181,7 +177,8 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG , "Last known location = "+lastLocation.getLatitude()+" "+lastLocation.getLongitude());
             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
             intent.putExtra("lat", lastLocation.getLatitude());
-            intent.putExtra("lgn", lastLocation.getLongitude());
+            intent.putExtra("lng", lastLocation.getLongitude());
+            intent.putExtra("accuracy" , lastLocation.getAccuracy());
             startActivity(intent);
         } else {
             Toast.makeText(getApplicationContext(), "merry christmas", Toast.LENGTH_SHORT).show();

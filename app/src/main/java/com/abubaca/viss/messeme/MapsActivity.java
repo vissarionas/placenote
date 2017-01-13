@@ -1,12 +1,15 @@
 package com.abubaca.viss.messeme;
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.location.Address;
-import android.location.Geocoder;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -22,19 +25,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LatLng latlng;
-    private Geocoder geocoder;
     private Marker marker;
     public String placeAddress;
-    private Double lat , lgn;
+    private Double lat , lng;
     private float accuracy;
     private float mapZoom;
     private Button addPlaceButton;
@@ -42,8 +39,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     protected static final String TAG = "MAP_ACTIVITY";
 
+    private IntentFilter filter = new IntentFilter("GET_ADDRESS");
 
-
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG , intent.getStringExtra("address"));
+            placeAddress = intent.getStringExtra("address");
+            addPlaceButton.setVisibility(View.VISIBLE);
+            addPlaceButton.setText("Add "+ placeAddress+" to your placelist");
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +60,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Bundle extras = getIntent().getExtras();
 
-        latlng = new LatLng(extras.getDouble("lat") , extras.getDouble("lgn"));
+        latlng = new LatLng(extras.getDouble("lat") , extras.getDouble("lng"));
 
         accuracy = extras.getFloat("accuracy");
-        mapZoom = accuracy < 100 ? 19.0f : 15.0f;
-        geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        mapZoom = accuracy < 100 ? 19.0f : 17.0f;
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
+    @Override
+    protected void onResume() {
+        this.registerReceiver(broadcastReceiver , filter);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        this.unregisterReceiver(broadcastReceiver);
+        super.onPause();
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -74,27 +90,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
-                latlng = point;
-                lat = latlng.latitude;
-                lgn = latlng.longitude;
-
-                List<Address> addresses = new ArrayList<>();
-                try {
-                    addresses = geocoder.getFromLocation(lat, lgn , 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                android.location.Address address = addresses.get(0);
-
-                if (address != null) {
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < address.getMaxAddressLineIndex() -1; i++) {
-                        sb.append(address.getAddressLine(i));
-                    }
-                    placeAddress = sb.toString();
-                    addPlaceButton.setVisibility(View.VISIBLE);
-                    addPlaceButton.setText("Add "+ placeAddress+" to your placelist");
-                }
+                lat = point.latitude;
+                lng = point.longitude;
+                Intent intent = new Intent(MapsActivity.this, AddressGenerator.class);
+                intent.putExtra("lat" , lat);
+                intent.putExtra("lng" , lng);
+                startService(intent);
 
                 //remove previously placed Marker
                 if (marker != null) {
@@ -103,9 +104,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 //place marker where user just clicked
                 marker = mMap.addMarker(new MarkerOptions().position(point)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
-
-
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
             }
         });
 
@@ -123,12 +122,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addPlaceDialog(lat, lgn);
+                addPlaceDialog(lat, lng);
             }
         });
     }
 
-    private void addPlaceDialog(final Double lat , final Double lgn) {
+    private void addPlaceDialog(final Double lat , final Double lng) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setMessage("Name your place.");
 
@@ -143,7 +142,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (!nameEditText.getText().toString().isEmpty()) {
-                            dbHandler.insertToDb(nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lgn), "");
+                            dbHandler.insertToDb(nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lng), "");
                             MapsActivity.this.finish();
                         }
                     }

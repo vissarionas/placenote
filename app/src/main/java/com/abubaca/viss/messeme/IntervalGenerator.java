@@ -16,10 +16,6 @@ public class IntervalGenerator {
 
     private final static String TAG = "INTERVAL_GENERATOR";
 
-    public IntervalGenerator() {
-        Log.i(TAG , "IntervalGenerator object created");
-    }
-
     public long getInterval(Location currentLocation , List<Location> locations){
         if(locations.size()>0){
             smallestDistance = currentLocation.distanceTo(locations.get(0));
