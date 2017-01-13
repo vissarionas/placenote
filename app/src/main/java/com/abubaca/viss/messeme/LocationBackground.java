@@ -54,7 +54,7 @@ public class LocationBackground extends Service implements LocationListener {
         Log.i(TAG, "Last known location: " + lastLocation);
 
         if(locations.size()>0) {
-            locationManager.requestLocationUpdates(provider, 5000, 1, this);
+            locationManager.requestLocationUpdates(provider, 5000, 10, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -80,15 +80,6 @@ public class LocationBackground extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        MediaPlayer mp = MediaPlayer.create(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mp.release();
-            }
-        });
-        mp.start();
-
         Log.i(TAG, "*******Location changed: " + location);
         for(int i=0 ; i<locations.size() ; i++){
             if(locations.get(i).distanceTo(location)<50 && location.getAccuracy()<1000){
@@ -126,7 +117,7 @@ public class LocationBackground extends Service implements LocationListener {
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-//        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         builder.setContentTitle(place);
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);

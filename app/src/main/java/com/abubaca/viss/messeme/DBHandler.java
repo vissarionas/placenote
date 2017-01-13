@@ -1,7 +1,9 @@
 package com.abubaca.viss.messeme;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
@@ -17,7 +19,7 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper {
 
     private static int databaseVersion = 1;
-    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT , ACTIVE INTEGER DEFAULT 0)";
+    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT , STATE INTEGER)";
 
     private static SQLiteDatabase db;
     private final static String TAG = "DBHandler";
@@ -80,19 +82,28 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void updateNote(String place , String newNote){
         dbInit();
-        db.execSQL("UPDATE PLACENOTES SET NOTE='"+newNote+"' WHERE PLACE='"+place+"'");
+        ContentValues values = new ContentValues();
+        values.put("NOTE" , newNote);
+        db.update("PLACENOTES" , values , "PLACE=?", new String[]{place});
+//        db.execSQL("UPDATE PLACENOTES SET NOTE='"+newNote+"' WHERE PLACE='"+place+"'");
         dbClose();
     }
 
-    public void setActive(String place , int active){
+    public void setState(String place , int active){
         dbInit();
-        db.execSQL("UPDATE PLACENOTES SET ACTIVE='"+active+"' WHERE PLACE='"+place+"'");
+        ContentValues values = new ContentValues();
+        values.put("STATE" , active);
+        db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
+//        db.execSQL("UPDATE PLACENOTES SET STATE='"+active+"' WHERE PLACE='"+place+"'");
         dbClose();
     }
 
     public void updatePlaceName(String place, String newName){
         dbInit();
-        db.execSQL("UPDATE PLACENOTES SET PLACE='"+newName+"' WHERE PLACE='"+place+"'");
+        ContentValues values = new ContentValues();
+        values.put("PLACE" , newName);
+        db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
+//        db.execSQL("UPDATE PLACENOTES SET PLACE='"+newName+"' WHERE PLACE='"+place+"'");
         dbClose();
     }
 

@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        dbHandler = new DBHandler(getApplicationContext());
         locationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
         lastLocation = getLastKnownLocation();
 
@@ -61,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 startMapActivity();
             }
         });
-        dbHandler = new DBHandler(getApplicationContext());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
         if(!note.isEmpty()) {
             noteTextView.setText(note);
             if(fromNotification) {
-                dbHandler.setActive(placeName, 0);
+                dbHandler.setState(placeName, 0);
             }
         }
 
@@ -370,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                         String note = noteEditText.getText().toString();
                         dbHandler.updateNote(place , note);
                         if(!note.isEmpty()){
-                            dbHandler.setActive(place , 1);
+                            dbHandler.setState(place , 1);
                         }
                         MainActivity.this.onResume();
                     }
