@@ -1,7 +1,5 @@
 package com.abubaca.viss.messeme;
 
-import java.lang.ref.SoftReference;
-
 /**
  * Created by viss on 1/3/17.
  */
@@ -9,10 +7,12 @@ import java.lang.ref.SoftReference;
 public class PlaceNote {
 
     private String place , note;
+    private int state;
 
-    public PlaceNote(String place , String note){
+    public PlaceNote(String place , String note , int state){
         this.place = place;
         this.note = note;
+        this.state = state;
     }
 
     public String getPlaceNote(){
@@ -22,8 +22,13 @@ public class PlaceNote {
     public String getPlace(){
         return this.place;
     }
+
     public String getNote(){
         return this.note;
+    }
+
+    public int getState(){
+        return this.state;
     }
 
 }

@@ -5,9 +5,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
 
+    private static final String TAG = "EDIT_PLACE";
     private DBHandler dbHandler;
     private Cursor cursor;
     private String placeName;
@@ -29,7 +32,7 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
     private Double lat , lgn;
     private GoogleMap mMap;
     private Marker marker;
-    private Button deleteButton;
+    private ImageView deleteButton , editButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +42,11 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
         dbHandler = new DBHandler(getApplicationContext());
         cursor = dbHandler.getFullCursor();
         placeName = getIntent().getStringExtra("placeName");
+        Log.i(TAG , "Placename: "+placeName);
         placeView = (TextView)findViewById(R.id.place_view);
         coordinatesView = (TextView)findViewById(R.id.coordinates_view);
-        deleteButton = (Button)findViewById(R.id.delete_button);
+        deleteButton = (ImageView)findViewById(R.id.delete_button);
+        editButton = (ImageView)findViewById(R.id.edit_button);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -61,6 +66,12 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
             public void onClick(View v) {
                 dbHandler.deletePlace(placeName);
                 EditPlace.this.finish();
+            }
+        });
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showEditPlaceDialog(placeName);
             }
         });
         cursor.moveToFirst();

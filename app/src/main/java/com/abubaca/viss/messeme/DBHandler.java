@@ -108,7 +108,7 @@ public class DBHandler extends SQLiteOpenHelper {
         List<PlaceNote> placeNotes = new ArrayList<>();
         if(cursor.getCount()>0) {
             do {
-                PlaceNote placeNote = new PlaceNote(cursor.getString(0), cursor.getString(3));
+                PlaceNote placeNote = new PlaceNote(cursor.getString(0), cursor.getString(3) , cursor.getInt(4));
                 placeNotes.add(placeNote);
             }while(cursor.moveToNext());
         }

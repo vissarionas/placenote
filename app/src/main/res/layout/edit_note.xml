@@ -10,7 +10,9 @@
         android:id="@+id/btn_ok"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/border"
+        android:textSize="20dp"/>
 
     <TextView
         android:text="Place"
@@ -19,8 +21,8 @@
         android:id="@+id/place_text_view"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:textSize="16dp"
-        android:layout_marginTop="23dp" />
+        android:textSize="18dp"
+        android:layout_marginTop="25dp" />
 
     <TextView
         android:text="No note found for this place.\nClick here to add your note."
@@ -41,6 +43,8 @@
         android:id="@+id/btn_delete"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:background="@drawable/border"
+        android:textSize="20dp"/>
 
 </RelativeLayout>

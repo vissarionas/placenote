@@ -7,6 +7,7 @@ import android.location.Geocoder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.AutoCompleteTextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,6 +66,23 @@ public class AddressGenerator extends Service {
             }
         }
      return "";
+    }
+
+    private String[] getPlaces(String locationName){
+        List<Address> addresses = new ArrayList<>();
+
+        try {
+            addresses = geocoder.getFromLocationName(locationName , 10);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(addresses.size()>0) {
+            for(int i=0;i<addresses.size();i++){
+                Address address = (Address) addresses.get(i);
+            }
+        }
+        return null;
     }
 
     private void sendBroadcast(String address){

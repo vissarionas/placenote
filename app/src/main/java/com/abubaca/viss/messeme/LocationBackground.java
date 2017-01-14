@@ -54,7 +54,7 @@ public class LocationBackground extends Service implements LocationListener {
         Log.i(TAG, "Last known location: " + lastLocation);
 
         if(locations.size()>0) {
-            locationManager.requestLocationUpdates(provider, 5000, 10, this);
+            locationManager.requestLocationUpdates(provider, 10000, 10, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -121,7 +121,7 @@ public class LocationBackground extends Service implements LocationListener {
         builder.setContentTitle(place);
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);
-        builder.setSmallIcon(R.drawable.notification_icon);
+        builder.setSmallIcon(R.raw.notification_icon);
         builder.setLights(Color.GREEN , 2000 , 3000);
         builder.setContentIntent(pendingIntent);
 

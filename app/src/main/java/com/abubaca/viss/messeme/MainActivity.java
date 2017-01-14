@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void populateList() {
-        List<PlaceNote> placeNotes= dbHandler.getPlaceNotes();
+        List<PlaceNote> placeNotes = dbHandler.getPlaceNotes();
         ListView list_view = (ListView) findViewById(R.id.list_view);
         if(placeNotes.size()==0) {
             noPlacesTextview.setVisibility(View.VISIBLE);
@@ -242,61 +242,8 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog alert = builder.create();
         alert.show();
     }
-//    private void findNearbyLocations(Location currentLocation) {
-//        List<Location> noteLocations = dbHandler.getNotesLocations(dbHandler);
-//        if(noteLocations.size()>0){
-//            for(int i =0 ; i < noteLocations.size() ; i++){
-//                float distance = noteLocations.get(i).distanceTo(currentLocation);
-//                Log.i(TAG , "DISTANCE: "+distance);
-//                if (distance<50) {
-//                    if(!notificationSuccess) {
-//                        showNotification(dbHandler.getPlaceFromLocation(dbHandler, noteLocations.get(i)));
-//                    }
-//                }
-//            }
-//        }
-//
-//
-//
-//    }
-//
-//    private void showNotification(String place) {
-//        notificationSuccess = true;
-//        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//        NotificationCompat.Builder mBuilder =
-//                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-//                        .setSmallIcon(R.drawable.notification_icon)
-//                        .setContentTitle(place)
-//                        .setContentText(dbHandler.getPlaceNote(dbHandler , place))
-//                        .setAutoCancel(true)
-//                        .setContentInfo("messeme")
-//                        .setLights(Color.GREEN , 1000 , 3000)
-//                        .setSound(sound);
-//
-//        Intent resultIntent = new Intent(this, MainActivity.class);
-//        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-//                            Intent.FLAG_ACTIVITY_SINGLE_TOP |
-//                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        resultIntent.putExtra("placeName", place);
-//        resultIntent.putExtra("NotificationSuccess" , true);
-//
-//        PendingIntent resultPendingIntent =
-//                PendingIntent.getActivity(
-//                        this,
-//                        0,
-//                        resultIntent,
-//                        PendingIntent.FLAG_UPDATE_CURRENT
-//                );
-//        mBuilder.setContentIntent(resultPendingIntent);
-//
-//
-//        int mNotificationId = 001;
-//        NotificationManager mNotifyMgr =
-//                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        mNotifyMgr.notify(mNotificationId, mBuilder.build());
-//    }
 
-    private void viewNote(final String placeName , Boolean fromNotification){
+    private void viewNote(final String placeName , final Boolean fromNotification){
         LayoutInflater inflater = getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
         editView.setLayoutParams(new ViewGroup.LayoutParams(
