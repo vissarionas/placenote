@@ -1,5 +1,6 @@
 package com.abubaca.viss.messeme;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         ListView list_view = (ListView) findViewById(R.id.list_view);
         if(placeNotes.size()==0) {
             noPlacesTextview.setVisibility(View.VISIBLE);
-            noPlacesTextview.setText("You have no places in your placelist.\n\nClick this or the compass button and set your first place");
+            noPlacesTextview.setText("You have no places in your placelist.\n\nClick here or the compass button and set your first place");
         }
         final PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
         list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -121,6 +123,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startStopService(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
+            return;
+        }
         Intent i = new Intent(this , LocationBackground.class);
         startService(i);
     }

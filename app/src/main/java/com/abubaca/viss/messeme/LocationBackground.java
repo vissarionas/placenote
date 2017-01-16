@@ -12,9 +12,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.MediaPlayer;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -22,7 +20,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -30,6 +27,8 @@ import java.util.List;
  */
 
 public class LocationBackground extends Service implements LocationListener {
+
+    private static final int MY_PERMISSIONS_REQUEST_COARSE_LOCATION = 0x1;
 
     private final static String TAG = "LOCATION_HANDLER";
     LocationManager locationManager;
