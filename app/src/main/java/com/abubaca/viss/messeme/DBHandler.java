@@ -18,7 +18,7 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper {
 
     private static int databaseVersion = 1;
-    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT , STATE INTEGER)";
+    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT , STATE INTEGER DEFAULT 0)";
 
     private static SQLiteDatabase db;
     private final static String TAG = "DBHandler";

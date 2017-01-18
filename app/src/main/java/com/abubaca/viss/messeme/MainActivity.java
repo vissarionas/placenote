@@ -321,6 +321,8 @@ public class MainActivity extends AppCompatActivity {
                         dbHandler.updateNote(place , note);
                         if(!note.isEmpty()){
                             dbHandler.setState(place , 1);
+                        }else{
+                            dbHandler.setState(place , 0);
                         }
                         MainActivity.this.onResume();
                     }
