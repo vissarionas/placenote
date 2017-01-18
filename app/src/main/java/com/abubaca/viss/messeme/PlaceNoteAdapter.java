@@ -70,13 +70,13 @@ public class PlaceNoteAdapter extends BaseAdapter {
     private void setFlag(int state){
         switch (state){
             case 0:
-                stateImage.setImageResource(R.drawable.flag_inactive);
+                stateImage.setImageResource(R.drawable.inactive);
                 break;
             case 1:
-                stateImage.setImageResource(R.drawable.flag_active);
+                stateImage.setImageResource(R.drawable.active);
                 break;
             case 2:
-                stateImage.setImageResource(R.drawable.flag_alert);
+                stateImage.setImageResource(R.drawable.alert);
                 break;
 //            default:
 //                stateImage.setImageResource(R.raw.flag_inactive);

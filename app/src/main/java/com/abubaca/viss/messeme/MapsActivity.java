@@ -87,13 +87,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                // TODO: Get info about the selected place.
-                Log.i(TAG, "Place: " + place.getName()+"\n"+place.getLatLng()+"\n"+place.getAddress());
+                lat = place.getLatLng().latitude;
+                lng = place.getLatLng().longitude;
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 19.0f));
                 marker = mMap.addMarker(new MarkerOptions().position(place.getLatLng())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
                 addPlaceButton.setVisibility(View.VISIBLE);
                 addPlaceButton.setText("Add "+ place.getName()+" to your placelist");
+                addPlaceButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        addPlaceDialog(lat, lng);
+                    }
+                });
             }
 
             @Override
