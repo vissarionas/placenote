@@ -20,6 +20,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -40,12 +44,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private float mapZoom;
     private Button addPlaceButton;
     private DBHandler dbHandler;
-    private AutoCompleteTextView autoCompleteTextView;
-
-    private static final String[] COUNTRIES = new String[] {
-            "Belgium", "France", "Italy", "Germany", "Spain"
-    };
-
 
     protected static final String TAG = "MAP_ACTIVITY";
 
@@ -67,32 +65,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         dbHandler = new DBHandler(getApplicationContext());
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line, COUNTRIES);
-
-        autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.autoCompleteTextView);
-        autoCompleteTextView.setAdapter(adapter);
-
-        autoCompleteTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.e(TAG , "position: "+position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
 
         Bundle extras = getIntent().getExtras();
-
         latlng = new LatLng(extras.getDouble("lat") , extras.getDouble("lng"));
-
-        accuracy = extras.getFloat("accuracy");
+        accuracy = 20;
+//        accuracy = extras.getFloat("accuracy");
         mapZoom = accuracy < 100 ? 19.0f : 17.0f;
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -103,6 +81,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         this.registerReceiver(broadcastReceiver , filter);
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName()+"\n"+place.getLatLng()+"\n"+place.getAddress());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 19.0f));
+                marker = mMap.addMarker(new MarkerOptions().position(place.getLatLng())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+                addPlaceButton.setVisibility(View.VISIBLE);
+                addPlaceButton.setText("Add "+ place.getName()+" to your placelist");
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+
+
         super.onResume();
     }
 

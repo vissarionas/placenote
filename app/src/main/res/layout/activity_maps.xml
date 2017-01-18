@@ -15,16 +15,13 @@
         android:textAlignment="center"
         android:textAllCaps="false"/>
 
-    <AutoCompleteTextView
-        android:text="AutoCompleteTextView"
-        android:layout_width="wrap_content"
+    <fragment
+        android:id="@+id/place_autocomplete_fragment"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:id="@+id/autoCompleteTextView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+        />
+
 
 
     <fragment
@@ -33,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.abubaca.viss.messeme.MapsActivity"
-        android:layout_below="@+id/autoCompleteTextView"
+        android:layout_below="@+id/place_autocomplete_fragment"
         android:layout_above="@+id/add_place_button" />
 
 
