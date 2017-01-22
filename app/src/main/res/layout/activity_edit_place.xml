@@ -11,8 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.abubaca.viss.messeme.EditPlace"
-    android:orientation="vertical"
-    android:background="#fff">
+    android:orientation="vertical">
 
 
     <ImageButton
@@ -27,19 +26,6 @@
         android:visibility="visible"
         android:background="@android:color/background_light" />
 
-
-    <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/coordinates_view"
-        android:textSize="18dp"
-        android:textColor="#000"
-        android:textAlignment="textEnd"
-        android:layout_gravity="end"
-        android:layout_below="@+id/map"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -64,6 +50,18 @@
         android:layout_alignBottom="@+id/edit_button"
         android:layout_centerHorizontal="true" />
 
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/coordinates_view"
+        android:textSize="13dp"
+        android:textColor="#000"
+        android:textAlignment="textEnd"
+        android:layout_gravity="end"
+        android:layout_below="@+id/place_view"
+        android:layout_centerHorizontal="true" />
+
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -71,10 +69,10 @@
         android:layout_height="300dp"
         tools:context="com.abubaca.viss.messeme.MapsActivity"
         tools:layout="@layout/activity_maps"
-        android:layout_below="@+id/edit_button"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/coordinates_view"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="32dp" />
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

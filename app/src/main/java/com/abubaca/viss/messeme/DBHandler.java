@@ -61,7 +61,11 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void deleteNotes(){
         dbInit();
-        db.execSQL("UPDATE PLACENOTES SET NOTE=''");
+        ContentValues values = new ContentValues();
+        values.put("NOTE" , "");
+        values.put("STATE" , 0);
+        db.update("PLACENOTES" , values , null , null );
+//        db.execSQL("UPDATE PLACENOTES SET NOTE=''");
         Log.i(TAG , "notes cleared");
         dbClose();
     }
@@ -79,10 +83,11 @@ public class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    public void updateNote(String place , String newNote){
+    public void updateNote(String place , String newNote , int state){
         dbInit();
         ContentValues values = new ContentValues();
         values.put("NOTE" , newNote);
+        values.put("STATE" , state);
         db.update("PLACENOTES" , values , "PLACE=?", new String[]{place});
         dbClose();
     }
@@ -109,6 +114,7 @@ public class DBHandler extends SQLiteOpenHelper {
         if(cursor.getCount()>0) {
             do {
                 PlaceNote placeNote = new PlaceNote(cursor.getString(0), cursor.getString(3) , cursor.getInt(4));
+                Log.e(TAG , "placenote state: "+cursor.getInt(4));
                 placeNotes.add(placeNote);
             }while(cursor.moveToNext());
         }

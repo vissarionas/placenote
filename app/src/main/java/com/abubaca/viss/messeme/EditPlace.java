@@ -1,5 +1,6 @@
 package com.abubaca.viss.messeme;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -7,7 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,7 +31,7 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
     private String placeName;
     private TextView placeView , coordinatesView;
     private Double lat , lgn;
-    private GoogleMap mMap;
+    private GoogleMap map;
     private Marker marker;
     private ImageView deleteButton , editButton;
 
@@ -64,8 +65,7 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dbHandler.deletePlace(placeName);
-                EditPlace.this.finish();
+                confirmDropPlace(placeName);
             }
         });
         editButton.setOnClickListener(new View.OnClickListener() {
@@ -90,8 +90,8 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
     }
 
     private void showEditPlaceDialog(final String place){
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setMessage("Change place name.");
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setMessage("Change place name.");
 
         final EditText nameEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -99,8 +99,8 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
                 LinearLayout.LayoutParams.MATCH_PARENT);
         nameEditText.setLayoutParams(params);
         nameEditText.setText(place);
-        alertDialog.setView(nameEditText);
-        alertDialog.setPositiveButton("OK",
+        dialogBuilder.setView(nameEditText);
+        dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -108,20 +108,42 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
                         placeView.setText(nameEditText.getText().toString());
                     }
                 });
-        alertDialog.show();
+        Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat , lgn), 17.0f));
+        map = googleMap;
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat , lgn), 17.0f));
+        map.getUiSettings().setScrollGesturesEnabled(false);
         //remove previously placed Marker
         if (marker != null) {
             marker.remove();
         }
 
         //place marker where user just clicked
-        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lgn))
+        marker = map.addMarker(new MarkerOptions().position(new LatLng(lat, lgn))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+    }
+
+    private void confirmDropPlace(final String placeName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to remove "+placeName+"")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dbHandler.deletePlace(placeName);
+                        EditPlace.this.finish();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +23,12 @@ import java.util.List;
 
 public class PlaceNoteAdapter extends BaseAdapter {
 
+    private final static String TAG = "PLACENOTE_ADAPTER";
+
     private static Context context;
     private static LayoutInflater layoutInflater;
     private static TextView placeText , noteText;
     private static List<PlaceNote> placeNotes;
-    private static ImageView stateImage;
 
     public PlaceNoteAdapter(Context context , List<PlaceNote> placeNotes){
         this.context = context;
@@ -55,10 +58,12 @@ public class PlaceNoteAdapter extends BaseAdapter {
 
             placeText = (TextView)convertView.findViewById(R.id.placeText);
             noteText = (TextView)convertView.findViewById(R.id.noteText);
-            stateImage = (ImageView)convertView.findViewById(R.id.flag);
-            setFlag(placeNotes.get(position).getState());
+            setFlagColor(placeNotes.get(position).getState());
+            Log.i(TAG , "state: "+placeNotes.get(position).getState());
             placeText.setText(placeNotes.get(position).getPlace());
-            noteText.setText(placeNotes.get(position).getNote());
+            String note = placeNotes.get(position).getNote();
+            String subNote = note.length()>20 ? note.substring(0,20):note;
+            noteText.setText(subNote);
         }
         return convertView;
     }
@@ -67,20 +72,20 @@ public class PlaceNoteAdapter extends BaseAdapter {
         return placeNotes.get(position).getPlace();
     }
 
-    private void setFlag(int state){
+    private void setFlagColor(int state){
         switch (state){
             case 0:
-                stateImage.setImageResource(R.drawable.inactive);
+                placeText.setTextColor(Color.parseColor("#4d514e"));
+                noteText.setTextColor(Color.parseColor("#4d514e"));
                 break;
             case 1:
-                stateImage.setImageResource(R.drawable.active);
+                placeText.setTextColor(Color.parseColor("#237733"));
+                noteText.setTextColor(Color.parseColor("#237733"));
                 break;
             case 2:
-                stateImage.setImageResource(R.drawable.alert);
+                placeText.setTextColor(Color.parseColor("#fa1e3c"));
+                noteText.setTextColor(Color.parseColor("#fa1e3c"));
                 break;
-//            default:
-//                stateImage.setImageResource(R.raw.flag_inactive);
-//                break;
         }
     }
 

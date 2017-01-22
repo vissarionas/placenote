@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">Messeme</string>
-    <string name="action_drop_db">Clear database</string>
+    <string name="action_drop_db">Clear ALL</string>
     <string name="title_activity_map">MapActivity</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_edit_place">EditPlace</string>
-    <string name="action_drop_notes">Clear notes</string>
+    <string name="action_drop_notes">Remove notes</string>
 
     <string name="no_geocoder_available">No geocoder available</string>
     <string name="fetch_address">Fetch address</string>
