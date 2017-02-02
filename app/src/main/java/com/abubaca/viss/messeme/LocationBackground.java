@@ -35,6 +35,7 @@ public class LocationBackground extends Service implements LocationListener {
     Location lastLocation;
     String provider;
     List<Location> locations;
+    Long interval;
     DBHandler dbHandler;
 
 
@@ -42,6 +43,8 @@ public class LocationBackground extends Service implements LocationListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
+        interval = intent.getLongExtra("INTERVAL" , 60000);
+        Log.i(TAG , "Interval: "+interval);
 
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
@@ -53,7 +56,7 @@ public class LocationBackground extends Service implements LocationListener {
         Log.i(TAG, "Last known location: " + lastLocation);
 
         if(locations.size()>0) {
-            locationManager.requestLocationUpdates(provider, 10000, 10, this);
+            locationManager.requestLocationUpdates(provider, interval, 10, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -82,7 +85,6 @@ public class LocationBackground extends Service implements LocationListener {
         Log.i(TAG, "*******Location changed: " + location);
         for(int i=0 ; i<locations.size() ; i++){
             if(locations.get(i).distanceTo(location)<50 && location.getAccuracy()<1000){
-                Log.e(TAG , "NOTIFICATION :)");
                 showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
             }
         }

@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
@@ -98,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements
             viewNote(place , true);
         }
         populateList();
-        startStopService();
         createGoogleApiClient();
         super.onResume();
     }
@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements
             return;
         }
         Intent i = new Intent(this , LocationBackground.class);
+        i.putExtra("INTERVAL" , new IntervalGenerator().getInterval(lastLocation , dbHandler.getNotesLocations()));
         startService(i);
     }
 
@@ -350,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements
         createLocationRequest();
         startLocationUpdates();
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        startStopService();
     }
 
     @Override
