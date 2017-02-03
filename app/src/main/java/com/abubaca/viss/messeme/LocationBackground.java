@@ -109,6 +109,8 @@ public class LocationBackground extends Service implements LocationListener {
 
 
     private void showNotification(String place){
+        dbHandler.flagAlert();
+        dbHandler.flagNotified(place);
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("place" , place);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);
@@ -123,7 +125,6 @@ public class LocationBackground extends Service implements LocationListener {
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
-
         NotificationManager notificationManager = (NotificationManager)this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0 , notification);
     }

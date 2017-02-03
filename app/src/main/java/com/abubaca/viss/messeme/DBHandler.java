@@ -18,7 +18,9 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper {
 
     private static int databaseVersion = 1;
-    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , LAT TEXT , LGN TEXT , NOTE TEXT , STATE INTEGER DEFAULT 0)";
+    private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
+            "LAT TEXT , LGN TEXT , NOTE TEXT ," +
+            " STATE INTEGER DEFAULT 0 , NOTIFIED INTEGER DEFAULT 0)";
 
     private static SQLiteDatabase db;
     private final static String TAG = "DBHandler";
@@ -106,6 +108,22 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put("PLACE" , newName);
         db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
         dbClose();
+    }
+
+    public void flagNotified(String place){
+        dbInit();
+        ContentValues values = new ContentValues();
+        values.put("NOTIFIED" , 1);
+        db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
+        dbClose();
+    }
+
+    public void flagAlert(){
+        dbInit();
+        ContentValues values = new ContentValues();
+        values.put("STATE" , 2);
+        db.update("PLACENOTES" , values , "NOTIFIED=?" , new String[]{"1"});
+        db.close();
     }
 
     public List<PlaceNote> getPlaceNotes(){

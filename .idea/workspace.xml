@@ -15,17 +15,12 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.14.1/taskArtifacts/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/2.14.1/taskArtifacts/fileSnapshots.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.14.1/taskArtifacts/fileSnapshotsToTreeSnapshotsIndex.bin" afterPath="$PROJECT_DIR$/.gradle/2.14.1/taskArtifacts/fileSnapshotsToTreeSnapshotsIndex.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.14.1/taskArtifacts/taskArtifacts.bin" afterPath="$PROJECT_DIR$/.gradle/2.14.1/taskArtifacts/taskArtifacts.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.14.1/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.bin" afterPath="$PROJECT_DIR$/.gradle/2.14.1/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.14.1/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.lock" afterPath="$PROJECT_DIR$/.gradle/2.14.1/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.lock" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.14.1/tasks/_app_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.lock" afterPath="$PROJECT_DIR$/.gradle/2.14.1/tasks/_app_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.lock" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/app.iml" afterPath="$PROJECT_DIR$/app/app.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/DBHandler.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/DBHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/EditPlace.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/EditPlace.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MainActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MainActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MapsActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MapsActivity.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/LocationBackground.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/LocationBackground.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/PlaceNoteAdapter.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/PlaceNoteAdapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/edit_note.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/edit_note.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/intermediates/dex-cache/cache.xml" afterPath="$PROJECT_DIR$/build/intermediates/dex-cache/cache.xml" />
     </list>
     <ignored path="messeme.iws" />
@@ -55,37 +50,65 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1836">
+            <state relative-caret-position="910">
               <caret line="427" column="5" selection-start-line="427" selection-start-column="5" selection-end-line="427" selection-end-column="5" />
               <folding>
-                <element signature="e#12819#13054#0" expanded="true" />
-                <element signature="e#13053#13054#0" expanded="true" />
-                <element signature="e#13125#13318#0" expanded="true" />
-                <element signature="e#13317#13318#0" expanded="true" />
-                <element signature="e#14302#14524#0" expanded="true" />
-                <element signature="e#14523#14524#0" expanded="true" />
-                <element signature="e#14635#15194#0" expanded="true" />
-                <element signature="e#15193#15194#0" expanded="true" />
+                <element signature="method#onCreate#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onResume#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onPause#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onStop#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#createGoogleApiClient#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#createLocationRequest#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#startLocationUpdates#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#stopLocationUpdates#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#startStopService#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onCreateOptionsMenu#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onOptionsItemSelected#0;class#MainActivity#0" expanded="false" />
+                <element signature="e#6045#6103#0" expanded="false" />
+                <element signature="method#onRequestPermissionsResult#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#populateList#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#startMapActivity#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#confirmDropDb#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#confirmDropNotes#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#confirmDropNote#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#viewNote#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#editNoteDialog#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#startEditPlaceActivity#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onConnected#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onConnectionSuspended#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onConnectionFailed#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#onLocationChanged#0;class#MainActivity#0" expanded="false" />
+                <element signature="method#locationRecent#0;class#MainActivity#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PlaceNoteAdapter.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/PlaceNoteAdapter.java">
+      <file leaf-file-name="LocationBackground.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/LocationBackground.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="87" column="77" selection-start-line="87" selection-start-column="77" selection-end-line="87" selection-end-column="77" />
+            <state relative-caret-position="303">
+              <caret line="112" column="36" selection-start-line="112" selection-start-column="36" selection-end-line="112" selection-end-column="36" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DBHandler.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="PlaceNoteAdapter.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/PlaceNoteAdapter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="355">
+              <caret line="82" column="74" selection-start-line="82" selection-start-column="74" selection-end-line="82" selection-end-column="74" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DBHandler.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/DBHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="445">
-              <caret line="185" column="0" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
+            <state relative-caret-position="312">
+              <caret line="116" column="31" selection-start-line="116" selection-start-column="31" selection-end-line="116" selection-end-column="31" />
               <folding>
                 <element signature="docComment;class#DBHandler#0" expanded="false" />
                 <element signature="method#dbInit#0;class#DBHandler#0" expanded="false" />
@@ -96,13 +119,12 @@
                 <element signature="method#deletePlace#0;class#DBHandler#0" expanded="false" />
                 <element signature="method#insertToDb#0;class#DBHandler#0" expanded="false" />
                 <element signature="method#updateNote#0;class#DBHandler#0" expanded="false" />
-                <element signature="method#setState#0;class#DBHandler#0" expanded="false" />
                 <element signature="method#updatePlaceName#0;class#DBHandler#0" expanded="false" />
                 <element signature="method#getPlaceNotes#0;class#DBHandler#0" expanded="false" />
                 <element signature="method#getNotesLocations#0;class#DBHandler#0" expanded="false" />
                 <element signature="method#getPlaceNote#0;class#DBHandler#0" expanded="false" />
                 <element signature="method#getPlaceFromLocation#0;class#DBHandler#0" expanded="false" />
-                <element signature="e#4960#5009#0" expanded="false" />
+                <element signature="e#5511#5560#0" expanded="false" />
                 <element signature="method#getFullCursor#0;class#DBHandler#0" expanded="false" />
               </folding>
             </state>
@@ -1870,13 +1892,13 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/LocationBackground.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MainActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/edit_note.xml" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/PlaceNoteAdapter.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MapsActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/EditPlace.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/DBHandler.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/LocationBackground.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/PlaceNoteAdapter.java" />
       </list>
     </option>
   </component>
@@ -2319,7 +2341,7 @@
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5972927" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.8121827" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -2360,14 +2382,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/LocationBackground.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="650">
-          <caret line="72" column="49" selection-start-line="72" selection-start-column="49" selection-end-line="72" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/edit_note.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="156">
@@ -2377,23 +2391,6 @@
       </provider>
       <provider editor-type-id="android-designer2">
         <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MainActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1836">
-          <caret line="427" column="5" selection-start-line="427" selection-start-column="5" selection-end-line="427" selection-end-column="5" />
-          <folding>
-            <element signature="e#12819#13054#0" expanded="true" />
-            <element signature="e#13053#13054#0" expanded="true" />
-            <element signature="e#13125#13318#0" expanded="true" />
-            <element signature="e#13317#13318#0" expanded="true" />
-            <element signature="e#14302#14524#0" expanded="true" />
-            <element signature="e#14523#14524#0" expanded="true" />
-            <element signature="e#14635#15194#0" expanded="true" />
-            <element signature="e#15193#15194#0" expanded="true" />
-          </folding>
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_edit_place.xml">
@@ -2423,18 +2420,45 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/PlaceNoteAdapter.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="87" column="77" selection-start-line="87" selection-start-column="77" selection-end-line="87" selection-end-column="77" />
-          <folding />
+        <state relative-caret-position="910">
+          <caret line="427" column="5" selection-start-line="427" selection-start-column="5" selection-end-line="427" selection-end-column="5" />
+          <folding>
+            <element signature="method#onCreate#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onResume#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onPause#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onStop#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#createGoogleApiClient#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#createLocationRequest#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#startLocationUpdates#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#stopLocationUpdates#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#startStopService#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onCreateOptionsMenu#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onOptionsItemSelected#0;class#MainActivity#0" expanded="false" />
+            <element signature="e#6045#6103#0" expanded="false" />
+            <element signature="method#onRequestPermissionsResult#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#populateList#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#startMapActivity#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#confirmDropDb#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#confirmDropNotes#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#confirmDropNote#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#viewNote#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#editNoteDialog#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#startEditPlaceActivity#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onConnected#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onConnectionSuspended#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onConnectionFailed#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#onLocationChanged#0;class#MainActivity#0" expanded="false" />
+            <element signature="method#locationRecent#0;class#MainActivity#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/DBHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="445">
-          <caret line="185" column="0" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
+        <state relative-caret-position="312">
+          <caret line="116" column="31" selection-start-line="116" selection-start-column="31" selection-end-line="116" selection-end-column="31" />
           <folding>
             <element signature="docComment;class#DBHandler#0" expanded="false" />
             <element signature="method#dbInit#0;class#DBHandler#0" expanded="false" />
@@ -2445,15 +2469,30 @@
             <element signature="method#deletePlace#0;class#DBHandler#0" expanded="false" />
             <element signature="method#insertToDb#0;class#DBHandler#0" expanded="false" />
             <element signature="method#updateNote#0;class#DBHandler#0" expanded="false" />
-            <element signature="method#setState#0;class#DBHandler#0" expanded="false" />
             <element signature="method#updatePlaceName#0;class#DBHandler#0" expanded="false" />
             <element signature="method#getPlaceNotes#0;class#DBHandler#0" expanded="false" />
             <element signature="method#getNotesLocations#0;class#DBHandler#0" expanded="false" />
             <element signature="method#getPlaceNote#0;class#DBHandler#0" expanded="false" />
             <element signature="method#getPlaceFromLocation#0;class#DBHandler#0" expanded="false" />
-            <element signature="e#4960#5009#0" expanded="false" />
+            <element signature="e#5511#5560#0" expanded="false" />
             <element signature="method#getFullCursor#0;class#DBHandler#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/LocationBackground.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="303">
+          <caret line="112" column="36" selection-start-line="112" selection-start-column="36" selection-end-line="112" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/abubaca/viss/messeme/PlaceNoteAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="355">
+          <caret line="82" column="74" selection-start-line="82" selection-start-column="74" selection-end-line="82" selection-end-column="74" />
+          <folding />
         </state>
       </provider>
     </entry>

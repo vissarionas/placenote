@@ -80,7 +80,7 @@ public class PlaceNoteAdapter extends BaseAdapter {
                 break;
             case 1:
                 placeText.setTextColor(Color.parseColor("#088e22"));
-                placeText.setTextSize((float) (placeText.getTextSize()*1.2));
+                placeText.setTextSize((float) (placeText.getTextSize()*1.1));
                 noteText.setTextColor(Color.parseColor("#088e22"));
                 break;
             case 2:
