@@ -75,15 +75,17 @@ public class PlaceNoteAdapter extends BaseAdapter {
     private void setFlagColor(int state){
         switch (state){
             case 0:
-                placeText.setTextColor(Color.parseColor("#4d514e"));
-                noteText.setTextColor(Color.parseColor("#4d514e"));
+                placeText.setTextColor(Color.parseColor("#949995"));
+                noteText.setTextColor(Color.parseColor("#949995"));
                 break;
             case 1:
-                placeText.setTextColor(Color.parseColor("#237733"));
-                noteText.setTextColor(Color.parseColor("#237733"));
+                placeText.setTextColor(Color.parseColor("#088e22"));
+                placeText.setTextSize((float) (placeText.getTextSize()*1.2));
+                noteText.setTextColor(Color.parseColor("#088e22"));
                 break;
             case 2:
                 placeText.setTextColor(Color.parseColor("#fa1e3c"));
+                placeText.setTextSize((float) (placeText.getTextSize()*1.2));
                 noteText.setTextColor(Color.parseColor("#fa1e3c"));
                 break;
         }

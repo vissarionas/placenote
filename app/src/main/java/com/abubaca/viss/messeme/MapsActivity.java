@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -166,13 +168,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void addPlaceDialog(final Double lat , final Double lng) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage("Name your place.");
+        dialogBuilder.setMessage("Name?");
 
         final EditText nameEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         nameEditText.setLayoutParams(params);
+        nameEditText.setInputType(InputType.TYPE_CLASS_TEXT);
+        nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(10)});
         dialogBuilder.setView(nameEditText);
         dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {

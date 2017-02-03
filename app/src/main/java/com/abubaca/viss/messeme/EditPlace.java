@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -99,6 +101,8 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
                 LinearLayout.LayoutParams.MATCH_PARENT);
         nameEditText.setLayoutParams(params);
         nameEditText.setText(place);
+        nameEditText.setInputType(InputType.TYPE_CLASS_TEXT);
+        nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(10)});
         dialogBuilder.setView(nameEditText);
         dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
@@ -110,6 +114,7 @@ public class EditPlace extends FragmentActivity implements OnMapReadyCallback {
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
         dialog.show();
     }
 

@@ -184,17 +184,4 @@ public class DBHandler extends SQLiteOpenHelper {
         return this.cursor;
     }
 
-    public int noteCounter(){
-        dbInit();
-        int counter = 0;
-        if(cursor.getCount()>0){
-            do {
-                if(!cursor.getString(3).toString().isEmpty()) {
-                    counter++;
-                }
-            }while (cursor.moveToNext()) ;
-        }
-        dbClose();
-        return counter;
-    }
 }

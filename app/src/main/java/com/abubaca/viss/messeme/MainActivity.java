@@ -14,7 +14,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -305,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
-        Button btnDelete , btnOk;
+        Button btnDelete;
         final TextView placeTextView, noteTextView;
         btnDelete = (Button)editView.findViewById(R.id.btn_delete);
         if(dbHandler.getPlaceNote(placeName).isEmpty()){
@@ -356,16 +358,25 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void editNoteDialog(final String place){
+        String prevNote = dbHandler.getPlaceNote(place);
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage("Write a note.");
+        dialogBuilder.setMessage("Note");
 
         final EditText noteEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         noteEditText.setLayoutParams(params);
-        noteEditText.setText(dbHandler.getPlaceNote(place));
-        noteEditText.setSelection(noteEditText.getText().length());
+        noteEditText.setText(prevNote);
+        noteEditText.setSelection(prevNote.length() , prevNote.length());
+        noteEditText.setInputType(InputType.TYPE_CLASS_TEXT);
+        noteEditText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                Log.e(TAG , keyCode+" "+event);
+                return false;
+            }
+        });
 
         dialogBuilder.setView(noteEditText);
         dialogBuilder.setPositiveButton("OK",
@@ -383,6 +394,7 @@ public class MainActivity extends AppCompatActivity implements
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
         dialog.show();
     }
 
@@ -418,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     private Boolean locationRecent(Location location){
-        long time= System.currentTimeMillis();
+        long time = System.currentTimeMillis();
         long lastKnownLocationTime = location.getTime();
         return (time - lastKnownLocationTime < 60000);
     }
