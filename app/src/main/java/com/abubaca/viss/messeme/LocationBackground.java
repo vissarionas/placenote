@@ -34,23 +34,25 @@ public class LocationBackground extends Service implements LocationListener {
     List<Location> locations;
     Long interval;
     DBHandler dbHandler;
+    Location lastLocation;
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
-        interval = intent.getLongExtra("INTERVAL" , 60000);
-        Log.i(TAG , "Service started. Interval: "+interval);
+        Log.i(TAG , "Service started");
 
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_COARSE);
         criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
         provider = locationManager.getBestProvider(criteria, false);
+        lastLocation = locationManager.getLastKnownLocation(provider);
 
         if(locations.size()>0) {
-            locationManager.requestLocationUpdates(provider, interval, 10, this);
+            interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):60000;
+            locationManager.requestLocationUpdates(provider, 2000, 0, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -68,7 +70,7 @@ public class LocationBackground extends Service implements LocationListener {
         AlarmManager myAlarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         myAlarmService.set(
                 AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 5000,
+                SystemClock.elapsedRealtime() + 3000,
                 restartPendingIntent);
 
         super.onTaskRemoved(rootIntent);
