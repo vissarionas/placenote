@@ -28,11 +28,8 @@ import java.util.List;
 
 public class LocationBackground extends Service implements LocationListener {
 
-    private static final int MY_PERMISSIONS_REQUEST_COARSE_LOCATION = 0x1;
-
     private final static String TAG = "LOCATION_HANDLER";
     LocationManager locationManager;
-    Location lastLocation;
     String provider;
     List<Location> locations;
     Long interval;
@@ -44,16 +41,13 @@ public class LocationBackground extends Service implements LocationListener {
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
         interval = intent.getLongExtra("INTERVAL" , 60000);
-        Log.i(TAG , "Interval: "+interval);
+        Log.i(TAG , "Service started. Interval: "+interval);
 
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_COARSE);
         criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
         provider = locationManager.getBestProvider(criteria, false);
-        lastLocation = locationManager.getLastKnownLocation(provider);
-
-        Log.i(TAG, "Last known location: " + lastLocation);
 
         if(locations.size()>0) {
             locationManager.requestLocationUpdates(provider, interval, 10, this);
@@ -74,7 +68,7 @@ public class LocationBackground extends Service implements LocationListener {
         AlarmManager myAlarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         myAlarmService.set(
                 AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 2000,
+                SystemClock.elapsedRealtime() + 5000,
                 restartPendingIntent);
 
         super.onTaskRemoved(rootIntent);

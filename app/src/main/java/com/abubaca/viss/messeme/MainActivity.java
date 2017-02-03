@@ -16,18 +16,21 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -86,12 +89,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        stopLocationUpdates();
-    }
-
-    @Override
     protected void onResume() {
         Log.i(TAG , "onResume()");
         String place = getIntent().getStringExtra("place");
@@ -101,6 +98,61 @@ public class MainActivity extends AppCompatActivity implements
         populateList();
         createGoogleApiClient();
         super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.i(TAG , "onPause()");
+        super.onPause();
+        startStopService();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.i(TAG, "onStop()");
+        super.onStop();
+        stopLocationUpdates();
+    }
+
+    private void createGoogleApiClient() {
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+        Log.i(TAG , "created google api client");
+        if(googleApiClient.isConnected()){
+            googleApiClient.reconnect();
+        }else{
+            googleApiClient.connect();
+        }
+    }
+
+    protected void createLocationRequest() {
+        Log.i(TAG , "created location requests");
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(3000);
+        locationRequest.setFastestInterval(2000);
+        locationRequest.setExpirationDuration(60000);
+        locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
+    }
+
+    protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST);
+            return;
+        }
+        Log.i(TAG , "Started location updates");
+        lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                googleApiClient, locationRequest, this);
+    }
+
+    protected void stopLocationUpdates() {
+        Log.i(TAG , "Stopped location updates");
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
     }
 
     private void startStopService(){
@@ -320,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements
         noteEditText.setLayoutParams(params);
         noteEditText.setText(dbHandler.getPlaceNote(place));
         noteEditText.setSelection(noteEditText.getText().length());
+
         dialogBuilder.setView(noteEditText);
         dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
@@ -350,8 +403,6 @@ public class MainActivity extends AppCompatActivity implements
         Log.i(TAG , "GoogleAPIClient connected");
         createLocationRequest();
         startLocationUpdates();
-        lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        startStopService();
     }
 
     @Override
@@ -370,45 +421,7 @@ public class MainActivity extends AppCompatActivity implements
         fab.setVisibility(View.VISIBLE);
     }
 
-    private void createGoogleApiClient() {
-        if (googleApiClient == null) {
-            googleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-        Log.i(TAG , "created google api client");
-        if(googleApiClient.isConnected()){
-            googleApiClient.reconnect();
-        }else{
-            googleApiClient.connect();
-        }
-    }
 
-    protected void createLocationRequest() {
-        Log.i(TAG , "created location requests");
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(3000);
-        locationRequest.setFastestInterval(2000);
-        locationRequest.setExpirationDuration(60000);
-        locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-    }
-
-    protected void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST);
-            return;
-        }
-        Log.i(TAG , "Started location updates");
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                googleApiClient, locationRequest, this);
-    }
-
-    protected void stopLocationUpdates() {
-        Log.i(TAG , "Stopped location updates");
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
-    }
 
     private Boolean locationRecent(Location location){
         long time= System.currentTimeMillis();

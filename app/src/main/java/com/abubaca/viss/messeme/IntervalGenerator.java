@@ -24,7 +24,7 @@ public class IntervalGenerator {
                     smallestDistance = currentLocation.distanceTo(locations.get(i));
                 }
             }
-            interval = (int) (smallestDistance * 500);
+            interval = (long) Math.round((smallestDistance * 500)/10000)*10000;
         }
 
         Log.i(TAG , "interval: "+String.valueOf(interval)+"\nsmaller distance: "+String.valueOf(smallestDistance));
