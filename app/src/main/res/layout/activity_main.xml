@@ -15,9 +15,12 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            android:minHeight="30dp"
+            android:elevation="0dp"
+            android:layout_height="wrap_content"
+            tools:ignore="UnusedAttribute" />
 
     </android.support.design.widget.AppBarLayout>
 
@@ -35,7 +38,7 @@
         app:rippleColor="?attr/actionMenuTextColor" />
 
     <TextView
-        android:textSize="20dp"
+        android:textSize="20sp"
         android:textAlignment="center"
         android:visibility="invisible"
         android:textColor="#000"

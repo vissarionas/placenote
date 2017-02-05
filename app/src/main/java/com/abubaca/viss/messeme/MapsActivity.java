@@ -73,7 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         latlng = new LatLng(extras.getDouble("lat") , extras.getDouble("lng"));
         accuracy = 20;
 //        accuracy = extras.getFloat("accuracy");
-        mapZoom = accuracy < 100 ? 19.0f : 17.0f;
+        mapZoom = accuracy < 100 ? 18.0f : 16.0f;
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);

@@ -1,40 +1,60 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#fff"
+    android:weightSum="2">
 
-    <Button
-        android:text="Button"
-        android:visibility="invisible"
-        android:textColor="#000"
+    <LinearLayout android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/add_place_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:textAlignment="center"
-        android:textAllCaps="false"/>
+        android:orientation="vertical"
+        android:layout_weight="0.2"
+        android:layout_margin="5dp">
 
-    <fragment
-        android:id="@+id/place_autocomplete_fragment"
+        <fragment
+            android:id="@+id/place_autocomplete_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+            />
+
+        <View style="@style/Divider"/>
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.abubaca.viss.messeme.MapsActivity" />
+
+
+    </LinearLayout>
+
+    <LinearLayout android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-        />
+        android:orientation="vertical"
+        android:layout_weight="1.8"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp">
 
 
 
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="com.abubaca.viss.messeme.MapsActivity"
-        android:layout_below="@+id/place_autocomplete_fragment"
-        android:layout_above="@+id/add_place_button" />
+        <Button
+            android:text="Button"
+            android:visibility="invisible"
+            android:layout_margin="2dp"
+            android:textColor="#000"
+            android:background="#f9f9f9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/add_place_button"
+            android:textAlignment="center"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
 
 
-
-
-</RelativeLayout>
+</LinearLayout>

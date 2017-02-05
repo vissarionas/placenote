@@ -3,6 +3,15 @@
 
     <item
         is-multidex="false"
+        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/support-core-ui/25.1.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="aee64634871d88a419d59eb743c1258a60f19700">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-support-core-ui-25.1.0_dc6d1b081dd640421da9798e0328b69a906a26c1.jar" />
+    </item>
+    <item
+        is-multidex="false"
         jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-maps/10.0.1/jars/classes.jar"
         jumboMode="false"
         optimize="true"
@@ -30,12 +39,30 @@
     </item>
     <item
         is-multidex="false"
+        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/25.1.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="1630658fbc2d222b988603c27b4a4249586fbfe7">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-appcompat-v7-25.1.0_98c06af425a07eca90e2627c02a65878f2cf9cc9.jar" />
+    </item>
+    <item
+        is-multidex="false"
         jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/support-media-compat/25.1.0/jars/classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
         sha1="f02263e35e52668dd17b73bf961437e3d562b35f">
         <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-support-media-compat-25.1.0_a2aaacd2937aaaa8fd4538a0a7f2b2616144e502.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/viss/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/25.1.0/support-annotations-25.1.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="64cb6b229a8bdfd907bc8dd46839a0053e4c018d">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/support-annotations-25.1.0_5a58f0cd396e9becb187a3dd41d45f960bf034db.jar" />
     </item>
     <item
         is-multidex="false"
@@ -48,12 +75,48 @@
     </item>
     <item
         is-multidex="false"
+        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/support-compat/25.1.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="ca3c7aa31e2726a400a6e552b93cb9f63c9a1e6d">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-support-compat-25.1.0_970df5287a09497d8b9b60fb3edcd796055a950b.jar" />
+    </item>
+    <item
+        is-multidex="false"
         jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/25.1.0/jars/classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
         sha1="e79aa3d9a16f8c9f16377c0608de70a8f31e5d80">
         <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-support-vector-drawable-25.1.0_8241fcc95040b1006a292a287c1fe9f256f86a55.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-tasks/10.0.1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="6addaba208e21c6da776d0ca75b6b23a6ccd5499">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-tasks-10.0.1_79fe1eefd7d0e53753141ddaddc9ffaf2176bc7b.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/transition/25.1.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d38084015027549951cbaea5d5f6fb795cc81151">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-transition-25.1.0_28ff2154687f633f23a4ab9019f879357592c2ac.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-basement/10.0.1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="756f6297eef79784f5e356dcd4f39865028b2bd0">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-basement-10.0.1_e273b62b995c53b27204c436bb8f9c7da6cb1388.jar" />
     </item>
     <item
         is-multidex="false"
@@ -93,84 +156,21 @@
     </item>
     <item
         is-multidex="false"
-        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/design/25.1.0/jars/classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="30103d98fa5ed824b54af839c85e2111f9bde8ec">
-        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-design-25.1.0_075c91437fb6e5e41040c57b6f25eb3902e72363.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/support-core-ui/25.1.0/jars/classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="aee64634871d88a419d59eb743c1258a60f19700">
-        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-support-core-ui-25.1.0_dc6d1b081dd640421da9798e0328b69a906a26c1.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/25.1.0/jars/classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="1630658fbc2d222b988603c27b4a4249586fbfe7">
-        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-appcompat-v7-25.1.0_98c06af425a07eca90e2627c02a65878f2cf9cc9.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="/home/viss/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/25.1.0/support-annotations-25.1.0.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="64cb6b229a8bdfd907bc8dd46839a0053e4c018d">
-        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/support-annotations-25.1.0_5a58f0cd396e9becb187a3dd41d45f960bf034db.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/support-compat/25.1.0/jars/classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="ca3c7aa31e2726a400a6e552b93cb9f63c9a1e6d">
-        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-support-compat-25.1.0_970df5287a09497d8b9b60fb3edcd796055a950b.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-tasks/10.0.1/jars/classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="6addaba208e21c6da776d0ca75b6b23a6ccd5499">
-        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-tasks-10.0.1_79fe1eefd7d0e53753141ddaddc9ffaf2176bc7b.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/transition/25.1.0/jars/classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="d38084015027549951cbaea5d5f6fb795cc81151">
-        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-transition-25.1.0_28ff2154687f633f23a4ab9019f879357592c2ac.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-basement/10.0.1/jars/classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="756f6297eef79784f5e356dcd4f39865028b2bd0">
-        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-basement-10.0.1_e273b62b995c53b27204c436bb8f9c7da6cb1388.jar" />
-    </item>
-    <item
-        is-multidex="false"
         jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-places/10.0.1/jars/classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
         sha1="f3e51e9c5233b8897f61e08a6a27bc36283c2724">
         <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-places-10.0.1_f89f58297c1540701d8e5a8e593f419f617d6986.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/design/25.1.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="30103d98fa5ed824b54af839c85e2111f9bde8ec">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support-design-25.1.0_075c91437fb6e5e41040c57b6f25eb3902e72363.jar" />
     </item>
 
 </items>
