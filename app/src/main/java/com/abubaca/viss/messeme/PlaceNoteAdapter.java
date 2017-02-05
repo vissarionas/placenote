@@ -58,7 +58,6 @@ public class PlaceNoteAdapter extends BaseAdapter {
             placeText = (TextView)convertView.findViewById(R.id.placeText);
             noteText = (TextView)convertView.findViewById(R.id.noteText);
             setFlagColor(placeNotes.get(position).getState());
-            Log.i(TAG , "state: "+placeNotes.get(position).getState());
             placeText.setText(placeNotes.get(position).getPlace());
             String note = placeNotes.get(position).getNote();
             String subNote = note.length()>20 ? note.substring(0,20):note;
@@ -77,11 +76,16 @@ public class PlaceNoteAdapter extends BaseAdapter {
                 noteText.setTextColor(Color.parseColor("#949995"));
                 break;
             case 1:
+                placeText.setTextColor(Color.parseColor("#949995"));
+                placeText.setTextSize((float) (placeText.getTextSize()*1.05));
+                noteText.setTextColor(Color.parseColor("#949995"));
+                break;
+            case 2:
                 placeText.setTextColor(Color.parseColor("#088e22"));
                 placeText.setTextSize((float) (placeText.getTextSize()*1.05));
                 noteText.setTextColor(Color.parseColor("#088e22"));
                 break;
-            case 2:
+            case 3:
                 placeText.setTextColor(Color.parseColor("#fa1e3c"));
                 placeText.setTextSize((float) (placeText.getTextSize()*1.2));
                 noteText.setTextColor(Color.parseColor("#fa1e3c"));

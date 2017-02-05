@@ -88,10 +88,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         Log.i(TAG , "onResume()");
-        String place = getIntent().getStringExtra("PLACE");
-        if (place != null) {
-            viewNote(place);
-        }
         populateList();
         createGoogleApiClient();
         startStopService();
@@ -298,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void viewNote(final String place){
-        if(!dbHandler.getPlaceNote(place).isEmpty())dbHandler.updateNote(place , null , 1 , null);
+        if(dbHandler.isNotified(place))dbHandler.updateNote(place , null , 1 , null);
         LayoutInflater inflater = getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
         editView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -368,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements
                     public void onClick(DialogInterface dialog, int which) {
                         String note = noteEditText.getText().toString();
                         if(!note.contentEquals("")){
-                            dbHandler.updateNote(place , note , 1 , 0);
+                            dbHandler.updateNote(place , note , 2 , 0);
                         }else{
                             dbHandler.updateNote(place , note , 0 , 0);
                         }

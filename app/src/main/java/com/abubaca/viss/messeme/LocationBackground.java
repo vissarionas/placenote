@@ -52,7 +52,7 @@ public class LocationBackground extends Service implements LocationListener {
 
         if(locations.size()>0) {
             interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):60000;
-            locationManager.requestLocationUpdates(provider, interval, 20, this);
+            locationManager.requestLocationUpdates(provider, 2000, 0, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -64,26 +64,22 @@ public class LocationBackground extends Service implements LocationListener {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         Log.e(TAG , "onTaskRemoved()");
-        Intent restartServiceTask = new Intent(getApplicationContext(),this.getClass());
-        restartServiceTask.setPackage(getPackageName());
-        PendingIntent restartPendingIntent =PendingIntent.getService(getApplicationContext(), 1,restartServiceTask, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManager myAlarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        myAlarmService.set(
-                AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 3000,
-                restartPendingIntent);
-
+        restartSelf();
         super.onTaskRemoved(rootIntent);
     }
 
     @Override
     public void onLocationChanged(Location location) {
         Log.i(TAG, "*******Location changed: " + location);
-        for(int i=0 ; i<locations.size() ; i++){
-            if(locations.get(i).distanceTo(location)<50 && location.getAccuracy()<1000){
-                showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
+        if(location.getAccuracy()<1000){
+            for(int i=0 ; i<locations.size() ; i++){
+                if(locations.get(i).distanceTo(location)<50){
+                    showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
+                    break;
+                }
             }
         }
+
     }
 
     @Override
@@ -109,9 +105,8 @@ public class LocationBackground extends Service implements LocationListener {
 
 
     private void showNotification(String place){
-        dbHandler.updateNote(place , null , 2 , 1);
+        dbHandler.updateNote(place , null , 3 , 1);
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("PLACE" , place);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
@@ -126,6 +121,19 @@ public class LocationBackground extends Service implements LocationListener {
         Notification notification = builder.build();
         NotificationManager notificationManager = (NotificationManager)this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0 , notification);
+        restartSelf();
+    }
+
+    private void restartSelf(){
+        Log.e(TAG , "Service restarted");
+        Intent restartServiceTask = new Intent(getApplicationContext(),this.getClass());
+        restartServiceTask.setPackage(getPackageName());
+        PendingIntent restartPendingIntent =PendingIntent.getService(getApplicationContext(), 1,restartServiceTask, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager myAlarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        myAlarmService.set(
+                AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 3000,
+                restartPendingIntent);
     }
 
 }

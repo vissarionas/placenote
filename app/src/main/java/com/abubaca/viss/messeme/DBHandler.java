@@ -120,7 +120,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         if(cursor.getCount()>0){
             do{
-                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == 1 && cursor.getInt(5) == 0){
+                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == 2 && cursor.getInt(5) == 0){
                     Location singlePlaceLocation = new Location("");
                     lat = Double.valueOf(cursor.getString(1));
                     lgn = Double.valueOf(cursor.getString(2));
@@ -167,6 +167,20 @@ public class DBHandler extends SQLiteOpenHelper {
         }
         dbClose();
         return place;
+    }
+
+    public Boolean isNotified(String place){
+        dbInit();
+        if(cursor.getCount()>0){
+            do {
+                if(cursor.getString(0).contentEquals(place)){
+                     break;
+                }
+            }while(cursor.moveToNext());
+        }
+        dbClose();
+        Log.i(TAG , "Notified: "+place+" "+(cursor.getInt(5) == 1));
+        return cursor.getInt(5) == 1;
     }
 
     public Cursor getFullCursor(){
