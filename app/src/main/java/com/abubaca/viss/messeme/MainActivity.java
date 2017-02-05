@@ -88,9 +88,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         Log.i(TAG , "onResume()");
-        String place = getIntent().getStringExtra("place");
+        String place = getIntent().getStringExtra("PLACE");
         if (place != null) {
-            viewNote(place , true);
+            viewNote(place);
         }
         populateList();
         createGoogleApiClient();
@@ -215,18 +215,15 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 startEditPlaceActivity(adapter.getPlace(position));
-                populateList();
                 return true;
             }
         });
 
         list_view.setAdapter(adapter);
-
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                viewNote(adapter.getPlace(position) , false);
-                populateList();
+                viewNote(adapter.getPlace(position));
             }
         });
     }
@@ -248,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.deleteDb();
+                        dbHandler.clearDb();
                         onResume();
                     }
                 })
@@ -286,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.updateNote(placeName , "" , 0);
+                        dbHandler.updateNote(placeName , "" , 0 , 0);
                         onResume();
                         populateList();
                     }
@@ -300,7 +297,8 @@ public class MainActivity extends AppCompatActivity implements
         alert.show();
     }
 
-    private void viewNote(final String placeName , final Boolean fromNotification){
+    private void viewNote(final String place){
+        if(!dbHandler.getPlaceNote(place).isEmpty())dbHandler.updateNote(place , null , 1 , null);
         LayoutInflater inflater = getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
         editView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -310,20 +308,16 @@ public class MainActivity extends AppCompatActivity implements
         Button btnDelete;
         final TextView placeTextView, noteTextView;
         btnDelete = (Button)editView.findViewById(R.id.btn_delete);
-        if(dbHandler.getPlaceNote(placeName).isEmpty()){
+        if(dbHandler.getPlaceNote(place).isEmpty()){
             btnDelete.setVisibility(View.INVISIBLE);
         }
         placeTextView = (TextView)editView.findViewById(R.id.place_text_view);
         noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
-        placeTextView.setText(placeName);
-        String note = dbHandler.getPlaceNote(placeName);
+        placeTextView.setText(place);
+        String note = dbHandler.getPlaceNote(place);
         if(!note.isEmpty()) {
             noteTextView.setText(note);
-            if(fromNotification) {
-                dbHandler.setState(placeName, 0);
-            }
         }
-
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setView(editView);
@@ -331,19 +325,15 @@ public class MainActivity extends AppCompatActivity implements
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                if(noteTextView.getText()=="")dbHandler.updateNote(placeName , "" , 0);
+                populateList();
             }
         });
         dialog.show();
 
-
-
-
-
         noteTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editNoteDialog(placeName);
+                editNoteDialog(place);
                 dialog.dismiss();
             }
         });
@@ -351,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                confirmDropNote(placeName);
+                confirmDropNote(place);
                 dialog.dismiss();
             }
         });
@@ -368,15 +358,8 @@ public class MainActivity extends AppCompatActivity implements
                 LinearLayout.LayoutParams.MATCH_PARENT);
         noteEditText.setLayoutParams(params);
         noteEditText.setText(prevNote);
-        noteEditText.setSelection(prevNote.length() , prevNote.length());
+        noteEditText.setSelection(prevNote.length());
         noteEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-        noteEditText.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                Log.e(TAG , keyCode+" "+event);
-                return false;
-            }
-        });
 
         dialogBuilder.setView(noteEditText);
         dialogBuilder.setPositiveButton("OK",
@@ -385,9 +368,9 @@ public class MainActivity extends AppCompatActivity implements
                     public void onClick(DialogInterface dialog, int which) {
                         String note = noteEditText.getText().toString();
                         if(!note.contentEquals("")){
-                            dbHandler.updateNote(place , note , 1);
+                            dbHandler.updateNote(place , note , 1 , 0);
                         }else{
-                            dbHandler.updateNote(place , note , 0);
+                            dbHandler.updateNote(place , note , 0 , 0);
                         }
                         MainActivity.this.onResume();
                     }

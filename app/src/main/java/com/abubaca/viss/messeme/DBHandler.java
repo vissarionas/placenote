@@ -52,11 +52,10 @@ public class DBHandler extends SQLiteOpenHelper {
 
     }
 
-    public void deleteDb(){
+    public void clearDb(){
         dbInit();
         if(cursor.getCount()>0) {
             db.execSQL("DELETE FROM PLACENOTES");
-            Log.i(TAG, "database cleared");
         }
         dbClose();
     }
@@ -66,16 +65,14 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("NOTE" , "");
         values.put("STATE" , 0);
+        values.put("NOTIFIED" , 0);
         db.update("PLACENOTES" , values , null , null );
-//        db.execSQL("UPDATE PLACENOTES SET NOTE=''");
-        Log.i(TAG , "notes cleared");
         dbClose();
     }
 
     public void deletePlace(String place){
         dbInit();
         db.delete("PLACENOTES", "PLACE='" + place + "'", null);
-        Log.i(TAG , "deleted place: "+place);
         dbClose();
     }
 
@@ -85,20 +82,13 @@ public class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    public void updateNote(String place , String newNote , int state){
+    public void updateNote(String place , String newNote , int state , Integer notified){
         dbInit();
         ContentValues values = new ContentValues();
-        values.put("NOTE" , newNote);
+        if(newNote != null) values.put("NOTE" , newNote);
         values.put("STATE" , state);
+        if(notified != null) values.put("NOTIFIED" , notified);
         db.update("PLACENOTES" , values , "PLACE=?", new String[]{place});
-        dbClose();
-    }
-
-    public void setState(String place , int active){
-        dbInit();
-        ContentValues values = new ContentValues();
-        values.put("STATE" , active);
-        db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
         dbClose();
     }
 
@@ -110,29 +100,12 @@ public class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    public void flagNotified(String place){
-        dbInit();
-        ContentValues values = new ContentValues();
-        values.put("NOTIFIED" , 1);
-        db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
-        dbClose();
-    }
-
-    public void flagAlert(){
-        dbInit();
-        ContentValues values = new ContentValues();
-        values.put("STATE" , 2);
-        db.update("PLACENOTES" , values , "NOTIFIED=?" , new String[]{"1"});
-        db.close();
-    }
-
     public List<PlaceNote> getPlaceNotes(){
         dbInit();
         List<PlaceNote> placeNotes = new ArrayList<>();
         if(cursor.getCount()>0) {
             do {
                 PlaceNote placeNote = new PlaceNote(cursor.getString(0), cursor.getString(3) , cursor.getInt(4));
-                Log.e(TAG , "placenote state: "+cursor.getInt(4));
                 placeNotes.add(placeNote);
             }while(cursor.moveToNext());
         }
@@ -147,7 +120,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         if(cursor.getCount()>0){
             do{
-                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == 1) {
+                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == 1 && cursor.getInt(5) == 0){
                     Location singlePlaceLocation = new Location("");
                     lat = Double.valueOf(cursor.getString(1));
                     lgn = Double.valueOf(cursor.getString(2));

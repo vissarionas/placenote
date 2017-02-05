@@ -52,7 +52,7 @@ public class LocationBackground extends Service implements LocationListener {
 
         if(locations.size()>0) {
             interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):60000;
-            locationManager.requestLocationUpdates(provider, 2000, 0, this);
+            locationManager.requestLocationUpdates(provider, interval, 20, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -109,10 +109,9 @@ public class LocationBackground extends Service implements LocationListener {
 
 
     private void showNotification(String place){
-        dbHandler.flagAlert();
-        dbHandler.flagNotified(place);
+        dbHandler.updateNote(place , null , 2 , 1);
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("place" , place);
+        intent.putExtra("PLACE" , place);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);

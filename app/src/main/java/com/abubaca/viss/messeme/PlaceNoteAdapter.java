@@ -53,7 +53,6 @@ public class PlaceNoteAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(convertView == null){
             convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
 
             placeText = (TextView)convertView.findViewById(R.id.placeText);
@@ -64,7 +63,6 @@ public class PlaceNoteAdapter extends BaseAdapter {
             String note = placeNotes.get(position).getNote();
             String subNote = note.length()>20 ? note.substring(0,20):note;
             noteText.setText(subNote);
-        }
         return convertView;
     }
 
@@ -80,7 +78,7 @@ public class PlaceNoteAdapter extends BaseAdapter {
                 break;
             case 1:
                 placeText.setTextColor(Color.parseColor("#088e22"));
-                placeText.setTextSize((float) (placeText.getTextSize()*1.1));
+                placeText.setTextSize((float) (placeText.getTextSize()*1.05));
                 noteText.setTextColor(Color.parseColor("#088e22"));
                 break;
             case 2:
