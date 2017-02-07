@@ -9,6 +9,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <supports-screens
         android:largeScreens="true"
@@ -66,10 +67,15 @@
         <service android:name=".AddressGenerator"
             android:exported="false"/>
 
-        <!--<receiver-->
-            <!--android:name="com.my.app.receiver.NotificationDismissedReceiver"-->
-            <!--android:exported="false" >-->
-        <!--</receiver>-->
+        <receiver
+            android:name="com.abubaca.viss.messeme.BootReciever"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

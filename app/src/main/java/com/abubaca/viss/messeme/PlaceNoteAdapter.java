@@ -1,20 +1,14 @@
 package com.abubaca.viss.messeme;
 
 import android.content.Context;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -77,17 +71,17 @@ public class PlaceNoteAdapter extends BaseAdapter {
                 break;
             case 1:
                 placeText.setTextColor(Color.parseColor("#949995"));
-                placeText.setTextSize((float) (placeText.getTextSize()*1.05));
+                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
                 noteText.setTextColor(Color.parseColor("#949995"));
                 break;
             case 2:
                 placeText.setTextColor(Color.parseColor("#088e22"));
-                placeText.setTextSize((float) (placeText.getTextSize()*1.05));
+                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
                 noteText.setTextColor(Color.parseColor("#088e22"));
                 break;
             case 3:
                 placeText.setTextColor(Color.parseColor("#fa1e3c"));
-                placeText.setTextSize((float) (placeText.getTextSize()*1.2));
+                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
                 noteText.setTextColor(Color.parseColor("#fa1e3c"));
                 break;
         }

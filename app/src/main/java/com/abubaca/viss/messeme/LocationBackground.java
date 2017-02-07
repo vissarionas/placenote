@@ -49,10 +49,10 @@ public class LocationBackground extends Service implements LocationListener {
         criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
         provider = locationManager.getBestProvider(criteria, false);
         lastLocation = locationManager.getLastKnownLocation(provider);
+        interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):120000;
 
         if(locations.size()>0) {
-            interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):60000;
-            locationManager.requestLocationUpdates(provider, 60000, 20, this);
+            locationManager.requestLocationUpdates(provider, interval , 30, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -70,11 +70,12 @@ public class LocationBackground extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        interval = lastLocation!=null ? new IntervalGenerator().getInterval(location , locations):120000;
         Log.i(TAG, "*******Location changed: " + location);
         if(location.getAccuracy()<1000){
             for(int i=0 ; i<locations.size() ; i++){
-                Log.i(TAG , "Distance: "+locations.get(i).distanceTo(location));
-                if(locations.get(i).distanceTo(location)<50){
+                float distance = locations.get(i).distanceTo(location);
+                if(distance<50){
                     showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
                     break;
                 }

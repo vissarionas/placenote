@@ -16,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -302,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         Button btnDelete;
-        final TextView placeTextView, noteTextView;
+        final TextView noteTextView;
         btnDelete = (Button)editView.findViewById(R.id.btn_delete);
         if(dbHandler.getPlaceNote(place).isEmpty()){
             btnDelete.setVisibility(View.INVISIBLE);
@@ -407,13 +406,6 @@ public class MainActivity extends AppCompatActivity implements
         fab.setVisibility(View.VISIBLE);
     }
 
-
-
-    private Boolean locationRecent(Location location){
-        long time = System.currentTimeMillis();
-        long lastKnownLocationTime = location.getTime();
-        return (time - lastKnownLocationTime < 60000);
-    }
 }
 
 
