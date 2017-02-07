@@ -52,7 +52,7 @@ public class LocationBackground extends Service implements LocationListener {
 
         if(locations.size()>0) {
             interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):60000;
-            locationManager.requestLocationUpdates(provider, 2000, 0, this);
+            locationManager.requestLocationUpdates(provider, 60000, 20, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -73,6 +73,7 @@ public class LocationBackground extends Service implements LocationListener {
         Log.i(TAG, "*******Location changed: " + location);
         if(location.getAccuracy()<1000){
             for(int i=0 ; i<locations.size() ; i++){
+                Log.i(TAG , "Distance: "+locations.get(i).distanceTo(location));
                 if(locations.get(i).distanceTo(location)<50){
                     showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
                     break;

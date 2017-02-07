@@ -13,16 +13,6 @@
         android:layout_weight="0.1">
 
         <TextView
-            android:background="@color/vissGreen"
-            android:text="Place"
-            android:textAlignment="center"
-            android:textColor="#000"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/place_text_view"
-            android:textSize="18dp"/>
-
-        <TextView
             android:layout_margin="40dp"
             android:text="empty note"
             android:textAlignment="center"

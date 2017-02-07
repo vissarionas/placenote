@@ -307,9 +307,9 @@ public class MainActivity extends AppCompatActivity implements
         if(dbHandler.getPlaceNote(place).isEmpty()){
             btnDelete.setVisibility(View.INVISIBLE);
         }
-        placeTextView = (TextView)editView.findViewById(R.id.place_text_view);
+//        placeTextView = (TextView)editView.findViewById(R.id.place_text_view);
         noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
-        placeTextView.setText(place);
+//        placeTextView.setText(place);
         String note = dbHandler.getPlaceNote(place);
         if(!note.isEmpty()) {
             noteTextView.setText(note);
@@ -317,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setView(editView);
+        dialogBuilder.setTitle(place);
         final Dialog dialog = dialogBuilder.create();
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
