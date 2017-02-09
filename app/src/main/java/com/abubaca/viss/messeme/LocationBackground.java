@@ -1,6 +1,5 @@
 package com.abubaca.viss.messeme;
 
-import android.Manifest;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -8,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -19,7 +17,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -56,7 +53,7 @@ public class LocationBackground extends Service implements LocationListener {
         interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):120000;
 
         if(locations.size()>0) {
-            locationManager.requestLocationUpdates(provider, interval , 5, this);
+            locationManager.requestLocationUpdates(provider, interval , 1 , this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
@@ -75,11 +72,12 @@ public class LocationBackground extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         interval = lastLocation!=null ? new IntervalGenerator().getInterval(location , locations):120000;
-        Log.i(TAG, "*******Location changed: " + location);
         if(location.getAccuracy()<1000){
             for(int i=0 ; i<locations.size() ; i++){
+                int proximity = dbHandler.getPlaceProximity(dbHandler.getPlaceFromLocation(locations.get(i)));
                 float distance = locations.get(i).distanceTo(location);
-                if(distance<50){
+                Log.i(TAG, "*******Location changed: " + location+"\nProximity: "+proximity+"\nDistance: "+distance+"\nInterval: "+interval);
+                if(distance<50+proximity){
                     showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
                     break;
                 }
@@ -122,6 +120,7 @@ public class LocationBackground extends Service implements LocationListener {
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.raw.notification_icon);
         builder.setLights(Color.GREEN , 2000 , 3000);
+        builder.setVibrate(new long[] { 500, 1000, 500, 1000});
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();

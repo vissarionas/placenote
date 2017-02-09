@@ -16,13 +16,9 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
@@ -33,13 +29,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -48,6 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker marker;
     public String placeAddress;
     private Double lat , lng;
+    private int proximity;
     private float accuracy;
     private float mapZoom;
     private Button addPlaceButton;
@@ -95,12 +89,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
+                if(place.getViewport()!=null) {
+                    Location northeastBound = new Location("");
+                    northeastBound.setLatitude(place.getViewport().northeast.latitude);
+                    northeastBound.setLongitude(place.getViewport().northeast.longitude);
+                    Location placeLocation = new Location("");
+                    placeLocation.setLatitude(place.getLatLng().latitude);
+                    placeLocation.setLongitude(place.getLatLng().longitude);
+                    proximity = Math.round(northeastBound.distanceTo(placeLocation));
+                    Log.e(TAG, "Radius: " + proximity);
+                }
+
                 lat = place.getLatLng().latitude;
                 lng = place.getLatLng().longitude;
-//                Location location = new Location("");
-//                location.setLatitude(lat);
-//                location.setLongitude(lng);
-//                Log.e(TAG ,"Accuracy: "+location.getAccuracy());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 19.0f));
                 if (marker != null) {
                     marker.remove();
@@ -109,15 +110,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
                 mMap.addCircle(new CircleOptions()
                         .center(place.getLatLng())
-                        .radius(200)
+                        .radius(10)
                         .strokeColor(Color.RED)
-                        .fillColor(Color.BLUE));
+                        .fillColor(Color.TRANSPARENT));
                 addPlaceButton.setVisibility(View.VISIBLE);
                 addPlaceButton.setText("Add "+ place.getName()+" to your placelist");
                 addPlaceButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        addPlaceDialog(lat, lng);
+                        addPlaceDialog(lat, lng , proximity);
                     }
                 });
             }
@@ -179,12 +180,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addPlaceDialog(lat, lng);
+                addPlaceDialog(lat, lng, proximity);
             }
         });
     }
 
-    private void addPlaceDialog(final Double lat , final Double lng) {
+    private void addPlaceDialog(final Double lat , final Double lng , final int proximity) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setMessage("Name?");
 
@@ -201,7 +202,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (!nameEditText.getText().toString().isEmpty()) {
-                            dbHandler.insertToDb(nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lng), "");
+                            dbHandler.insertToDb(nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lng), "" , proximity);
                             MapsActivity.this.finish();
                         }
                     }

@@ -9,6 +9,7 @@ import android.location.Location;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -20,7 +21,8 @@ public class DBHandler extends SQLiteOpenHelper {
     private static int databaseVersion = 1;
     private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
             "LAT TEXT , LGN TEXT , NOTE TEXT ," +
-            " STATE INTEGER DEFAULT 0 , NOTIFIED INTEGER DEFAULT 0)";
+            " STATE INTEGER DEFAULT 0 , NOTIFIED INTEGER DEFAULT 0 ," +
+            " PROXIMITY INTEGER DEFAULT 0)";
 
     private static SQLiteDatabase db;
     private final static String TAG = "DBHandler";
@@ -76,9 +78,10 @@ public class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    public void insertToDb(String place, String lat, String lgn , String note){
+    public void insertToDb(String place, String lat, String lng , String note , int proximity){
         dbInit();
-        db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LGN,NOTE) VALUES ('"+place+"','"+lat+"','"+lgn+"','"+note+"')");
+        db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LGN,NOTE,PROXIMITY) VALUES ('"+place+"','"+lat+"','"+lng+"','"+note+"','"+proximity+"')");
+        Log.e(TAG , "Place: "+place+"\nLat: "+lat+"\nLng: "+lng+"\nProximity: "+proximity);
         dbClose();
     }
 
@@ -167,6 +170,19 @@ public class DBHandler extends SQLiteOpenHelper {
         }
         dbClose();
         return place;
+    }
+
+    public int getPlaceProximity(String place){
+        dbInit();
+        if(cursor.getCount()>0){
+            do{
+                if(cursor.getString(0).contentEquals(place)){
+                    break;
+                }
+            }while(cursor.moveToNext());
+        }
+        dbClose();
+        return cursor.getInt(6);
     }
 
     public Boolean isNotified(String place){
