@@ -17,15 +17,14 @@ import java.util.List;
 
 public class PlaceNoteAdapter extends BaseAdapter {
 
-    private final static String TAG = "PLACENOTE_ADAPTER";
+    private final static String TAG = "messeme-PLACENOTE_ADAPTER";
 
-    private static Context context;
+
     private static LayoutInflater layoutInflater;
     private static TextView placeText , noteText;
     private static List<PlaceNote> placeNotes;
 
     public PlaceNoteAdapter(Context context , List<PlaceNote> placeNotes){
-        this.context = context;
         this.placeNotes = placeNotes;
         layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -48,7 +47,6 @@ public class PlaceNoteAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
             convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
-
             placeText = (TextView)convertView.findViewById(R.id.placeText);
             noteText = (TextView)convertView.findViewById(R.id.noteText);
             setFlagColor(placeNotes.get(position).getState());
@@ -71,17 +69,17 @@ public class PlaceNoteAdapter extends BaseAdapter {
                 break;
             case 1:
                 placeText.setTextColor(Color.parseColor("#949995"));
-                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
+                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
                 noteText.setTextColor(Color.parseColor("#949995"));
                 break;
             case 2:
                 placeText.setTextColor(Color.parseColor("#088e22"));
-                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
+                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
                 noteText.setTextColor(Color.parseColor("#088e22"));
                 break;
             case 3:
                 placeText.setTextColor(Color.parseColor("#fa1e3c"));
-                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
+                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
                 noteText.setTextColor(Color.parseColor("#fa1e3c"));
                 break;
         }

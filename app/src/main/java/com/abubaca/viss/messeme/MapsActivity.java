@@ -47,7 +47,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button addPlaceButton;
     private DBHandler dbHandler;
 
-    protected static final String TAG = "MAP_ACTIVITY";
+    protected static final String TAG = "mes-MAP_ACTIVITY";
 
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
 
@@ -97,7 +97,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     placeLocation.setLatitude(place.getLatLng().latitude);
                     placeLocation.setLongitude(place.getLatLng().longitude);
                     proximity = Math.round(northeastBound.distanceTo(placeLocation));
-                    Log.e(TAG, "Radius: " + proximity);
+                    Log.e(TAG, "Proximity: " + proximity);
                 }
 
                 lat = place.getLatLng().latitude;
@@ -108,11 +108,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 marker = mMap.addMarker(new MarkerOptions().position(place.getLatLng())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
-                mMap.addCircle(new CircleOptions()
-                        .center(place.getLatLng())
-                        .radius(10)
-                        .strokeColor(Color.RED)
-                        .fillColor(Color.TRANSPARENT));
                 addPlaceButton.setVisibility(View.VISIBLE);
                 addPlaceButton.setText("Add "+ place.getName()+" to your placelist");
                 addPlaceButton.setOnClickListener(new View.OnClickListener() {
@@ -144,6 +139,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, mapZoom));
+        marker = mMap.addMarker(new MarkerOptions().position(latlng)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override

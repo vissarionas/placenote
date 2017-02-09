@@ -28,7 +28,7 @@ import java.util.List;
 
 public class LocationBackground extends Service implements LocationListener {
 
-    private final static String TAG = "LOCATION_HANDLER";
+    private final static String TAG = "mes-LOCATION_HANDLER";
     LocationManager locationManager;
     String provider;
     List<Location> locations;
@@ -53,7 +53,7 @@ public class LocationBackground extends Service implements LocationListener {
         interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):120000;
 
         if(locations.size()>0) {
-            locationManager.requestLocationUpdates(provider, interval , 1 , this);
+            locationManager.requestLocationUpdates(provider, interval , 0 , this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");

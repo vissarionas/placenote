@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
 
-    static final String TAG = "MAIN_ACTIVITY";
+    static final String TAG = "mes-MAIN_ACTIVITY";
     private static final int FINE_LOCATION_REQUEST = 0x1;
 
     private GoogleApiClient googleApiClient;

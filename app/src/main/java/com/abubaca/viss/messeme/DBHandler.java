@@ -9,7 +9,6 @@ import android.location.Location;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -20,12 +19,12 @@ public class DBHandler extends SQLiteOpenHelper {
 
     private static int databaseVersion = 1;
     private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
-            "LAT TEXT , LGN TEXT , NOTE TEXT ," +
+            "LAT TEXT , LNG TEXT , NOTE TEXT ," +
             " STATE INTEGER DEFAULT 0 , NOTIFIED INTEGER DEFAULT 0 ," +
-            " PROXIMITY INTEGER DEFAULT 0)";
+            " PROXIMITY INTEGER)";
 
     private static SQLiteDatabase db;
-    private final static String TAG = "DBHandler";
+    private final static String TAG = "mes-DBHANDLER";
     public Cursor cursor;
 
     public DBHandler(Context context) {
@@ -80,7 +79,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void insertToDb(String place, String lat, String lng , String note , int proximity){
         dbInit();
-        db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LGN,NOTE,PROXIMITY) VALUES ('"+place+"','"+lat+"','"+lng+"','"+note+"','"+proximity+"')");
+        db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LNG,NOTE,PROXIMITY) VALUES ('"+place+"','"+lat+"','"+lng+"','"+note+"','"+proximity+"')");
         Log.e(TAG , "Place: "+place+"\nLat: "+lat+"\nLng: "+lng+"\nProximity: "+proximity);
         dbClose();
     }
@@ -118,7 +117,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public List<Location> getNotesLocations(){
         dbInit();
-        Double lat , lgn;
+        Double lat , lng;
         List<Location> placeLocations = new ArrayList<>();
 
         if(cursor.getCount()>0){
@@ -126,9 +125,9 @@ public class DBHandler extends SQLiteOpenHelper {
                 if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == 2 && cursor.getInt(5) == 0){
                     Location singlePlaceLocation = new Location("");
                     lat = Double.valueOf(cursor.getString(1));
-                    lgn = Double.valueOf(cursor.getString(2));
+                    lng = Double.valueOf(cursor.getString(2));
                     singlePlaceLocation.setLatitude(lat);
-                    singlePlaceLocation.setLongitude(lgn);
+                    singlePlaceLocation.setLongitude(lng);
                     placeLocations.add(singlePlaceLocation);
                 }
             }while(cursor.moveToNext());
@@ -153,23 +152,17 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public String getPlaceFromLocation(Location location){
         dbInit();
-        String place = "";
-        //DecimalFormat df = new DecimalFormat("#.####");
-        //then use with df.format(Double goes here)
         String lat = String.valueOf(location.getLatitude());
-        String lgn = String.valueOf(location.getLongitude());
-        Log.i(TAG , String.valueOf(location.getLongitude()));
-        Log.i(TAG , String.valueOf(location.getLatitude()));
+        String lng = String.valueOf(location.getLongitude());
         if(cursor.getCount()>0){
             do {
-                Log.i(TAG , "cursor lat / lgn"+cursor.getString(1)+ " - "+ cursor.getString(2));
-                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lgn)){
-                    place = cursor.getString(0);
+                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lng)){
+                    break;
                 }
             }while(cursor.moveToNext());
         }
         dbClose();
-        return place;
+        return cursor.getString(0);
     }
 
     public int getPlaceProximity(String place){
