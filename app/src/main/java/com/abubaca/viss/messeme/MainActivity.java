@@ -13,7 +13,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -91,12 +93,6 @@ public class MainActivity extends AppCompatActivity implements
         createGoogleApiClient();
         startStopService();
         super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        Log.i(TAG , "onPause()");
-        super.onPause();
     }
 
     @Override
@@ -200,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void populateList() {
         List<PlaceNote> placeNotes = dbHandler.getPlaceNotes();
-        ListView list_view = (ListView) findViewById(R.id.list_view);
+        final ListView list_view = (ListView) findViewById(R.id.list_view);
         if(placeNotes.size()==0) {
             noPlacesTextview.setVisibility(View.VISIBLE);
             noPlacesTextview.setText("You have no places in your placelist.\n\nClick here or the compass button and set your first place");
@@ -208,8 +204,30 @@ public class MainActivity extends AppCompatActivity implements
         final PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
         list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                startEditPlaceActivity(adapter.getPlace(position));
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                PopupMenu menu = new PopupMenu(MainActivity.this, view);
+                menu.getMenuInflater().inflate(R.menu.edit_place_menu , menu.getMenu());
+                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch ((String)item.getTitle()){
+                            case "Edit name":
+                                editPlaceDialog(adapter.getPlace(position));
+                                break;
+                            case "View on map":
+                                showPlaceMap(adapter.getPlace(position));
+                                break;
+                            case "Clear note":
+                                confirmDropNote(adapter.getPlace(position));
+                                break;
+                            case "Delete place":
+                                confirmDropPlace(adapter.getPlace(position));
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                menu.show();
                 return true;
             }
         });
@@ -290,6 +308,52 @@ public class MainActivity extends AppCompatActivity implements
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    private void confirmDropPlace(final String placeName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to remove "+placeName+"")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dbHandler.deletePlace(placeName);
+                        populateList();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void editPlaceDialog(final String place){
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setMessage("Change place name.");
+
+        final EditText nameEditText = new EditText(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        nameEditText.setLayoutParams(params);
+        nameEditText.setText(place);
+        nameEditText.setInputType(InputType.TYPE_CLASS_TEXT);
+        nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(20)});
+        dialogBuilder.setView(nameEditText);
+        dialogBuilder.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dbHandler.updatePlaceName(place , nameEditText.getText().toString());
+                        populateList();
+                    }
+                });
+        Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
+        dialog.show();
     }
 
     private void viewNote(final String place){
@@ -377,8 +441,8 @@ public class MainActivity extends AppCompatActivity implements
         dialog.show();
     }
 
-    private void startEditPlaceActivity(String placeName){
-        Intent intent = new Intent(MainActivity.this, EditPlace.class);
+    private void showPlaceMap(String placeName){
+        Intent intent = new Intent(MainActivity.this, ViewPlaceMap.class);
         intent.putExtra("placeName" , placeName);
         startActivity(intent);
     }

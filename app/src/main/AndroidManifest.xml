@@ -53,7 +53,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".EditPlace"
+            android:name=".ViewPlaceMap"
             android:label="@string/title_activity_edit_place"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" />

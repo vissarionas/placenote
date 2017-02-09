@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="Edit name"
+        android:id="@+id/edit_name">
+    </item>
+    <item
+        android:title="View on map"
+        android:id="@+id/view_on_map">
+    </item>
+    <item
+        android:title="Clear note"
+        android:id="@+id/clear_note">
+    </item>
+    <item
+        android:title="Delete place"
+        android:id="@+id/delete_place">
+    </item>
+</menu>

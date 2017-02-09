@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
@@ -31,9 +33,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -91,9 +97,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onPlaceSelected(Place place) {
                 lat = place.getLatLng().latitude;
                 lng = place.getLatLng().longitude;
+//                Location location = new Location("");
+//                location.setLatitude(lat);
+//                location.setLongitude(lng);
+//                Log.e(TAG ,"Accuracy: "+location.getAccuracy());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 19.0f));
+                if (marker != null) {
+                    marker.remove();
+                }
                 marker = mMap.addMarker(new MarkerOptions().position(place.getLatLng())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+                mMap.addCircle(new CircleOptions()
+                        .center(place.getLatLng())
+                        .radius(200)
+                        .strokeColor(Color.RED)
+                        .fillColor(Color.BLUE));
                 addPlaceButton.setVisibility(View.VISIBLE);
                 addPlaceButton.setText("Add "+ place.getName()+" to your placelist");
                 addPlaceButton.setOnClickListener(new View.OnClickListener() {

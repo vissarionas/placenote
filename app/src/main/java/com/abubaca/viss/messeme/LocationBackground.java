@@ -1,5 +1,6 @@
 package com.abubaca.viss.messeme;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -7,6 +8,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -41,18 +44,19 @@ public class LocationBackground extends Service implements LocationListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
-        Log.i(TAG , "Service started");
+        Log.i(TAG, "Service started");
 
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_COARSE);
         criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
         provider = locationManager.getBestProvider(criteria, false);
+
         lastLocation = locationManager.getLastKnownLocation(provider);
         interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):120000;
 
         if(locations.size()>0) {
-            locationManager.requestLocationUpdates(provider, interval , 30, this);
+            locationManager.requestLocationUpdates(provider, interval , 5, this);
         }else{
             locationManager.removeUpdates(this);
             Log.i(TAG , "Location requests removed");
