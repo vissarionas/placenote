@@ -61,6 +61,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
+    private void requestAddress(Double lat , Double lng){
+        Intent intent = new Intent(MapsActivity.this, AddressGenerator.class);
+        intent.putExtra("lat" , lat);
+        intent.putExtra("lng" , lng);
+        startService(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,16 +148,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, mapZoom));
         marker = mMap.addMarker(new MarkerOptions().position(latlng)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+        marker.setTitle("you are here");
+        requestAddress(latlng.latitude , latlng.longitude);
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
                 lat = point.latitude;
                 lng = point.longitude;
-                Intent intent = new Intent(MapsActivity.this, AddressGenerator.class);
-                intent.putExtra("lat" , lat);
-                intent.putExtra("lng" , lng);
-                startService(intent);
+                requestAddress(lat , lng);
 
                 //remove previously placed Marker
                 if (marker != null) {

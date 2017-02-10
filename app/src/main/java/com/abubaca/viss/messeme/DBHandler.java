@@ -138,16 +138,15 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public String getPlaceNote(String place){
         dbInit();
-        String note = "";
         if(cursor.getCount()>0){
             do {
                 if(cursor.getString(0).contentEquals(place)){
-                    note = cursor.getString(3);
+                    break;
                 }
             }while(cursor.moveToNext());
         }
         dbClose();
-        return note;
+        return cursor.getString(3);
     }
 
     public String getPlaceFromLocation(Location location){

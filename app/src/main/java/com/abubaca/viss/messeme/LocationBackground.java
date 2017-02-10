@@ -53,6 +53,7 @@ public class LocationBackground extends Service implements LocationListener {
         interval = lastLocation!=null ? new IntervalGenerator().getInterval(lastLocation , locations):120000;
 
         if(locations.size()>0) {
+            Log.i(TAG , "started location updates with interval: "+interval);
             locationManager.requestLocationUpdates(provider, interval , 0 , this);
         }else{
             locationManager.removeUpdates(this);
@@ -71,13 +72,19 @@ public class LocationBackground extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        interval = lastLocation!=null ? new IntervalGenerator().getInterval(location , locations):120000;
+        long newInterval = new IntervalGenerator().getInterval(location , locations);
+        if(newInterval<interval){
+            Log.e(TAG , "restarted location updates");
+            locationManager.removeUpdates(this);
+            locationManager.requestLocationUpdates(provider , newInterval , 0 , this);
+            return;
+        }
         if(location.getAccuracy()<1000){
             for(int i=0 ; i<locations.size() ; i++){
-                int proximity = dbHandler.getPlaceProximity(dbHandler.getPlaceFromLocation(locations.get(i)));
-                float distance = locations.get(i).distanceTo(location);
-                Log.i(TAG, "*******Location changed: " + location+"\nProximity: "+proximity+"\nDistance: "+distance+"\nInterval: "+interval);
-                if(distance<50+proximity){
+                int radius = dbHandler.getPlaceProximity(dbHandler.getPlaceFromLocation(locations.get(i)));
+                float distance = locations.get(i).distanceTo(location) - radius;
+                Log.i(TAG, "*******Location changed: " + location+"\nPlaceRadius: "+radius+"\nDistance: "+distance+"\nInterval: "+interval);
+                if(distance<50+radius){
                     showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
                     break;
                 }

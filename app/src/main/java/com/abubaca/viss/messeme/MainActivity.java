@@ -2,6 +2,7 @@ package com.abubaca.viss.messeme;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -18,8 +20,10 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements
     private TextView noPlacesTextview;
 
     private FloatingActionButton fab;
+    ListView list_view;
+    PlaceNoteAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements
                 startMapActivity();
             }
         });
+        list_view = (ListView) findViewById(R.id.list_view);
     }
 
     @Override
@@ -196,49 +203,76 @@ public class MainActivity extends AppCompatActivity implements
 
     private void populateList() {
         List<PlaceNote> placeNotes = dbHandler.getPlaceNotes();
-        final ListView list_view = (ListView) findViewById(R.id.list_view);
         if(placeNotes.size()==0) {
             noPlacesTextview.setVisibility(View.VISIBLE);
             noPlacesTextview.setText("You have no places in your placelist.\n\nClick here or the compass button and set your first place");
         }
-        final PlaceNoteAdapter adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
-        list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                PopupMenu menu = new PopupMenu(MainActivity.this, view);
-                menu.getMenuInflater().inflate(R.menu.edit_place_menu , menu.getMenu());
-                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch ((String)item.getTitle()){
-                            case "Edit name":
-                                editPlaceDialog(adapter.getPlace(position));
-                                break;
-                            case "View on map":
-                                showPlaceMap(adapter.getPlace(position));
-                                break;
-                            case "Clear note":
-                                confirmDropNote(adapter.getPlace(position));
-                                break;
-                            case "Delete place":
-                                confirmDropPlace(adapter.getPlace(position));
-                                break;
-                        }
-                        return true;
-                    }
-                });
-                menu.show();
-                return true;
-            }
-        });
+        adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
+//        list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+//                PopupMenu menu = new PopupMenu(MainActivity.this, view);
+//                menu.getMenuInflater().inflate(R.menu.edit_place_menu , menu.getMenu());
+//                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                    @Override
+//                    public boolean onMenuItemClick(MenuItem item) {
+//                        switch ((String)item.getTitle()){
+//                            case "Edit name":
+//                                editPlaceDialog(adapter.getPlace(position));
+//                                break;
+//                            case "View on map":
+//                                showPlaceMap(adapter.getPlace(position));
+//                                break;
+//                            case "Clear note":
+//                                confirmDropNote(adapter.getPlace(position));
+//                                break;
+//                            case "Delete place":
+//                                confirmDropPlace(adapter.getPlace(position));
+//                                break;
+//                        }
+//                        return true;
+//                    }
+//                });
+//                menu.show();
+//                return true;
+//            }
+//        });
 
         list_view.setAdapter(adapter);
+        registerForContextMenu(list_view);
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 viewNote(adapter.getPlace(position));
             }
         });
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.edit_place_menu , menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()){
+            case R.id.edit_name:
+                editPlaceDialog(adapter.getPlace(info.position));
+                return true;
+            case R.id.view_on_map:
+                showPlaceMap(adapter.getPlace(info.position));
+                return true;
+            case R.id.clear_note:
+                confirmDropNote(adapter.getPlace(info.position));
+                return true;
+            case R.id.delete_place:
+                confirmDropPlace(adapter.getPlace(info.position));
+                return true;
+        }
+        return super.onContextItemSelected(item);
     }
 
     private void startMapActivity() {
@@ -292,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void confirmDropNote(final String placeName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you want to delete "+placeName+" note?")
+        builder.setMessage("Are you sure you want to delete this note?")
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -307,6 +341,7 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 });
         AlertDialog alert = builder.create();
+        alert.setTitle(placeName);
         alert.show();
     }
 
@@ -326,21 +361,22 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 });
         AlertDialog alert = builder.create();
+        alert.setTitle(placeName);
         alert.show();
     }
 
     private void editPlaceDialog(final String place){
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage("Change place name.");
 
         final EditText nameEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         nameEditText.setLayoutParams(params);
         nameEditText.setText(place);
         nameEditText.setInputType(InputType.TYPE_CLASS_TEXT);
         nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(20)});
+        nameEditText.setSelection(nameEditText.getText().length());
         dialogBuilder.setView(nameEditText);
         dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
@@ -353,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.getWindow().getAttributes().verticalMargin = -0.2F;
+        dialog.setTitle("Place name");
         dialog.show();
     }
 
@@ -364,17 +401,16 @@ public class MainActivity extends AppCompatActivity implements
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
-        Button btnDelete;
-        final TextView noteTextView;
-        btnDelete = (Button)editView.findViewById(R.id.btn_delete);
-        if(dbHandler.getPlaceNote(place).isEmpty()){
-            btnDelete.setVisibility(View.INVISIBLE);
-        }
-//        placeTextView = (TextView)editView.findViewById(R.id.place_text_view);
-        noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
-//        placeTextView.setText(place);
         String note = dbHandler.getPlaceNote(place);
-        if(!note.isEmpty()) {
+        Button btnDelete , btnEdit;
+        final TextView noteTextView;
+        noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
+        btnDelete = (Button)editView.findViewById(R.id.btn_delete);
+        btnEdit = (Button)editView.findViewById(R.id.btn_edit);
+        if(note.isEmpty()){
+            btnDelete.setVisibility(View.INVISIBLE);
+            btnEdit.setVisibility(View.INVISIBLE);
+        }else{
             noteTextView.setText(note);
         }
 
@@ -389,7 +425,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
         dialog.show();
-
         noteTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -397,11 +432,17 @@ public class MainActivity extends AppCompatActivity implements
                 dialog.dismiss();
             }
         });
-
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 confirmDropNote(place);
+                dialog.dismiss();
+            }
+        });
+        btnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editNoteDialog(place);
                 dialog.dismiss();
             }
         });
@@ -410,15 +451,18 @@ public class MainActivity extends AppCompatActivity implements
     private void editNoteDialog(final String place){
         String prevNote = dbHandler.getPlaceNote(place);
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage("Note");
 
         final EditText noteEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         noteEditText.setLayoutParams(params);
-        noteEditText.setText(prevNote);
-        noteEditText.setSelection(prevNote.length());
+        if(!prevNote.isEmpty()){
+            noteEditText.setText(prevNote);
+        }else{
+            noteEditText.setHint("type a note here");
+        }
+        noteEditText.setSelection(noteEditText.getText().length());
         noteEditText.setInputType(InputType.TYPE_CLASS_TEXT);
 
         dialogBuilder.setView(noteEditText);
@@ -438,6 +482,7 @@ public class MainActivity extends AppCompatActivity implements
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.getWindow().getAttributes().verticalMargin = -0.2F;
+        dialog.setTitle("Note");
         dialog.show();
     }
 

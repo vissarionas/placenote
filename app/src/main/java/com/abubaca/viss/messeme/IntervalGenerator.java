@@ -25,6 +25,7 @@ public class IntervalGenerator {
                 }
             }
             interval = Math.round((smallestDistance * 200)/10000)*10000;
+            if(interval>300000) interval = interval/2;
         }
         return interval;
     }
