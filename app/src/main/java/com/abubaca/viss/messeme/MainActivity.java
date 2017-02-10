@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -50,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements
     private static final int FINE_LOCATION_REQUEST = 0x1;
 
     private GoogleApiClient googleApiClient;
-    private LocationRequest locationRequest;
     private Location lastLocation;
 
     private DBHandler dbHandler;
@@ -276,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 });
         AlertDialog alert = builder.create();
+        alert.setCancelable(true);
         alert.show();
     }
 
@@ -295,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 });
         AlertDialog alert = builder.create();
+        alert.setCancelable(true);
         alert.show();
     }
 
@@ -316,6 +318,7 @@ public class MainActivity extends AppCompatActivity implements
                 });
         AlertDialog alert = builder.create();
         alert.setTitle(placeName);
+        alert.setCancelable(true);
         alert.show();
     }
 
@@ -336,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements
                 });
         AlertDialog alert = builder.create();
         alert.setTitle(placeName);
+        alert.setCancelable(true);
         alert.show();
     }
 
@@ -376,14 +380,12 @@ public class MainActivity extends AppCompatActivity implements
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         String note = dbHandler.getPlaceNote(place);
-        Button btnDelete , btnEdit;
+        ImageButton btnDelete;
         final TextView noteTextView;
         noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
-        btnDelete = (Button)editView.findViewById(R.id.btn_delete);
-        btnEdit = (Button)editView.findViewById(R.id.btn_edit);
+        btnDelete = (ImageButton)editView.findViewById(R.id.btn_delete);
         if(note.isEmpty()){
             btnDelete.setVisibility(View.INVISIBLE);
-            btnEdit.setVisibility(View.INVISIBLE);
         }else{
             noteTextView.setText(note);
         }
@@ -410,13 +412,6 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 confirmDropNote(place);
-                dialog.dismiss();
-            }
-        });
-        btnEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editNoteDialog(place);
                 dialog.dismiss();
             }
         });

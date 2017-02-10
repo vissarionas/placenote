@@ -69,17 +69,17 @@ public class PlaceNoteAdapter extends BaseAdapter {
                 break;
             case 1:
                 placeText.setTextColor(Color.parseColor("#949995"));
-                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
+//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
                 noteText.setTextColor(Color.parseColor("#949995"));
                 break;
             case 2:
                 placeText.setTextColor(Color.parseColor("#088e22"));
-                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
+//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
                 noteText.setTextColor(Color.parseColor("#088e22"));
                 break;
             case 3:
                 placeText.setTextColor(Color.parseColor("#fa1e3c"));
-                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
+//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
                 noteText.setTextColor(Color.parseColor("#fa1e3c"));
                 break;
         }

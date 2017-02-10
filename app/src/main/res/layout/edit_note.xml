@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -11,12 +12,12 @@
 
         <TextView
             android:layout_marginTop="40dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="5dp"
             android:hint="type your note here"
             android:textAlignment="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="25dp"
+            android:textSize="22dp"
             android:textColor="#000"
             android:id="@+id/note_text_view"/>
 
@@ -28,24 +29,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button
-            android:text="Delete"
+        <ImageButton
+            android:background="#fff"
+            android:layout_margin="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btn_delete"
-            android:background="#d9534f"
-            android:textSize="20dp" />
-
-        <Button
-            android:text="Edit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btn_edit"
-            android:background="#428bca"
-            android:textSize="20dp"
+            app:srcCompat="@drawable/trash"
             android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/btn_delete" />
 
     </RelativeLayout>
 

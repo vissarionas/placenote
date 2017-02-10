@@ -82,18 +82,13 @@ public class FusedBackground extends Service implements LocationListener,
         lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         interval = lastKnownLocation!=null?new IntervalGenerator().getInterval(lastKnownLocation , locations):2000;
         requestLocationUpdates(interval);
-//        locationRequest = new LocationRequest();
-//        locationRequest.setInterval(5000);
-//        locationRequest.setFastestInterval(2000);
-//        locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-//
-//        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , this);
     }
 
     private void requestLocationUpdates(long interval){
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
         locationRequest.setFastestInterval(3000);
+        locationRequest.setMaxWaitTime(5000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , FusedBackground.this);
@@ -120,13 +115,17 @@ public class FusedBackground extends Service implements LocationListener,
             requestLocationUpdates(interval);
             return;
         }
+        String place;
         if(location.getAccuracy()<1000){
             for(int i=0 ; i<locations.size() ; i++){
-                int radius = dbHandler.getPlaceProximity(dbHandler.getPlaceFromLocation(locations.get(i)));
+                place = dbHandler.getPlaceFromLocation(location);
+                int radius = dbHandler.getPlaceProximity(place);
                 float distance = locations.get(i).distanceTo(location) - radius;
-                Log.i(TAG, "*******Location changed: " + location+"\nPlaceRadius: "+radius+"\nDistance: "+distance+"\nInterval: "+interval);
-                if(distance<50+radius){
-                    showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
+//                Log.i(TAG, "*******Location changed: " + location+"\nPlaceRadius: "+radius+"\nDistance: "+distance+"\nInterval: "+interval);
+                if(distance<30+radius){
+                    dbHandler.updateNote(place , null , 3 , 1);
+                    showNotification(place);
+                    restartSelf();
                     break;
                 }
             }
@@ -134,7 +133,7 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void showNotification(String place){
-        dbHandler.updateNote(place , null , 3 , 1);
+//        dbHandler.updateNote(place , null , 3 , 1);
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -145,13 +144,13 @@ public class FusedBackground extends Service implements LocationListener,
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.raw.notification_icon);
         builder.setLights(Color.GREEN , 2000 , 3000);
-        builder.setVibrate(new long[] { 500, 1000, 500, 1000});
+        builder.setVibrate(new long[] { 500, 500});
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
         NotificationManager notificationManager = (NotificationManager)this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0 , notification);
-        restartSelf();
+//        restartSelf();
     }
 
     private void restartSelf(){

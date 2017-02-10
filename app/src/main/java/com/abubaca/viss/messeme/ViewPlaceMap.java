@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -21,7 +22,7 @@ public class ViewPlaceMap extends FragmentActivity implements OnMapReadyCallback
     private DBHandler dbHandler;
     private Cursor cursor;
     private String placeName;
-    private TextView placeView , coordinatesView;
+    private TextView placeView;
     private Double lat , lgn;
     private GoogleMap map;
     private Marker marker;
@@ -34,9 +35,7 @@ public class ViewPlaceMap extends FragmentActivity implements OnMapReadyCallback
         dbHandler = new DBHandler(getApplicationContext());
         cursor = dbHandler.getFullCursor();
         placeName = getIntent().getStringExtra("placeName");
-        Log.i(TAG , "Placename: "+placeName);
         placeView = (TextView)findViewById(R.id.place_view);
-        coordinatesView = (TextView)findViewById(R.id.coordinates_view);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -51,9 +50,9 @@ public class ViewPlaceMap extends FragmentActivity implements OnMapReadyCallback
             do{
                 if(cursor.getString(0).contentEquals(placeName)){
                     placeView.setText(cursor.getString(0));
-                    coordinatesView.setText("Lat: "+cursor.getString(1)+"\n"+"Lng: "+cursor.getString(2));
                     lat = cursor.getDouble(1);
                     lgn = cursor.getDouble(2);
+                    break;
                 }
             }while(cursor.moveToNext());
         }

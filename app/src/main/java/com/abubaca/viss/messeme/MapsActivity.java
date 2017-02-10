@@ -150,6 +150,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
         marker.setTitle("you are here");
         requestAddress(latlng.latitude , latlng.longitude);
+        lat = latlng.latitude;
+        lng = latlng.longitude;
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -198,7 +200,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LinearLayout.LayoutParams.MATCH_PARENT);
         nameEditText.setLayoutParams(params);
         nameEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-        nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(10)});
+        nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(20)});
         dialogBuilder.setView(nameEditText);
         dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
