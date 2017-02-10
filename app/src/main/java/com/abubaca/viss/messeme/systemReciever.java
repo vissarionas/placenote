@@ -9,17 +9,14 @@ import android.util.Log;
  * Created by viss on 2/7/17.
  */
 
-public class BootReciever extends BroadcastReceiver {
-
-    private static final String TAG = "BOOT_RECIEVER";
+public class systemReciever extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             if (intent.getAction().equalsIgnoreCase(
                     Intent.ACTION_BOOT_COMPLETED)) {
-                Log.i(TAG, "Device boot completed");
-                Intent i = new Intent(context , LocationBackground.class);
+                Intent i = new Intent(context , FusedBackground.class);
                 context.startService(i);
             }
         }

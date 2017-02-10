@@ -2,7 +2,6 @@ package com.abubaca.viss.messeme;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,10 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -95,18 +92,10 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onResume() {
-        Log.i(TAG , "onResume()");
         populateList();
         createGoogleApiClient();
         startStopService();
         super.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        Log.i(TAG, "onStop()");
-        super.onStop();
-        stopLocationUpdates();
     }
 
     private void createGoogleApiClient() {
@@ -118,36 +107,21 @@ public class MainActivity extends AppCompatActivity implements
                     .build();
         }
         Log.i(TAG , "created google api client");
-        if(googleApiClient.isConnected()){
+        if(googleApiClient.isConnected() || googleApiClient.isConnecting()){
             googleApiClient.reconnect();
         }else{
             googleApiClient.connect();
         }
     }
 
-    protected void createLocationRequest() {
-        Log.i(TAG , "created location requests");
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(3000);
-        locationRequest.setFastestInterval(2000);
-        locationRequest.setExpirationDuration(60000);
-        locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-    }
-
-    protected void startLocationUpdates() {
+    protected void getLastKnownLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST);
             return;
         }
         Log.i(TAG , "Started location updates");
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                googleApiClient, locationRequest, this);
-    }
-
-    protected void stopLocationUpdates() {
-        Log.i(TAG , "Stopped location updates");
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
+        if(lastLocation!=null) fab.setVisibility(View.VISIBLE);
     }
 
     private void startStopService(){
@@ -155,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements
             ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
             return;
         }
-        Intent i = new Intent(this , LocationBackground.class);
+        Intent i = new Intent(this , FusedBackground.class);
         startService(i);
     }
 
@@ -495,8 +469,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG , "GoogleAPIClient connected");
-        createLocationRequest();
-        startLocationUpdates();
+//        createLocationRequest();
+        getLastKnownLocation();
     }
 
     @Override
@@ -511,8 +485,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        lastLocation = location;
-        fab.setVisibility(View.VISIBLE);
     }
 
 }

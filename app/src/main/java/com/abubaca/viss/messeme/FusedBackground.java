@@ -1,7 +1,6 @@
 package com.abubaca.viss.messeme;
 
 import android.app.AlarmManager;
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -40,12 +39,9 @@ public class FusedBackground extends Service implements LocationListener,
 
     GoogleApiClient googleApiClient;
     Location lastKnownLocation;
-    LocationRequest locationRequest;
     List<Location> locations;
     Long interval;
     DBHandler dbHandler;
-    Location lastLocation;
-
 
     @Nullable
     @Override
@@ -55,57 +51,81 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG , "Fused service started");
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
-        Log.i(TAG , "service started");
-        // Gets data from the incoming Intent
-        String dataString = intent.getDataString();
-        Log.i(TAG , dataString);
-
-        // Do work here, based on the contents of dataString
         googleApiClient=new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
 
-        googleApiClient.connect();
-        return super.onStartCommand(intent, flags, startId);
+        if(locations.size()>0) {
+            googleApiClient.connect();
+        }else{
+            if(googleApiClient.isConnected() || googleApiClient.isConnecting()) googleApiClient.disconnect();
+            Log.i(TAG , "Google api client disconected");
+        }
+        super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Log.e(TAG , "onTaskRemoved()");
+        restartSelf();
+        super.onTaskRemoved(rootIntent);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG , "googleapiclient connected");
         lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        interval = lastKnownLocation!=null?new IntervalGenerator().getInterval(lastKnownLocation , locations):2000;
+        requestLocationUpdates(interval);
+//        locationRequest = new LocationRequest();
+//        locationRequest.setInterval(5000);
+//        locationRequest.setFastestInterval(2000);
+//        locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
+//
+//        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , this);
+    }
 
-        locationRequest = new LocationRequest();
+    private void requestLocationUpdates(long interval){
+        LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
-        locationRequest.setFastestInterval(5000);
-        locationRequest.setExpirationDuration(0);
+        locationRequest.setFastestInterval(3000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
 
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , FusedBackground.this);
+        Log.i(TAG , "Location updates requested with "+interval+" interval");
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        Log.e(TAG , "Google api client connection suspended");
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Log.e(TAG , "Google api client connection failed");
     }
 
     @Override
     public void onLocationChanged(Location location) {
         Log.i(TAG , "location changed");
-        interval = lastLocation!=null ? new IntervalGenerator().getInterval(location , locations):120000;
-        Log.i(TAG, "*******Location changed: " + location);
+        long newInterval = new IntervalGenerator().getInterval(location , locations);
+        if(newInterval < interval/2){
+            Log.e(TAG , "restarted fused location updates");
+            interval = newInterval;
+            requestLocationUpdates(interval);
+            return;
+        }
         if(location.getAccuracy()<1000){
             for(int i=0 ; i<locations.size() ; i++){
-                float distance = locations.get(i).distanceTo(location);
-                if(distance<50){
+                int radius = dbHandler.getPlaceProximity(dbHandler.getPlaceFromLocation(locations.get(i)));
+                float distance = locations.get(i).distanceTo(location) - radius;
+                Log.i(TAG, "*******Location changed: " + location+"\nPlaceRadius: "+radius+"\nDistance: "+distance+"\nInterval: "+interval);
+                if(distance<50+radius){
                     showNotification(dbHandler.getPlaceFromLocation(locations.get(i)));
                     break;
                 }
@@ -125,6 +145,7 @@ public class FusedBackground extends Service implements LocationListener,
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.raw.notification_icon);
         builder.setLights(Color.GREEN , 2000 , 3000);
+        builder.setVibrate(new long[] { 500, 1000, 500, 1000});
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
@@ -141,7 +162,7 @@ public class FusedBackground extends Service implements LocationListener,
         AlarmManager myAlarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         myAlarmService.set(
                 AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 3000,
+                SystemClock.elapsedRealtime() + 2000,
                 restartPendingIntent);
     }
 }
