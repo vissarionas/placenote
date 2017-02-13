@@ -5,10 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -26,38 +23,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-
 import java.util.List;
 
-import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener {
-
-    static final String TAG = "mes-MAIN_ACTIVITY";
+    static final String TAG = "MAIN_ACTIVITY";
     private static final int FINE_LOCATION_REQUEST = 0x1;
-
-    private GoogleApiClient googleApiClient;
-    private Location lastLocation;
 
     private DBHandler dbHandler;
 
     private TextView noPlacesTextview;
-
     private FloatingActionButton fab;
+
     ListView list_view;
     PlaceNoteAdapter adapter;
 
@@ -79,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setVisibility(View.INVISIBLE);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,35 +75,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         populateList();
-        createGoogleApiClient();
         startStopService();
         super.onResume();
-    }
-
-    private void createGoogleApiClient() {
-        if (googleApiClient == null) {
-            googleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-        Log.i(TAG , "created google api client");
-        if(googleApiClient.isConnected() || googleApiClient.isConnecting()){
-            googleApiClient.reconnect();
-        }else{
-            googleApiClient.connect();
-        }
-    }
-
-    protected void getLastKnownLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST);
-            return;
-        }
-        Log.i(TAG , "Started location updates");
-        lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if(lastLocation!=null) fab.setVisibility(View.VISIBLE);
     }
 
     private void startStopService(){
@@ -250,14 +205,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void startMapActivity() {
-        if (lastLocation != null) {
-            Log.i(TAG , "Last known location = "+lastLocation.getLatitude()+" "+lastLocation.getLongitude());
-            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-            intent.putExtra("lat", lastLocation.getLatitude());
-            intent.putExtra("lng", lastLocation.getLongitude());
-            intent.putExtra("accuracy" , lastLocation.getAccuracy());
-            startActivity(intent);
-        }
+        Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+        startActivity(intent);
     }
 
     private void confirmDropDb() {
@@ -459,27 +408,6 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(MainActivity.this, ViewPlaceMap.class);
         intent.putExtra("placeName" , placeName);
         startActivity(intent);
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG , "GoogleAPIClient connected");
-//        createLocationRequest();
-        getLastKnownLocation();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
     }
 
 }

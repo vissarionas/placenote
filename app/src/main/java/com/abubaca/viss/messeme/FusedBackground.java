@@ -55,18 +55,21 @@ public class FusedBackground extends Service implements LocationListener,
         Log.i(TAG , "Fused service started");
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
-        googleApiClient=new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
-        if(locations.size()>0) {
-            googleApiClient.connect();
-        }else{
-            if(googleApiClient.isConnected() || googleApiClient.isConnecting()) googleApiClient.disconnect();
-            Log.i(TAG , "Google api client disconected");
+        if(locations.size()>0){
+            if(googleApiClient!=null) {
+                Log.i(TAG , "googleapiclient connected");
+                googleApiClient.connect();
+            }else{
+                Log.i(TAG , "googleapiclient created");
+                googleApiClient = new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API)
+                        .build();
+            }
         }
+
+
         super.onStartCommand(intent, flags, startId);
         return START_STICKY;
     }
@@ -86,6 +89,7 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void requestLocationUpdates(long interval){
+        removeLocationUpdates();
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
         locationRequest.setFastestInterval(1000);
@@ -95,6 +99,11 @@ public class FusedBackground extends Service implements LocationListener,
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , FusedBackground.this);
         Log.i(TAG , "Location updates requested with "+interval+" interval");
+    }
+
+    private void removeLocationUpdates(){
+        Log.i(TAG , "Removed location updates");
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
     }
 
     @Override
@@ -110,37 +119,32 @@ public class FusedBackground extends Service implements LocationListener,
     @Override
     public void onLocationChanged(Location location) {
         lastKnownLocation = location;
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                String place;
-                long newInterval = new IntervalGenerator().getInterval(lastKnownLocation , locations);
-                if(newInterval < interval/2){
-                    Log.e(TAG , "restarted fused location updates");
-                    interval = newInterval;
-                    requestLocationUpdates(interval);
-                    return;
-                }
-                if(lastKnownLocation.getAccuracy()<1000){
-                    for(int i=0 ; i<locations.size() ; i++){
-                        place = dbHandler.getPlaceFromLocation(locations.get(i));
-                        Integer proximity = dbHandler.getPlaceProximity(place);
-                        float distance = locations.get(i).distanceTo(lastKnownLocation);
-                        Log.i(TAG, "******* Distance: "+distance+" Interval: "+interval+" Proximity: "+proximity);
-                        if(distance<50){
-                            showNotification(place);
-                            break;
-                        }
-                    }
+        String place;
+        long newInterval = new IntervalGenerator().getInterval(lastKnownLocation , locations);
+        if(newInterval < interval/2){
+            Log.e(TAG , "restarted fused location updates");
+            interval = newInterval;
+            requestLocationUpdates(interval);
+            return;
+        }
+        if(lastKnownLocation.getAccuracy()<1000){
+            Log.i(TAG , "last: "+lastKnownLocation);
+            for(int i=0 ; i<locations.size() ; i++){
+                place = dbHandler.getPlaceFromLocation(locations.get(i));
+                Integer proximity = dbHandler.getPlaceProximity(place);
+                float distance = locations.get(i).distanceTo(lastKnownLocation) - proximity;
+                Log.i(TAG, "******* Distance: "+distance+" Interval: "+interval+" Proximity: "+proximity);
+                if(distance<50+proximity){
+                    showNotification(place);
+                    break;
                 }
             }
-        }, 1000);
+        }
     }
 
     private void showNotification(String place){
-//        dbHandler.updateNote(place , null , 3 , 1);
-//        locations = dbHandler.getNotesLocations();
+        dbHandler.updateNote(place , null , 3 , 1);
+        locations = dbHandler.getNotesLocations();
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);
 

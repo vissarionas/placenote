@@ -17,7 +17,7 @@ import java.util.List;
 
 public class PlaceNoteAdapter extends BaseAdapter {
 
-    private final static String TAG = "messeme-PLACENOTE_ADAPTER";
+    private final static String TAG = "PLACENOTE_ADAPTER";
 
 
     private static LayoutInflater layoutInflater;

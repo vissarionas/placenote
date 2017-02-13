@@ -28,7 +28,7 @@
 //
 //public class LocationBackground extends Service implements LocationListener {
 //
-//    private final static String TAG = "mes-LOCATION_HANDLER";
+//    private final static String TAG = "LOCATION_HANDLER";
 //    LocationManager locationManager;
 //    String provider;
 //    List<Location> locations;

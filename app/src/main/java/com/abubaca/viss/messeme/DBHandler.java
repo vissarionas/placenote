@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ public class DBHandler extends SQLiteOpenHelper {
             " PROXIMITY INTEGER)";
 
     private static SQLiteDatabase db;
-    private final static String TAG = "mes-DBHANDLER";
+    private final static String TAG = "DBHANDLER";
     public Cursor cursor;
 
     public DBHandler(Context context) {
@@ -34,6 +33,10 @@ public class DBHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(createTableQuery);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
     private final void dbInit(){
@@ -46,11 +49,6 @@ public class DBHandler extends SQLiteOpenHelper {
         if(db.isOpen()){
             db.close();
         }
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
     }
 
     public void clearDb(){
@@ -79,8 +77,13 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void insertToDb(String place, String lat, String lng , String note , int proximity){
         dbInit();
-        db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LNG,NOTE,PROXIMITY) VALUES ('"+place+"','"+lat.substring(0,10)+"','"+lng.substring(0,10)+"','"+note+"','"+proximity+"')");
-        Log.e(TAG , "Place: "+place+"\nLat: "+lat+"\nLng: "+lng+"\nProximity: "+proximity);
+        ContentValues values = new ContentValues();
+        values.put("PLACE",place);
+        values.put("LAT",lat.substring(0,10));
+        values.put("LNG",lng.substring(0,10));
+        values.put("NOTE",note);
+        values.put("PROXIMITY",proximity);
+        db.insert("PLACENOTES" , null , values);
         dbClose();
     }
 
@@ -187,7 +190,6 @@ public class DBHandler extends SQLiteOpenHelper {
             }while(cursor.moveToNext());
         }
         dbClose();
-        Log.i(TAG , "Notified: "+place+" "+(cursor.getInt(5) == 1));
         return cursor.getInt(5) == 1;
     }
 

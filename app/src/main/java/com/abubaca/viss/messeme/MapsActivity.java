@@ -1,14 +1,18 @@
 package com.abubaca.viss.messeme;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
@@ -20,7 +24,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -29,12 +36,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        com.google.android.gms.location.LocationListener{
 
     private GoogleMap mMap;
     private LatLng latlng;
@@ -42,24 +51,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public String placeAddress;
     private Double lat , lng;
     private int proximity;
-    private float accuracy;
-    private float mapZoom;
     private Button addPlaceButton;
     private DBHandler dbHandler;
 
-    protected static final String TAG = "mes-MAP_ACTIVITY";
+    private GoogleApiClient googleApiClient;
+    private Location lastKnownLocation;
+    private static final int FINE_LOCATION_REQUEST = 0x1;
+
+    protected static final String TAG = "MAP_ACTIVITY";
 
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG , intent.getStringExtra("address"));
             placeAddress = intent.getStringExtra("address");
             addPlaceButton.setVisibility(View.VISIBLE);
             addPlaceButton.setText("Add "+ placeAddress+" to your placelist");
         }
     };
+
+    private void connectGoogleApiClient() {
+        if(googleApiClient!=null) {
+            googleApiClient.connect();
+        }else{
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            googleApiClient.connect();
+        }
+    }
 
     private void requestAddress(Double lat , Double lng){
         Intent intent = new Intent(MapsActivity.this, AddressGenerator.class);
@@ -73,18 +96,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         dbHandler = new DBHandler(getApplicationContext());
-
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
-
-        Bundle extras = getIntent().getExtras();
-        latlng = new LatLng(extras.getDouble("lat") , extras.getDouble("lng"));
-        accuracy = 20;
-//        accuracy = extras.getFloat("accuracy");
-        mapZoom = accuracy < 100 ? 18.0f : 16.0f;
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        connectGoogleApiClient();
     }
 
     @Override
@@ -131,8 +144,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
-
-
+        connectGoogleApiClient();
         super.onResume();
     }
 
@@ -145,7 +157,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, mapZoom));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 16.0f));
         marker = mMap.addMarker(new MarkerOptions().position(latlng)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
         marker.setTitle("you are here");
@@ -215,5 +227,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        getLastKnownLocation();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    protected void getLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST);
+            return;
+        }
+        lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        latlng = new LatLng(lastKnownLocation.getLatitude() , lastKnownLocation.getLongitude());
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 }
