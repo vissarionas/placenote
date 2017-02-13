@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -87,8 +88,9 @@ public class FusedBackground extends Service implements LocationListener,
     private void requestLocationUpdates(long interval){
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
-        locationRequest.setFastestInterval(3000);
-        locationRequest.setMaxWaitTime(5000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setMaxWaitTime(2000);
+//        locationRequest.setSmallestDisplacement(1);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , FusedBackground.this);
@@ -107,33 +109,38 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG , "location changed");
-        long newInterval = new IntervalGenerator().getInterval(location , locations);
-        if(newInterval < interval/2){
-            Log.e(TAG , "restarted fused location updates");
-            interval = newInterval;
-            requestLocationUpdates(interval);
-            return;
-        }
-        String place;
-        if(location.getAccuracy()<1000){
-            for(int i=0 ; i<locations.size() ; i++){
-                place = dbHandler.getPlaceFromLocation(location);
-                int radius = dbHandler.getPlaceProximity(place);
-                float distance = locations.get(i).distanceTo(location) - radius;
-//                Log.i(TAG, "*******Location changed: " + location+"\nPlaceRadius: "+radius+"\nDistance: "+distance+"\nInterval: "+interval);
-                if(distance<30+radius){
-                    dbHandler.updateNote(place , null , 3 , 1);
-                    showNotification(place);
-                    restartSelf();
-                    break;
+        lastKnownLocation = location;
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String place;
+                long newInterval = new IntervalGenerator().getInterval(lastKnownLocation , locations);
+                if(newInterval < interval/2){
+                    Log.e(TAG , "restarted fused location updates");
+                    interval = newInterval;
+                    requestLocationUpdates(interval);
+                    return;
+                }
+                if(lastKnownLocation.getAccuracy()<1000){
+                    for(int i=0 ; i<locations.size() ; i++){
+                        place = dbHandler.getPlaceFromLocation(locations.get(i));
+                        Integer proximity = dbHandler.getPlaceProximity(place);
+                        float distance = locations.get(i).distanceTo(lastKnownLocation);
+                        Log.i(TAG, "******* Distance: "+distance+" Interval: "+interval+" Proximity: "+proximity);
+                        if(distance<50){
+                            showNotification(place);
+                            break;
+                        }
+                    }
                 }
             }
-        }
+        }, 1000);
     }
 
     private void showNotification(String place){
 //        dbHandler.updateNote(place , null , 3 , 1);
+//        locations = dbHandler.getNotesLocations();
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -150,7 +157,6 @@ public class FusedBackground extends Service implements LocationListener,
         Notification notification = builder.build();
         NotificationManager notificationManager = (NotificationManager)this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0 , notification);
-//        restartSelf();
     }
 
     private void restartSelf(){

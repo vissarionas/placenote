@@ -79,7 +79,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void insertToDb(String place, String lat, String lng , String note , int proximity){
         dbInit();
-        db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LNG,NOTE,PROXIMITY) VALUES ('"+place+"','"+lat+"','"+lng+"','"+note+"','"+proximity+"')");
+        db.execSQL("INSERT INTO PLACENOTES (PLACE,LAT,LNG,NOTE,PROXIMITY) VALUES ('"+place+"','"+lat.substring(0,10)+"','"+lng.substring(0,10)+"','"+note+"','"+proximity+"')");
         Log.e(TAG , "Place: "+place+"\nLat: "+lat+"\nLng: "+lng+"\nProximity: "+proximity);
         dbClose();
     }
