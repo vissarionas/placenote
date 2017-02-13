@@ -57,10 +57,8 @@ public class FusedBackground extends Service implements LocationListener,
         locations = dbHandler.getNotesLocations();
         if(locations.size()>0){
             if(googleApiClient!=null) {
-                Log.i(TAG , "googleapiclient connected");
-                googleApiClient.connect();
+                if(!googleApiClient.isConnecting() || !googleApiClient.isConnected()) googleApiClient.connect();
             }else{
-                Log.i(TAG , "googleapiclient created");
                 googleApiClient = new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)
                         .addOnConnectionFailedListener(this)
@@ -118,22 +116,20 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        lastKnownLocation = location;
         String place;
-        long newInterval = new IntervalGenerator().getInterval(lastKnownLocation , locations);
+        long newInterval = new IntervalGenerator().getInterval(location , locations);
         if(newInterval < interval/2){
             Log.e(TAG , "restarted fused location updates");
             interval = newInterval;
             requestLocationUpdates(interval);
             return;
         }
-        if(lastKnownLocation.getAccuracy()<1000){
-            Log.i(TAG , "last: "+lastKnownLocation);
+        if(location.getAccuracy()<1000){
             for(int i=0 ; i<locations.size() ; i++){
                 place = dbHandler.getPlaceFromLocation(locations.get(i));
                 Integer proximity = dbHandler.getPlaceProximity(place);
-                float distance = locations.get(i).distanceTo(lastKnownLocation) - proximity;
-                Log.i(TAG, "******* Distance: "+distance+" Interval: "+interval+" Proximity: "+proximity);
+                float distance = locations.get(i).distanceTo(location) - proximity;
+                Log.i(TAG, "******* Lat: "+location.getLatitude()+" Lng: "+location.getLongitude()+"\nDistance: "+distance+" Interval: "+interval+" Proximity: "+proximity);
                 if(distance<50+proximity){
                     showNotification(place);
                     break;

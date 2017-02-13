@@ -15,10 +15,6 @@ public class PlaceNote {
         this.state = state;
     }
 
-    public String getPlaceNote(){
-        return this.place+" "+this.note;
-    }
-
     public String getPlace(){
         return this.place;
     }

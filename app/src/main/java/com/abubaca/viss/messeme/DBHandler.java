@@ -12,6 +12,9 @@ import java.util.List;
 
 /**
  * Created by viss on 1/2/17.
+ *
+ * PLACENOTES STATES: 0=EMPTY , 1=INACTIVE , 2=ACTIVE , 3=ALERTED
+ * PLACENOTES NOTIFIED: 0=NOT_NOTIFIED , 1=NOTIFIED
  */
 
 public class DBHandler extends SQLiteOpenHelper {
@@ -41,7 +44,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     private final void dbInit(){
         db = this.getWritableDatabase();
-        cursor = db.rawQuery("SELECT * FROM PLACENOTES" , null);
+        cursor = db.rawQuery("SELECT * FROM PLACENOTES ORDER BY STATE DESC , PLACE ASC" , null);
         cursor.moveToFirst();
     }
 
@@ -77,10 +80,12 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void insertToDb(String place, String lat, String lng , String note , int proximity){
         dbInit();
+        if(lat.length()>10)lat.substring(0,10);
+        if(lng.length()>10)lng.substring(0,10);
         ContentValues values = new ContentValues();
         values.put("PLACE",place);
-        values.put("LAT",lat.substring(0,10));
-        values.put("LNG",lng.substring(0,10));
+        values.put("LAT",lat);
+        values.put("LNG",lng);
         values.put("NOTE",note);
         values.put("PROXIMITY",proximity);
         db.insert("PLACENOTES" , null , values);

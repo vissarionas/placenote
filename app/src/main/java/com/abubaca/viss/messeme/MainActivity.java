@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView noPlacesTextview;
     private FloatingActionButton fab;
 
-    ListView list_view;
-    PlaceNoteAdapter adapter;
+    private ListView list_view;
+    private PlaceNoteAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,36 +137,6 @@ public class MainActivity extends AppCompatActivity {
             noPlacesTextview.setText("You have no places in your placelist.\n\nClick here or the compass button and set your first place");
         }
         adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
-//        list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-//            @Override
-//            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-//                PopupMenu menu = new PopupMenu(MainActivity.this, view);
-//                menu.getMenuInflater().inflate(R.menu.edit_place_menu , menu.getMenu());
-//                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-//                    @Override
-//                    public boolean onMenuItemClick(MenuItem item) {
-//                        switch ((String)item.getTitle()){
-//                            case "Edit name":
-//                                editPlaceDialog(adapter.getPlace(position));
-//                                break;
-//                            case "View on map":
-//                                showPlaceMap(adapter.getPlace(position));
-//                                break;
-//                            case "Clear note":
-//                                confirmDropNote(adapter.getPlace(position));
-//                                break;
-//                            case "Delete place":
-//                                confirmDropPlace(adapter.getPlace(position));
-//                                break;
-//                        }
-//                        return true;
-//                    }
-//                });
-//                menu.show();
-//                return true;
-//            }
-//        });
-
         list_view.setAdapter(adapter);
         registerForContextMenu(list_view);
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -380,8 +350,8 @@ public class MainActivity extends AppCompatActivity {
         }else{
             noteEditText.setHint("type a note here");
         }
-        noteEditText.setSelection(noteEditText.getText().length());
         noteEditText.setInputType(InputType.TYPE_CLASS_TEXT);
+        noteEditText.setSelection(noteEditText.getText().length());
 
         dialogBuilder.setView(noteEditText);
         dialogBuilder.setPositiveButton("OK",

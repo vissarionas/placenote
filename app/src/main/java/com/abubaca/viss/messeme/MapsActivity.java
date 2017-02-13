@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
@@ -40,12 +41,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener{
 
-    private GoogleMap mMap;
+    private GoogleMap map;
     private LatLng latlng;
     private Marker marker;
     public String placeAddress;
@@ -84,6 +88,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private void requestLocationUpdates(){
+        removeLocationUpdates();
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(2000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setNumUpdates(1);
+        locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
+
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapsActivity.this);
+        Log.i(TAG , "Requested location updates");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    private void removeLocationUpdates(){
+        Log.i(TAG , "Removed location updates");
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
+    }
+
     private void requestAddress(Double lat , Double lng){
         Intent intent = new Intent(MapsActivity.this, AddressGenerator.class);
         intent.putExtra("lat" , lat);
@@ -109,6 +135,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
+                removeLocationUpdates();
                 if(place.getViewport()!=null) {
                     Location northeastBound = new Location("");
                     northeastBound.setLatitude(place.getViewport().northeast.latitude);
@@ -117,16 +144,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     placeLocation.setLatitude(place.getLatLng().latitude);
                     placeLocation.setLongitude(place.getLatLng().longitude);
                     proximity = Math.round(northeastBound.distanceTo(placeLocation));
-                    Log.e(TAG, "Proximity: " + proximity);
                 }
 
                 lat = place.getLatLng().latitude;
                 lng = place.getLatLng().longitude;
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 19.0f));
+                Log.i(TAG , place.getName()+" lat: "+lat+" lng: "+lng);
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 19.0f));
                 if (marker != null) {
                     marker.remove();
                 }
-                marker = mMap.addMarker(new MarkerOptions().position(place.getLatLng())
+                marker = map.addMarker(new MarkerOptions().position(place.getLatLng())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
                 addPlaceButton.setVisibility(View.VISIBLE);
                 addPlaceButton.setText("Add "+ place.getName()+" to your placelist");
@@ -156,16 +183,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 16.0f));
-        marker = mMap.addMarker(new MarkerOptions().position(latlng)
+        map = googleMap;
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 16.0f));
+        marker = map.addMarker(new MarkerOptions().position(latlng)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
-        marker.setTitle("you are here");
         requestAddress(latlng.latitude , latlng.longitude);
         lat = latlng.latitude;
         lng = latlng.longitude;
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
                 lat = point.latitude;
@@ -178,13 +204,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 //place marker where user just clicked
-                marker = mMap.addMarker(new MarkerOptions().position(point)
+                marker = map.addMarker(new MarkerOptions().position(point)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
             }
         });
 
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 if (marker != null) {
@@ -204,7 +230,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void addPlaceDialog(final Double lat , final Double lng , final int proximity) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage("Name?");
+        dialogBuilder.setMessage("Name your place");
 
         final EditText nameEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -232,6 +258,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         getLastKnownLocation();
+        requestLocationUpdates();
     }
 
     @Override
@@ -246,7 +273,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 18.0f));
+        marker.setPosition(new LatLng(location.getLatitude() , location.getLongitude()));
     }
 
     protected void getLastKnownLocation() {
