@@ -24,8 +24,8 @@ public class IntervalGenerator {
                     smallestDistance = currentLocation.distanceTo(locations.get(i));
                 }
             }
-            interval = Math.round((smallestDistance * 100)/10000)*5000;
-            if(interval>300000) interval = interval/2;
+            interval = Math.round((smallestDistance * 100)/10000)*2500;
+            if(interval>300000) interval = interval/3;
         }
         return interval;
     }

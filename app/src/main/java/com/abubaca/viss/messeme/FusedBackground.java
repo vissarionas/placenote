@@ -18,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -57,13 +58,16 @@ public class FusedBackground extends Service implements LocationListener,
         locations = dbHandler.getNotesLocations();
         if(locations.size()>0){
             if(googleApiClient!=null) {
-                if(!googleApiClient.isConnecting() || !googleApiClient.isConnected()) googleApiClient.connect();
+                googleApiClient.reconnect();
+                Log.i(TAG , "googleapiclient connected");
             }else{
                 googleApiClient = new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)
                         .addOnConnectionFailedListener(this)
                         .addApi(LocationServices.API)
                         .build();
+                googleApiClient.connect();
+                Log.i(TAG , "created and connected gooleapiclient");
             }
         }
 
@@ -92,7 +96,6 @@ public class FusedBackground extends Service implements LocationListener,
         locationRequest.setInterval(interval);
         locationRequest.setFastestInterval(1000);
         locationRequest.setMaxWaitTime(2000);
-//        locationRequest.setSmallestDisplacement(1);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , FusedBackground.this);
@@ -117,12 +120,15 @@ public class FusedBackground extends Service implements LocationListener,
     @Override
     public void onLocationChanged(Location location) {
         String place;
-        long newInterval = new IntervalGenerator().getInterval(location , locations);
+        long newInterval = interval>5000 ? new IntervalGenerator().getInterval(location , locations) : interval;
         if(newInterval < interval/2){
-            Log.e(TAG , "restarted fused location updates");
+            Log.e(TAG , "restarted fused location updates: "+newInterval);
             interval = newInterval;
             requestLocationUpdates(interval);
-            return;
+        }else if(newInterval > interval*2){
+            Log.e(TAG , "restarted fused location updates: "+newInterval);
+            interval = newInterval;
+            requestLocationUpdates(interval);
         }
         if(location.getAccuracy()<1000){
             for(int i=0 ; i<locations.size() ; i++){
