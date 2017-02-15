@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#fff"
+    android:background="#f5f5f5"
     android:weightSum="2">
 
     <LinearLayout android:layout_height="match_parent"
@@ -19,8 +19,10 @@
             android:layout_height="wrap_content"
             android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="15dp" />
+            android:layout_alignParentStart="true" />
+
+        <View style="@style/Divider"
+            android:layout_marginBottom="3dp"></View>
 
         <fragment
             android:layout_weight="1.9"
@@ -44,16 +46,17 @@
 
 
         <Button
-            android:text="Button"
             android:visibility="invisible"
             android:layout_margin="2dp"
-            android:textColor="#000"
-            android:background="#f9f9f9"
+            android:textColor="#444444"
+            android:background="#f5f5f5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/add_place_button"
-            android:textAlignment="center"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:drawableLeft="@drawable/add_icon"
+            android:elevation="0dp"
+            android:textAlignment="center" />
 
     </LinearLayout>
 

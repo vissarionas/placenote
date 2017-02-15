@@ -97,12 +97,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapsActivity.this);
-        Log.i(TAG , "Requested location updates");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 
     private void removeLocationUpdates(){
@@ -187,7 +181,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 16.0f));
         marker = map.addMarker(new MarkerOptions().position(latlng)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
-        requestAddress(latlng.latitude , latlng.longitude);
         lat = latlng.latitude;
         lng = latlng.longitude;
 
@@ -252,13 +245,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
         dialog.show();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         getLastKnownLocation();
-        requestLocationUpdates();
+        if(!locationRecent(lastKnownLocation)){
+            requestLocationUpdates();
+        }else{
+            requestAddress(lastKnownLocation.getLatitude() , lastKnownLocation.getLongitude());
+        }
     }
 
     @Override
@@ -273,9 +271,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 18.0f));
+        lastKnownLocation = location;
+        latlng = new LatLng(location.getLatitude() , location.getLongitude());
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 18.0f));
         marker.setPosition(new LatLng(location.getLatitude() , location.getLongitude()));
+        requestAddress(location.getLatitude() , location.getLongitude());
     }
+
+    @NonNull
+    private Boolean locationRecent(Location location){
+        long time= System.currentTimeMillis();
+        long lastKnownLocationTime = location.getTime();
+        return (time - lastKnownLocationTime < 20000);
+    }
+
 
     protected void getLastKnownLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

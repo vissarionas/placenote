@@ -2,11 +2,11 @@ package com.abubaca.viss.messeme;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private DBHandler dbHandler;
 
     private TextView noPlacesTextview;
-    private FloatingActionButton fab;
 
     private ListView list_view;
     private PlaceNoteAdapter adapter;
@@ -60,16 +59,10 @@ public class MainActivity extends AppCompatActivity {
                 startMapActivity();
             }
         });
-
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                noPlacesTextview.setVisibility(View.INVISIBLE);
-                startMapActivity();
-            }
-        });
         list_view = (ListView) findViewById(R.id.list_view);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View footerView = inflater.inflate(R.layout.list_footer , null);
+        list_view.addFooterView(footerView);
     }
 
     @Override
@@ -134,7 +127,11 @@ public class MainActivity extends AppCompatActivity {
         List<PlaceNote> placeNotes = dbHandler.getPlaceNotes();
         if(placeNotes.size()==0) {
             noPlacesTextview.setVisibility(View.VISIBLE);
-            noPlacesTextview.setText("You have no places in your placelist.\n\nClick here or the compass button and set your first place");
+            list_view.setVisibility(View.INVISIBLE);
+            noPlacesTextview.setText("You have no places in your placelist.\n\nClick here and set your first place");
+        }else{
+            list_view.setVisibility(View.VISIBLE);
+            noPlacesTextview.setVisibility(View.INVISIBLE);
         }
         adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
         list_view.setAdapter(adapter);
@@ -142,7 +139,11 @@ public class MainActivity extends AppCompatActivity {
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                viewNote(adapter.getPlace(position));
+                try {
+                    viewNote(adapter.getPlace(position));
+                } catch (IndexOutOfBoundsException e) {
+                    startMapActivity();
+                }
             }
         });
     }
