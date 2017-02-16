@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.abubaca.viss.messeme.ViewPlaceMap">
+    tools:context="com.abubaca.viss.messeme.ViewPlaceActivity">
 
 
     <fragment
@@ -14,7 +14,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.abubaca.viss.messeme.MapsActivity"
+        tools:context="com.abubaca.viss.messeme.MapActivity"
         tools:layout="@layout/activity_maps"/>
 
 </RelativeLayout>

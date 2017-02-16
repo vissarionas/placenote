@@ -19,9 +19,9 @@ public class IntervalGenerator {
     public long getInterval(Location currentLocation , List<Location> locations){
         if(locations.size()>0){
             smallestDistance = currentLocation.distanceTo(locations.get(0));
-            for(int i = 1; i < locations.size() ; i++){
-                if(currentLocation.distanceTo(locations.get(i))<smallestDistance){
-                    smallestDistance = currentLocation.distanceTo(locations.get(i));
+            for(Location location : locations){
+                if(currentLocation.distanceTo(location)<smallestDistance){
+                    smallestDistance = currentLocation.distanceTo(location);
                 }
             }
             interval = Math.round((smallestDistance * 100)/10000)*2500;

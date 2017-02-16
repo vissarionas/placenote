@@ -10,14 +10,12 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView noPlacesTextview;
 
     private ListView list_view;
-    private PlaceNoteAdapter adapter;
+    private CustomAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -92,16 +89,13 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_drop_db) {
-            confirmDropDb();
-            return true;
-        }
-        if (id == R.id.action_drop_notes) {
-            confirmDropNotes();
-            return true;
+        switch (item.getItemId()){
+            case R.id.action_drop_db:
+                confirmDropDb();
+                break;
+            case R.id.action_drop_notes:
+                confirmDropNotes();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -132,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             list_view.setVisibility(View.VISIBLE);
             noPlacesTextview.setVisibility(View.INVISIBLE);
         }
-        adapter = new PlaceNoteAdapter(getApplicationContext(), placeNotes);
+        adapter = new CustomAdapter(getApplicationContext(), placeNotes);
         list_view.setAdapter(adapter);
         registerForContextMenu(list_view);
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -150,8 +144,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.edit_place_menu , menu);
+        getMenuInflater().inflate(R.menu.edit_place_menu , menu);
     }
 
     @Override
@@ -175,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startMapActivity() {
-        Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+        Intent intent = new Intent(MainActivity.this, MapActivity.class);
         startActivity(intent);
     }
 
@@ -375,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showPlaceMap(String placeName){
-        Intent intent = new Intent(MainActivity.this, ViewPlaceMap.class);
+        Intent intent = new Intent(MainActivity.this, ViewPlaceActivity.class);
         intent.putExtra("placeName" , placeName);
         startActivity(intent);
     }

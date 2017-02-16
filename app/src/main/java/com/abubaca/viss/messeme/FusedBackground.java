@@ -131,11 +131,11 @@ public class FusedBackground extends Service implements LocationListener,
             requestLocationUpdates(interval);
         }
         if(location.getAccuracy()<1000){
-            for(int i=0 ; i<locations.size() ; i++){
-                place = dbHandler.getPlaceFromLocation(locations.get(i));
+            for(Location noteLocation : locations){
+                place = dbHandler.getPlaceFromLocation(noteLocation);
                 Integer proximity = dbHandler.getPlaceProximity(place);
-                float distance = locations.get(i).distanceTo(location) - proximity;
-                Log.i(TAG, "******* Lat: "+location.getLatitude()+" Lng: "+location.getLongitude()+"\nDistance: "+distance+" Interval: "+interval+" Proximity: "+proximity);
+                float distance = noteLocation.distanceTo(location) - proximity;
+//                Log.i(TAG, "******* Lat: "+location.getLatitude()+" Lng: "+location.getLongitude()+"\nDistance: "+distance+" Interval: "+interval+" Proximity: "+proximity);
                 if(distance<50+proximity){
                     showNotification(place);
                     break;

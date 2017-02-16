@@ -1,9 +1,6 @@
 <resources>
     <string name="app_name">Messeme</string>
     <string name="action_drop_db">Remove places</string>
-    <!--<string name="title_activity_map">MapActivity</string>-->
-    <!--<string name="title_activity_maps">Map</string>-->
-    <!--<string name="title_activity_edit_place">EditPlace</string>-->
     <string name="action_drop_notes">Remove notes</string>
 
     <string name="no_geocoder_available">No geocoder available</string>
@@ -15,7 +12,10 @@
     <string name="invalid_lat_long_used">Invalid latitude or longitude used</string>
 
     <string name="main_title">Place list</string>
-    <string name="main_subtite">places you can leave a note</string>
+    <string name="main_subtite">places you can send a note</string>
     <string name="maps_title">Navigate</string>
-    <string name="maps_subtitle">add a new place</string>
+    <string name="maps_subtitle">..add a new place</string>
+
+    <string name="menu_search">Search</string>
+    <string name="search_bar">Search Bar</string>
 </resources>
