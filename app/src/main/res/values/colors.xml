@@ -3,7 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="vissGreen">#63c275</color>
-    <color name="vissGreenDark">#38a34c</color>
-    <color name="vissFuchsia">#FFFA1E3C</color>
+    <color name="colorPrimaryViss">#9ed670</color>
+    <color name="colorPrimaryDarkViss">#4d7358</color>
+    <color name="orangeViss">#e39e54</color>
+    <color name="yellowViss">#e8d174</color>
+    <color name="cinnamonViss">#d64d4d</color>
+    <color name="fontViss">#5a4b48</color>
 </resources>

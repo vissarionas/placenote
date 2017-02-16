@@ -13,8 +13,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
@@ -41,10 +41,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener{
@@ -66,55 +65,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            placeAddress = intent.getStringExtra("address");
-            addPlaceButton.setVisibility(View.VISIBLE);
-            addPlaceButton.setText("Add "+ placeAddress+" to your placelist");
-        }
-    };
-
-    private void connectGoogleApiClient() {
-        if(googleApiClient!=null) {
-            googleApiClient.connect();
-        }else{
-            googleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-            googleApiClient.connect();
-        }
-    }
-
-    private void requestLocationUpdates(){
-        removeLocationUpdates();
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(2000);
-        locationRequest.setFastestInterval(1000);
-        locationRequest.setNumUpdates(1);
-        locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
-
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapsActivity.this);
-    }
-
-    private void removeLocationUpdates(){
-        Log.i(TAG , "Removed location updates");
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
-    }
-
-    private void requestAddress(Double lat , Double lng){
-        Intent intent = new Intent(MapsActivity.this, AddressGenerator.class);
-        intent.putExtra("lat" , lat);
-        intent.putExtra("lng" , lng);
-        startService(intent);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        getSupportActionBar().setSubtitle(R.string.maps_subtitle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
         connectGoogleApiClient();
@@ -173,6 +129,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onPause() {
         this.unregisterReceiver(broadcastReceiver);
         super.onPause();
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            placeAddress = intent.getStringExtra("address");
+            addPlaceButton.setVisibility(View.VISIBLE);
+            addPlaceButton.setText("Add "+ placeAddress+" to your placelist");
+        }
+    };
+
+    private void connectGoogleApiClient() {
+        if(googleApiClient!=null) {
+            googleApiClient.connect();
+        }else{
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            googleApiClient.connect();
+        }
+    }
+
+    private void requestLocationUpdates(){
+        removeLocationUpdates();
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(2000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setNumUpdates(1);
+        locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
+
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapsActivity.this);
+    }
+
+    private void removeLocationUpdates(){
+        Log.i(TAG , "Removed location updates");
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
+    }
+
+    private void requestAddress(Double lat , Double lng){
+        Intent intent = new Intent(MapsActivity.this, AddressGenerator.class);
+        intent.putExtra("lat" , lat);
+        intent.putExtra("lng" , lng);
+        startService(intent);
     }
 
     @Override

@@ -2,10 +2,7 @@ package com.abubaca.viss.messeme;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
+import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,14 +13,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class ViewPlaceMap extends FragmentActivity implements OnMapReadyCallback {
+public class ViewPlaceMap extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final String TAG = "EDIT_PLACE";
     private DBHandler dbHandler;
     private Cursor cursor;
     private String placeName;
-    private TextView placeView;
-    private Double lat , lgn;
+    private Double lat , lng;
     private GoogleMap map;
     private Marker marker;
 
@@ -31,11 +27,10 @@ public class ViewPlaceMap extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_place_map);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         dbHandler = new DBHandler(getApplicationContext());
         cursor = dbHandler.getFullCursor();
         placeName = getIntent().getStringExtra("placeName");
-        placeView = (TextView)findViewById(R.id.place_view);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -49,9 +44,10 @@ public class ViewPlaceMap extends FragmentActivity implements OnMapReadyCallback
         if(cursor.getCount()>0){
             do{
                 if(cursor.getString(0).contentEquals(placeName)){
-                    placeView.setText(cursor.getString(0));
                     lat = cursor.getDouble(1);
-                    lgn = cursor.getDouble(2);
+                    lng = cursor.getDouble(2);
+                    getSupportActionBar().setTitle(placeName);
+                    getSupportActionBar().setSubtitle(lat+" - "+lng);
                     break;
                 }
             }while(cursor.moveToNext());
@@ -63,7 +59,7 @@ public class ViewPlaceMap extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat , lgn), 17.0f));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat , lng), 17.0f));
 //        map.getUiSettings().setScrollGesturesEnabled(false);
         //remove previously placed Marker
         if (marker != null) {
@@ -71,7 +67,7 @@ public class ViewPlaceMap extends FragmentActivity implements OnMapReadyCallback
         }
 
         //place marker where user just clicked
-        marker = map.addMarker(new MarkerOptions().position(new LatLng(lat, lgn))
+        marker = map.addMarker(new MarkerOptions().position(new LatLng(lat, lng))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
     }
 }
