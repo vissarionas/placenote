@@ -138,6 +138,15 @@
     </item>
     <item
         is-multidex="false"
+        jar="/home/viss/Android/Sdk/extras/m2repository/com/android/support/constraint/constraint-layout-solver/1.0.0-beta5/constraint-layout-solver-1.0.0-beta5.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="ff0dad5e4fc720f478ce8b5f6edf76a932d9b886">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/constraint-layout-solver-1.0.0-beta5_a8045c5c8c84f2c946ae333bd214cabf3448c38b.jar" />
+    </item>
+    <item
+        is-multidex="false"
         jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support/support-fragment/25.1.0/jars/classes.jar"
         jumboMode="false"
         optimize="true"
@@ -162,6 +171,15 @@
         revision="25.0.2"
         sha1="f3e51e9c5233b8897f61e08a6a27bc36283c2724">
         <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-places-10.0.1_f89f58297c1540701d8e5a8e593f419f617d6986.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/viss/Android_projects/messeme/app/build/intermediates/exploded-aar/com.android.support.constraint/constraint-layout/1.0.0-beta5/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="dce0f3de11781e1ee758cba483871b598c9d4931">
+        <dex dex="/home/viss/Android_projects/messeme/app/build/intermediates/pre-dexed/debug/com.android.support.constraint-constraint-layout-1.0.0-beta5_a0c07e25f29cb863a32b02e10c94e7054d6f2172.jar" />
     </item>
     <item
         is-multidex="false"

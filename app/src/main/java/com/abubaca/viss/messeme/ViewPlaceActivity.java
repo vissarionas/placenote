@@ -3,6 +3,7 @@ package com.abubaca.viss.messeme;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,8 +47,13 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                 if(cursor.getString(0).contentEquals(placeName)){
                     lat = cursor.getDouble(1);
                     lng = cursor.getDouble(2);
+                    String subtitleLat, subtitleLng;
+                    subtitleLat = String.valueOf(lat);
+                    subtitleLng = String.valueOf(lng);
+                    if(subtitleLat.length()>10) subtitleLat = subtitleLat.substring(0,10);
+                    if(subtitleLng.length()>10) subtitleLng = subtitleLng.substring(0,10);
                     getSupportActionBar().setTitle(placeName);
-                    getSupportActionBar().setSubtitle(lat+" - "+lng);
+                    getSupportActionBar().setSubtitle(subtitleLat+" - "+subtitleLng);
                     break;
                 }
             }while(cursor.moveToNext());

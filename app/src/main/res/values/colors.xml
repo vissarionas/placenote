@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="colorPrimaryViss">#9ed670</color>
+    <color name="colorPrimaryDark">#303f9f</color>
+    <color name="colorAccent">#ff4081</color>
+    <color name="colorPrimaryViss">#000000</color>
     <color name="colorPrimaryDarkViss">#4d7358</color>
     <color name="orangeViss">#e39e54</color>
     <color name="yellowViss">#e8d174</color>
     <color name="cinnamonViss">#d64d4d</color>
-    <color name="fontViss">#5a4b48</color>
+    <color name="simpleBrown">#5a4b48</color>
+    <color name="summertimeYellow">#e8d174</color>
+    <color name="summertimeOrange">#e39e54</color>
+    <color name="summertimeRed">#d64d4d</color>
+    <color name="summertimeGreenDark">#4d7358</color>
+    <color name="summertimeGreen">#9ed670</color>
+
 </resources>

@@ -16,6 +16,5 @@
     <string name="maps_title">Navigate</string>
     <string name="maps_subtitle">..add a new place</string>
 
-    <string name="menu_search">Search</string>
-    <string name="search_bar">Search Bar</string>
+    <string name="map_search">Search</string>
 </resources>

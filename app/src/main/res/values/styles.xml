@@ -1,24 +1,33 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimaryViss</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDarkViss</item>
-        <item name="colorAccent">@color/cinnamonViss</item>
-        <item name="android:gravity">center</item>
+    <!--first override parent (text) properties-->
+    <style name="CustomActionBarText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/summertimeGreenDark</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="CustomActionBarText.Sub">
+        <item name="android:textColor">@color/summertimeGreenDark</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <!--second override parent (actionbar) properties-->
+    <style name="CustomActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/summertimeOrange</item>
+        <item name="titleTextStyle">@style/CustomActionBarText</item>
+        <item name="subtitleTextStyle">@style/CustomActionBarText.Sub</item>
+    </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="CustomButton" parent="@style/Widget.AppCompat.Button">
+        <item name="background">@color/colorPrimaryViss</item>
+    </style>
 
-    <style name="Theme.AppTheme" parent="android:Theme.Holo" />
+    <!--last, apply overriden theme onto the actionbar by ovverriding the stock theme-->
+    <style name="CustomTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/CustomActionBar</item>
+        <item name="buttonStyle">@style/CustomButton</item>
+    </style>
+
+
 
     <style name="Divider">
         <item name="android:layout_marginTop">5dp</item>
@@ -27,11 +36,6 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">0.5dp</item>
         <item name="android:background">@color/colorPrimary</item>
-    </style>
-
-    <style name="menuStyle">
-        <item name="android:background">@color/yellowViss</item>
-        <item name="android:textColor">@color/fontViss</item>
     </style>
 
 </resources>
