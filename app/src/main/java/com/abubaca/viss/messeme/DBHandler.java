@@ -13,23 +13,23 @@ import java.util.List;
 /**
  * Created by viss on 1/2/17.
  *
- * PLACENOTES STATES: 0=EMPTY , 1=INACTIVE , 2=ACTIVE , 3=ALERTED
  * PLACENOTES NOTIFIED: 0=NOT_NOTIFIED , 1=NOTIFIED
  */
 
-public class DBHandler extends SQLiteOpenHelper {
+class DBHandler extends SQLiteOpenHelper {
 
     private static int databaseVersion = 1;
     private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
             "LAT TEXT , LNG TEXT , NOTE TEXT ," +
             " STATE INTEGER DEFAULT 0 , NOTIFIED INTEGER DEFAULT 0 ," +
             " PROXIMITY INTEGER)";
+    private final static String selectAllFromTable = "SELECT * FROM PLACENOTES ORDER BY STATE DESC , PLACE ASC";
+    private final static String TAG = "DBHANDLER";
 
     private static SQLiteDatabase db;
-    private final static String TAG = "DBHANDLER";
-    public Cursor cursor;
+    private Cursor cursor;
 
-    public DBHandler(Context context) {
+    DBHandler(Context context) {
         super(context, "messeme" , null , databaseVersion);
     }
 
@@ -42,19 +42,19 @@ public class DBHandler extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-    private final void dbInit(){
+    private void dbInit(){
         db = this.getWritableDatabase();
-        cursor = db.rawQuery("SELECT * FROM PLACENOTES ORDER BY STATE DESC , PLACE ASC" , null);
+        cursor = db.rawQuery(selectAllFromTable, null);
         cursor.moveToFirst();
     }
 
-    private final void dbClose(){
+    private void dbClose(){
         if(db.isOpen()){
             db.close();
         }
     }
 
-    public void clearDb(){
+    void clearDb(){
         dbInit();
         if(cursor.getCount()>0) {
             db.execSQL("DELETE FROM PLACENOTES");
@@ -62,26 +62,26 @@ public class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    public void deleteNotes(){
+    void deleteNotes(){
         dbInit();
         ContentValues values = new ContentValues();
         values.put("NOTE" , "");
-        values.put("STATE" , 0);
+        values.put("STATE" , NoteState.EMPTY);
         values.put("NOTIFIED" , 0);
         db.update("PLACENOTES" , values , null , null );
         dbClose();
     }
 
-    public void deletePlace(String place){
+    void deletePlace(String place){
         dbInit();
         db.delete("PLACENOTES", "PLACE='" + place + "'", null);
         dbClose();
     }
 
-    public void insertToDb(String place, String lat, String lng , String note , int proximity){
+    void insertToDb(String place, String lat, String lng , String note , int proximity){
         dbInit();
-        if(lat.length()>10)lat.substring(0,10);
-        if(lng.length()>10)lng.substring(0,10);
+        if(lat.length()>10)lat = lat.substring(0,10);
+        if(lng.length()>10)lng = lng.substring(0,10);
         ContentValues values = new ContentValues();
         values.put("PLACE",place);
         values.put("LAT",lat);
@@ -92,7 +92,7 @@ public class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    public void updateNote(String place , String newNote , int state , Integer notified){
+    void updateNote(String place , String newNote , int state , Integer notified){
         dbInit();
         ContentValues values = new ContentValues();
         if(newNote != null) values.put("NOTE" , newNote);
@@ -102,7 +102,7 @@ public class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    public void updatePlaceName(String place, String newName){
+    void updatePlaceName(String place, String newName){
         dbInit();
         ContentValues values = new ContentValues();
         values.put("PLACE" , newName);
@@ -110,7 +110,7 @@ public class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    public List<PlaceNote> getPlaceNotes(){
+    List<PlaceNote> getPlaceNotes(){
         dbInit();
         List<PlaceNote> placeNotes = new ArrayList<>();
         if(cursor.getCount()>0) {
@@ -123,14 +123,14 @@ public class DBHandler extends SQLiteOpenHelper {
         return placeNotes;
     }
 
-    public List<Location> getNotesLocations(){
+    List<Location> getNotesLocations(){
         dbInit();
         Double lat , lng;
         List<Location> placeLocations = new ArrayList<>();
 
         if(cursor.getCount()>0){
             do{
-                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == 2 && cursor.getInt(5) == 0){
+                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == NoteState.ACTIVE && cursor.getInt(5) == 0){
                     Location singlePlaceLocation = new Location("");
                     lat = Double.valueOf(cursor.getString(1));
                     lng = Double.valueOf(cursor.getString(2));
@@ -144,7 +144,7 @@ public class DBHandler extends SQLiteOpenHelper {
         return placeLocations;
     }
 
-    public String getPlaceNote(String place){
+    String getPlaceNote(String place){
         dbInit();
         if(cursor.getCount()>0){
             do {
@@ -157,7 +157,7 @@ public class DBHandler extends SQLiteOpenHelper {
         return cursor.getString(3);
     }
 
-    public String getPlaceFromLocation(Location location){
+    String getPlaceFromLocation(Location location){
         dbInit();
         String lat = String.valueOf(location.getLatitude());
         String lng = String.valueOf(location.getLongitude());
@@ -172,7 +172,7 @@ public class DBHandler extends SQLiteOpenHelper {
         return cursor.getString(0);
     }
 
-    public int getPlaceProximity(String place){
+    int getPlaceProximity(String place){
         dbInit();
         if(cursor.getCount()>0){
             do{
@@ -185,7 +185,7 @@ public class DBHandler extends SQLiteOpenHelper {
         return cursor.getInt(6);
     }
 
-    public Boolean isNotified(String place){
+    Boolean isNotified(String place){
         dbInit();
         if(cursor.getCount()>0){
             do {
@@ -198,7 +198,7 @@ public class DBHandler extends SQLiteOpenHelper {
         return cursor.getInt(5) == 1;
     }
 
-    public Cursor getFullCursor(){
+    Cursor getFullCursor(){
         dbInit();
         dbClose();
         return this.cursor;

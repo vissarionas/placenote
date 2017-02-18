@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Layout;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle(R.string.main_subtite);
         dbHandler = new DBHandler(getApplicationContext());
 
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         });
         list_view = (ListView) findViewById(R.id.list_view);
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         View footerView = inflater.inflate(R.layout.list_footer , null);
         list_view.addFooterView(footerView);
     }
@@ -122,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         if(placeNotes.size()==0) {
             noPlacesTextview.setVisibility(View.VISIBLE);
             list_view.setVisibility(View.INVISIBLE);
-            noPlacesTextview.setText("You have no places in your placelist.\n\nClick here and set your first place");
+            noPlacesTextview.setText(R.string.no_places);
         }else{
             list_view.setVisibility(View.VISIBLE);
             noPlacesTextview.setVisibility(View.INVISIBLE);
@@ -175,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void confirmDropDb() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you want to delete all places?")
+        builder.setMessage(R.string.confirm_delete_places)
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -195,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void confirmDropNotes() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you want to delete all notes?")
+        builder.setMessage(R.string.confirm_delete_all_notes)
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -215,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void confirmDropNote(final String placeName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you want to delete this note?")
+        builder.setMessage(R.string.confirm_delete_note)
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -237,7 +240,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void confirmDropPlace(final String placeName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you want to remove "+placeName+"")
+        String confirm = getResources().getString(R.string.confirm_delete_place);
+        builder.setMessage(String.format(confirm , placeName))
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -285,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void viewNote(final String place){
-        if(dbHandler.isNotified(place))dbHandler.updateNote(place , null , 1 , null);
+        if(dbHandler.isNotified(place))dbHandler.updateNote(place , null , NoteState.INACTIVE , null);
         LayoutInflater inflater = getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
         editView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -354,9 +358,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         String note = noteEditText.getText().toString();
                         if(!note.contentEquals("")){
-                            dbHandler.updateNote(place , note , 2 , 0);
+                            dbHandler.updateNote(place , note , NoteState.ACTIVE , 0);
                         }else{
-                            dbHandler.updateNote(place , note , 0 , 0);
+                            dbHandler.updateNote(place , note , NoteState.EMPTY , 0);
                         }
                         MainActivity.this.onResume();
                     }

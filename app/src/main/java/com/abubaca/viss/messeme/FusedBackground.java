@@ -11,14 +11,12 @@ import android.graphics.Color;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -145,7 +143,7 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void showNotification(String place){
-        dbHandler.updateNote(place , null , 3 , 1);
+        dbHandler.updateNote(place , null , NoteState.ALERTED , 1);
         locations = dbHandler.getNotesLocations();
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);

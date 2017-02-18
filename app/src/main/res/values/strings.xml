@@ -17,4 +17,10 @@
     <string name="maps_subtitle">..add a new place</string>
 
     <string name="map_search">Search</string>
+
+    <string name="confirm_delete_places">Are you sure you want to delete all places?</string>
+    <string name="no_places">You have no places in your placelist.\n\nClick here and set your first place</string>
+    <string name="confirm_delete_note">Are you sure you want to delete this note?</string>
+    <string name="confirm_delete_all_notes">Are you sure you want to delete all notes?</string>
+    <string name="confirm_delete_place">Are you sure you want to remove %1$s ?</string>
 </resources>
