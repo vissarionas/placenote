@@ -2,6 +2,10 @@
     <string name="app_name">Messeme</string>
     <string name="action_drop_db">Remove places</string>
     <string name="action_drop_notes">Remove notes</string>
+    <string name="dummy_text">Dummy Text</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 
     <string name="no_geocoder_available">No geocoder available</string>
     <string name="fetch_address">Fetch address</string>
@@ -13,14 +17,19 @@
 
     <string name="main_title">Place list</string>
     <string name="main_subtite">places you can send a note</string>
-    <string name="maps_title">Navigate</string>
-    <string name="maps_subtitle">..add a new place</string>
-
-    <string name="map_search">Search</string>
-
+    <string name="add_new_place">Add a new place</string>
     <string name="confirm_delete_places">Are you sure you want to delete all places?</string>
     <string name="no_places">You have no places in your placelist.\n\nClick here and set your first place</string>
     <string name="confirm_delete_note">Are you sure you want to delete this note?</string>
     <string name="confirm_delete_all_notes">Are you sure you want to delete all notes?</string>
     <string name="confirm_delete_place">Are you sure you want to remove %1$s ?</string>
+    <string name="type_a_note_here">type a note here</string>
+    <string name="place_name">Place name</string>
+
+    <string name="maps_title">Navigate</string>
+    <string name="maps_subtitle">..add a new place</string>
+    <string name="map_search">Search</string>
+    <string name="add_place">Add %1$s to your placelist</string>
+    <string name="name_your_place">Name your place</string>
+
 </resources>

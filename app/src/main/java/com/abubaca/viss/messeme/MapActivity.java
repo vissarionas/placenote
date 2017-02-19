@@ -164,9 +164,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            placeAddress = intent.getStringExtra("address");
+            placeAddress = intent.getStringExtra("ADDRESS");
             addPlaceButton.setVisibility(View.VISIBLE);
-            addPlaceButton.setText("Add "+ placeAddress+" to your placelist");
+            String addPlace = getResources().getString(R.string.add_place);
+            addPlaceButton.setText(String.format(addPlace , placeAddress));
         }
     };
 
@@ -254,7 +255,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void addPlaceDialog(final Double lat , final Double lng , final int proximity) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage("Name your place");
+        dialogBuilder.setMessage(R.string.name_your_place);
 
         final EditText nameEditText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(

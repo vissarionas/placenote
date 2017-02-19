@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +29,11 @@ class DBHandler extends SQLiteOpenHelper {
 
     private static SQLiteDatabase db;
     private Cursor cursor;
+    private Context context;
 
     DBHandler(Context context) {
         super(context, "messeme" , null , databaseVersion);
+        this.context = context;
     }
 
     @Override
@@ -62,7 +65,7 @@ class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    void deleteNotes(){
+    void clearNotes(){
         dbInit();
         ContentValues values = new ContentValues();
         values.put("NOTE" , "");

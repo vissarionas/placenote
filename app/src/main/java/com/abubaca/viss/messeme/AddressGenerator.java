@@ -63,7 +63,7 @@ public class AddressGenerator extends Service {
     private void sendBroadcast(String address){
         Intent intent = new Intent();
         intent.setAction("GET_ADDRESS");
-        intent.putExtra("address" , address);
+        intent.putExtra("ADDRESS" , address);
         sendBroadcast(intent);
         stopSelf();
     }

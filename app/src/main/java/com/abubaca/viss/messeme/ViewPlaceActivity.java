@@ -31,7 +31,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         dbHandler = new DBHandler(getApplicationContext());
         cursor = dbHandler.getFullCursor();
-        placeName = getIntent().getStringExtra("placeName");
+        placeName = getIntent().getStringExtra("PLACENAME");
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);

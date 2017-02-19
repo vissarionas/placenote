@@ -12,7 +12,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.text.Layout;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -27,7 +26,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -180,13 +178,13 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.confirm_delete_places)
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearDb();
                         onResume();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel , new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -200,13 +198,13 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.confirm_delete_all_notes)
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.deleteNotes();
+                        dbHandler.clearNotes();
                         onResume();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -220,14 +218,14 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.confirm_delete_note)
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.updateNote(placeName , "" , 0 , 0);
                         onResume();
                         populateList();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -243,13 +241,13 @@ public class MainActivity extends AppCompatActivity {
         String confirm = getResources().getString(R.string.confirm_delete_place);
         builder.setMessage(String.format(confirm , placeName))
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.deletePlace(placeName);
                         populateList();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -273,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
         nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(20)});
         nameEditText.setSelection(nameEditText.getText().length());
         dialogBuilder.setView(nameEditText);
-        dialogBuilder.setPositiveButton("OK",
+        dialogBuilder.setPositiveButton(R.string.ok,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -283,8 +281,8 @@ public class MainActivity extends AppCompatActivity {
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
-        dialog.setTitle("Place name");
+//        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
+        dialog.setTitle(R.string.place_name);
         dialog.show();
     }
 
@@ -346,13 +344,13 @@ public class MainActivity extends AppCompatActivity {
         if(!prevNote.isEmpty()){
             noteEditText.setText(prevNote);
         }else{
-            noteEditText.setHint("type a note here");
+            noteEditText.setHint(R.string.type_a_note_here);
         }
         noteEditText.setInputType(InputType.TYPE_CLASS_TEXT);
         noteEditText.setSelection(noteEditText.getText().length());
 
         dialogBuilder.setView(noteEditText);
-        dialogBuilder.setPositiveButton("OK",
+        dialogBuilder.setPositiveButton(R.string.ok,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -367,14 +365,14 @@ public class MainActivity extends AppCompatActivity {
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
+//        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
         dialog.setTitle("Note");
         dialog.show();
     }
 
     private void showPlaceMap(String placeName){
         Intent intent = new Intent(MainActivity.this, ViewPlaceActivity.class);
-        intent.putExtra("placeName" , placeName);
+        intent.putExtra("PLACENAME" , placeName);
         startActivity(intent);
     }
 

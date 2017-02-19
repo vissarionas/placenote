@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -93,7 +94,6 @@ public class FusedBackground extends Service implements LocationListener,
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
         locationRequest.setFastestInterval(1000);
-        locationRequest.setMaxWaitTime(2000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , FusedBackground.this);
@@ -120,11 +120,9 @@ public class FusedBackground extends Service implements LocationListener,
         String place;
         long newInterval = interval>5000 ? new IntervalGenerator().getInterval(location , locations) : interval;
         if(newInterval < interval/2){
-            Log.e(TAG , "restarted fused location updates: "+newInterval);
             interval = newInterval;
             requestLocationUpdates(interval);
         }else if(newInterval > interval*2){
-            Log.e(TAG , "restarted fused location updates: "+newInterval);
             interval = newInterval;
             requestLocationUpdates(interval);
         }
@@ -133,7 +131,6 @@ public class FusedBackground extends Service implements LocationListener,
                 place = dbHandler.getPlaceFromLocation(noteLocation);
                 Integer proximity = dbHandler.getPlaceProximity(place);
                 float distance = noteLocation.distanceTo(location) - proximity;
-//                Log.i(TAG, "******* Lat: "+location.getLatitude()+" Lng: "+location.getLongitude()+"\nDistance: "+distance+" Interval: "+interval+" Proximity: "+proximity);
                 if(distance<50+proximity){
                     showNotification(place);
                     break;
@@ -149,13 +146,14 @@ public class FusedBackground extends Service implements LocationListener,
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+//        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        builder.setSound(Uri.parse("android.resource://"+this.getPackageName()+"/"+R.raw.notification));
         builder.setContentTitle(place);
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.raw.notification_icon);
         builder.setLights(Color.GREEN , 2000 , 3000);
-        builder.setVibrate(new long[] { 500, 500});
+        builder.setVibrate(new long[] { 200 , 600 , 200 , 600});
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
@@ -164,7 +162,6 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void restartSelf(){
-        Log.e(TAG , "Service restarted");
         Intent restartServiceTask = new Intent(getApplicationContext(),this.getClass());
         restartServiceTask.setPackage(getPackageName());
         PendingIntent restartPendingIntent =PendingIntent.getService(getApplicationContext(), 1,restartServiceTask, PendingIntent.FLAG_ONE_SHOT);

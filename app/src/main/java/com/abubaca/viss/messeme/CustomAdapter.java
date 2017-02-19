@@ -2,19 +2,11 @@ package com.abubaca.viss.messeme;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.view.menu.MenuAdapter;
-import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
