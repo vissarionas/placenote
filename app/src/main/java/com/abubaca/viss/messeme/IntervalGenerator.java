@@ -1,7 +1,6 @@
 package com.abubaca.viss.messeme;
 
 import android.location.Location;
-import android.util.Log;
 
 import java.util.List;
 

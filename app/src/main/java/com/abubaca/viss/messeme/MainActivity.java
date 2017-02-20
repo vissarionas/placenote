@@ -36,32 +36,30 @@ public class MainActivity extends AppCompatActivity {
 
     private DBHandler dbHandler;
 
-    private TextView noPlacesTextview;
+    private TextView noPlacesTV;
 
-    private ListView list_view;
+    private ListView placeLV;
     private CustomAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle(R.string.main_subtite);
         dbHandler = new DBHandler(getApplicationContext());
 
-        noPlacesTextview = (TextView)findViewById(R.id.no_places_textview);
-        noPlacesTextview.setOnClickListener(new View.OnClickListener() {
+        noPlacesTV = (TextView)findViewById(R.id.no_places_tv);
+        noPlacesTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                noPlacesTextview.setVisibility(View.INVISIBLE);
                 startMapActivity();
             }
         });
-        list_view = (ListView) findViewById(R.id.list_view);
+        placeLV = (ListView) findViewById(R.id.place_lv);
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View footerView = inflater.inflate(R.layout.list_footer , null);
-        list_view.addFooterView(footerView);
+        placeLV.addFooterView(footerView);
     }
 
     @Override
@@ -121,17 +119,17 @@ public class MainActivity extends AppCompatActivity {
     private void populateList() {
         List<PlaceNote> placeNotes = dbHandler.getPlaceNotes();
         if(placeNotes.size()==0) {
-            noPlacesTextview.setVisibility(View.VISIBLE);
-            list_view.setVisibility(View.INVISIBLE);
-            noPlacesTextview.setText(R.string.no_places);
+            noPlacesTV.setVisibility(View.VISIBLE);
+            placeLV.setVisibility(View.INVISIBLE);
+            noPlacesTV.setText(R.string.no_places);
         }else{
-            list_view.setVisibility(View.VISIBLE);
-            noPlacesTextview.setVisibility(View.INVISIBLE);
+            placeLV.setVisibility(View.VISIBLE);
+            noPlacesTV.setVisibility(View.INVISIBLE);
         }
         adapter = new CustomAdapter(getApplicationContext(), placeNotes);
-        list_view.setAdapter(adapter);
-        registerForContextMenu(list_view);
-        list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        placeLV.setAdapter(adapter);
+        registerForContextMenu(placeLV);
+        placeLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
@@ -287,6 +285,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void viewNote(final String place){
+        String note = dbHandler.getPlaceNote(place);
+        if(note.equals("")){
+            editNoteDialog(place);
+            return;
+        }
         if(dbHandler.isNotified(place))dbHandler.updateNote(place , null , NoteState.INACTIVE , null);
         LayoutInflater inflater = getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
@@ -294,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
-        String note = dbHandler.getPlaceNote(place);
+
         ImageButton btnDelete;
         final TextView noteTextView;
         noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
@@ -355,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String note = noteEditText.getText().toString();
-                        if(!note.contentEquals("")){
+                        if(!note.equals("")){
                             dbHandler.updateNote(place , note , NoteState.ACTIVE , 0);
                         }else{
                             dbHandler.updateNote(place , note , NoteState.EMPTY , 0);

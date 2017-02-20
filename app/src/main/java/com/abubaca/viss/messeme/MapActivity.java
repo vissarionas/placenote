@@ -98,7 +98,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==R.id.action_search) searchIntent();
+        switch(item.getItemId()){
+            case R.id.action_search:
+                searchIntent();
+                break;
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 

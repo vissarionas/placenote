@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,7 +150,7 @@ class DBHandler extends SQLiteOpenHelper {
         dbInit();
         if(cursor.getCount()>0){
             do {
-                if(cursor.getString(0).contentEquals(place)){
+                if(cursor.getString(0).equals(place)){
                     break;
                 }
             }while(cursor.moveToNext());
@@ -166,7 +165,7 @@ class DBHandler extends SQLiteOpenHelper {
         String lng = String.valueOf(location.getLongitude());
         if(cursor.getCount()>0){
             do {
-                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lng)){
+                if (cursor.getString(1).equals(lat) && cursor.getString(2).equals(lng)){
                     break;
                 }
             }while(cursor.moveToNext());
@@ -179,7 +178,7 @@ class DBHandler extends SQLiteOpenHelper {
         dbInit();
         if(cursor.getCount()>0){
             do{
-                if(cursor.getString(0).contentEquals(place)){
+                if(cursor.getString(0).equals(place)){
                     break;
                 }
             }while(cursor.moveToNext());
@@ -192,7 +191,7 @@ class DBHandler extends SQLiteOpenHelper {
         dbInit();
         if(cursor.getCount()>0){
             do {
-                if(cursor.getString(0).contentEquals(place)){
+                if(cursor.getString(0).equals(place)){
                      break;
                 }
             }while(cursor.moveToNext());
