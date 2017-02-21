@@ -52,11 +52,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         com.google.android.gms.location.LocationListener{
 
     private GoogleMap map;
-    private LatLng latlng;
     private Marker marker;
-    public String placeAddress;
+    private String placeAddress = null;
     private Double lat , lng;
-    private int proximity;
+    private int proximity = 0;
     private Button addPlaceButton;
     private DBHandler dbHandler;
     private GoogleApiClient googleApiClient;
@@ -79,6 +78,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onResume() {
+        addPlaceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addPlaceDialog(placeAddress);
+            }
+        });
         this.registerReceiver(broadcastReceiver , filter);
         connectGoogleApiClient();
         super.onResume();
@@ -127,35 +132,27 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Place place = PlaceAutocomplete.getPlace(this, data);
                 removeLocationUpdates();
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                Location placeLocation = new Location("");
+                placeLocation.setLatitude(place.getLatLng().latitude);
+                placeLocation.setLongitude(place.getLatLng().longitude);
                 if(place.getViewport()!=null) {
                     Location northeastBound = new Location("");
                     northeastBound.setLatitude(place.getViewport().northeast.latitude);
                     northeastBound.setLongitude(place.getViewport().northeast.longitude);
-                    Location placeLocation = new Location("");
-                    placeLocation.setLatitude(place.getLatLng().latitude);
-                    placeLocation.setLongitude(place.getLatLng().longitude);
                     proximity = Math.round(northeastBound.distanceTo(placeLocation));
                 }
 
-                lat = place.getLatLng().latitude;
-                lng = place.getLatLng().longitude;
-                Log.i(TAG , place.getName()+" lat: "+lat+" lng: "+lng);
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 19.0f));
-                if (marker != null) {
-                    marker.remove();
-                }
-                marker = map.addMarker(new MarkerOptions().position(place.getLatLng())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+                lat = placeLocation.getLatitude();
+                lng = placeLocation.getLongitude();
+                moveMapPlaceMarker(placeLocation , 18.0f);
+
+                placeAddress = place.getName().toString();
                 addPlaceButton.setVisibility(View.VISIBLE);
-                addPlaceButton.setText("Add "+ place.getName()+" to your placelist");
-                addPlaceButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        addPlaceDialog(lat, lng , proximity);
-                    }
-                });
+                String addPlace = getResources().getString(R.string.add_place);
+                addPlaceButton.setText(String.format(addPlace , placeAddress));
+
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
                 // TODO: Handle the error.
@@ -217,50 +214,39 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 16.0f));
-        marker = map.addMarker(new MarkerOptions().position(latlng)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
-        lat = latlng.latitude;
-        lng = latlng.longitude;
-
+        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
+            lat = lastKnownLocation.getLatitude();
+            lng = lastKnownLocation.getLongitude();
+            Log.e(TAG , "lastknownlocation: "+lastKnownLocation.getLatitude()+" "+lastKnownLocation.getLongitude());
+            moveMapPlaceMarker(lastKnownLocation , 18.0f);
+            requestAddress(lastKnownLocation.getLatitude() , lastKnownLocation.getLongitude());
+        }
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
                 lat = point.latitude;
                 lng = point.longitude;
-                requestAddress(lat , lng);
-
-                //remove previously placed Marker
-                if (marker != null) {
-                    marker.remove();
-                }
-
-                //place marker where user just clicked
-                marker = map.addMarker(new MarkerOptions().position(point)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+                Location tempLocation = new Location("");
+                lastKnownLocation = tempLocation;
+                tempLocation.setLatitude(point.latitude);
+                tempLocation.setLongitude(point.longitude);
+                moveMapPlaceMarker(tempLocation , 18.0f);
+                requestAddress(tempLocation.getLatitude() , tempLocation.getLongitude());
             }
         });
-
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (marker != null) {
+                if (marker!=null) {
                     marker.remove();
                 }
                 return false;
             }
         });
-
-        addPlaceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addPlaceDialog(lat, lng, proximity);
-            }
-        });
     }
 
-    private void addPlaceDialog(final Double lat , final Double lng , final int proximity) {
+    private void addPlaceDialog(String nameSuggestion) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setMessage(R.string.name_your_place);
 
@@ -271,6 +257,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         nameEditText.setLayoutParams(params);
         nameEditText.setInputType(InputType.TYPE_CLASS_TEXT);
         nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(20)});
+        nameEditText.setText(nameSuggestion);
+        nameEditText.setSelection(nameEditText.getText().length());
         dialogBuilder.setView(nameEditText);
         dialogBuilder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
@@ -284,18 +272,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.getWindow().getAttributes().verticalMargin = -0.2F;
         dialog.show();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         getLastKnownLocation();
-        if(!locationRecent(lastKnownLocation)){
-            requestLocationUpdates();
-        }else{
-            requestAddress(lastKnownLocation.getLatitude() , lastKnownLocation.getLongitude());
-        }
+        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)) return;
+        requestLocationUpdates();
     }
 
     @Override
@@ -311,14 +295,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         lastKnownLocation = location;
-        latlng = new LatLng(location.getLatitude() , location.getLongitude());
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 18.0f));
-        marker.setPosition(new LatLng(location.getLatitude() , location.getLongitude()));
+        lat = location.getLatitude();
+        lng = location.getLongitude();
+        moveMapPlaceMarker(location , 18.0f);
         requestAddress(location.getLatitude() , location.getLongitude());
     }
 
+    private void moveMapPlaceMarker(Location location , float zoom){
+        LatLng tempLatLng = new LatLng(location.getLatitude() , location.getLongitude());
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
+        if(marker!=null)marker.remove();
+        marker = map.addMarker(new MarkerOptions().position(tempLatLng)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+    }
+
     @NonNull
-    private Boolean locationRecent(Location location){
+    private Boolean locationIsFresh(Location location){
         long time= System.currentTimeMillis();
         long lastKnownLocationTime = location.getTime();
         return (time - lastKnownLocationTime < 20000);
@@ -331,7 +323,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             return;
         }
         lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        latlng = new LatLng(lastKnownLocation.getLatitude() , lastKnownLocation.getLongitude());
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);

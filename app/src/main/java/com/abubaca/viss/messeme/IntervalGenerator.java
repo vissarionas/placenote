@@ -11,13 +11,10 @@ import java.util.List;
 public class IntervalGenerator {
 
     private static long interval;
-    private static float smallestDistance;
-
-    private final static String TAG = "INTERVAL_GENERATOR";
 
     public long getInterval(Location currentLocation , List<Location> locations){
         if(locations.size()>0){
-            smallestDistance = currentLocation.distanceTo(locations.get(0));
+            float smallestDistance = currentLocation.distanceTo(locations.get(0));
             for(Location location : locations){
                 if(currentLocation.distanceTo(location)<smallestDistance){
                     smallestDistance = currentLocation.distanceTo(location);
@@ -26,7 +23,7 @@ public class IntervalGenerator {
             if(smallestDistance<200){
                 interval = 2000;
             }else if(smallestDistance<1000){
-                interval = 5000;
+                interval = 8000;
             }else if(smallestDistance<5000){
                 interval = 300000;
             }else{

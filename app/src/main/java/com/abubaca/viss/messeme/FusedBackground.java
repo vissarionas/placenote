@@ -39,9 +39,13 @@ public class FusedBackground extends Service implements LocationListener,
     public static final String TAG = "FUSED_BACKGROUND";
 
     GoogleApiClient googleApiClient;
+    LocationRequest locationRequest;
     Location lastKnownLocation;
     List<Location> locations;
-    Long interval;
+    long interval;
+    String place;
+    Integer proximity;
+    float distance = 10000.0f;
     DBHandler dbHandler;
 
     @Nullable
@@ -85,17 +89,17 @@ public class FusedBackground extends Service implements LocationListener,
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        interval = lastKnownLocation!=null?new IntervalGenerator().getInterval(lastKnownLocation , locations):2000;
+        interval = 3000;
+//        interval = lastKnownLocation!=null?new IntervalGenerator().getInterval(lastKnownLocation , locations):2000;
         requestLocationUpdates(interval);
     }
 
     private void requestLocationUpdates(long interval){
         removeLocationUpdates();
-        LocationRequest locationRequest = new LocationRequest();
+        locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , FusedBackground.this);
         Log.i(TAG , "Location updates requested with "+interval+" interval");
     }
@@ -117,24 +121,19 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        String place;
-        long newInterval = interval>5000 ? new IntervalGenerator().getInterval(location , locations) : interval;
-        if(newInterval < interval/2){
-            interval = newInterval;
-            requestLocationUpdates(interval);
-        }else if(newInterval > interval*2){
-            interval = newInterval;
-            requestLocationUpdates(interval);
-        }
         if(location.getAccuracy()<1000){
             for(Location noteLocation : locations){
                 place = dbHandler.getPlaceFromLocation(noteLocation);
-                Integer proximity = dbHandler.getPlaceProximity(place);
-                float distance = noteLocation.distanceTo(location) - proximity;
-                if(distance<50+proximity){
-                    showNotification(place);
-                    break;
-                }
+                proximity = dbHandler.getPlaceProximity(place);
+                distance = (noteLocation.distanceTo(location)-proximity<distance)?
+                        distance = noteLocation.distanceTo(location)-proximity :
+                        distance;
+            }
+            interval = new IntervalGenerator2().getInterval(distance);
+            Log.i(TAG , "Distance: "+distance+" Interval: "+interval+" LR_interval: "+locationRequest.getInterval());
+            if(interval!=locationRequest.getInterval()) requestLocationUpdates(interval);
+            if(distance<50+proximity){
+                showNotification(place);
             }
         }
     }
