@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -128,13 +127,13 @@ public class FusedBackground extends Service implements LocationListener,
                 distance = (noteLocation.distanceTo(location)-proximity<distance)?
                         distance = noteLocation.distanceTo(location)-proximity :
                         distance;
+                if(distance<50+proximity){
+                    showNotification(place);
+                }
             }
             interval = new IntervalGenerator2().getInterval(distance);
             Log.i(TAG , "Distance: "+distance+" Interval: "+interval+" LR_interval: "+locationRequest.getInterval());
             if(interval!=locationRequest.getInterval()) requestLocationUpdates(interval);
-            if(distance<50+proximity){
-                showNotification(place);
-            }
         }
     }
 

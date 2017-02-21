@@ -15,4 +15,6 @@
     <color name="summertimeGreenDark">#4d7358</color>
     <color name="summertimeGreen">#9ed670</color>
 
+    <color name="transparentBlack">#0D000000</color>
+
 </resources>

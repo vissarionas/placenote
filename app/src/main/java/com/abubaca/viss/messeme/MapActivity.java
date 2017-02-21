@@ -64,6 +64,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 0x2;
     protected static final String TAG = "MAP_ACTIVITY";
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
+    private LinearLayout mapLayout, pbLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
+        mapLayout = (LinearLayout)findViewById(R.id.map_layout);
+        pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
         connectGoogleApiClient();
     }
 
@@ -84,7 +87,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 addPlaceDialog(placeAddress);
             }
         });
-        this.registerReceiver(broadcastReceiver , filter);
+        registerReceiver(broadcastReceiver , filter);
         connectGoogleApiClient();
         super.onResume();
     }
@@ -113,67 +116,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         return super.onOptionsItemSelected(item);
     }
-
-    private void searchIntent(){
-        try {
-            Intent intent =
-                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                            .build(this);
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-        } catch (GooglePlayServicesRepairableException e) {
-            // TODO: Handle the error.
-        } catch (GooglePlayServicesNotAvailableException e) {
-            // TODO: Handle the error.
-        }
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                removeLocationUpdates();
-                Place place = PlaceAutocomplete.getPlace(this, data);
-                Location placeLocation = new Location("");
-                placeLocation.setLatitude(place.getLatLng().latitude);
-                placeLocation.setLongitude(place.getLatLng().longitude);
-                if(place.getViewport()!=null) {
-                    Location northeastBound = new Location("");
-                    northeastBound.setLatitude(place.getViewport().northeast.latitude);
-                    northeastBound.setLongitude(place.getViewport().northeast.longitude);
-                    proximity = Math.round(northeastBound.distanceTo(placeLocation));
-                }
-
-                lat = placeLocation.getLatitude();
-                lng = placeLocation.getLongitude();
-                moveMapPlaceMarker(placeLocation , 18.0f);
-
-                placeAddress = place.getName().toString();
-                addPlaceButton.setVisibility(View.VISIBLE);
-                String addPlace = getResources().getString(R.string.add_place);
-                addPlaceButton.setText(String.format(addPlace , placeAddress));
-
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Status status = PlaceAutocomplete.getStatus(this, data);
-                // TODO: Handle the error.
-                Log.i(TAG, status.getStatusMessage());
-
-            } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
-            }
-        }
-    }
-
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            placeAddress = intent.getStringExtra("ADDRESS");
-            addPlaceButton.setVisibility(View.VISIBLE);
-            String addPlace = getResources().getString(R.string.add_place);
-            addPlaceButton.setText(String.format(addPlace , placeAddress));
-        }
-    };
 
     private void connectGoogleApiClient() {
         if(googleApiClient!=null) {
@@ -204,6 +146,93 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
     }
 
+    protected void getLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION_REQUEST);
+            return;
+        }
+        lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+    private void searchIntent(){
+        try {
+            Intent intent =
+                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                            .build(this);
+            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+        } catch (GooglePlayServicesRepairableException e) {
+            // TODO: Handle the error.
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // TODO: Handle the error.
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                removeLocationUpdates();
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                Location placeLocation = new Location("");
+                placeLocation.setLatitude(place.getLatLng().latitude);
+                placeLocation.setLongitude(place.getLatLng().longitude);
+                if(place.getViewport()!=null) {
+                    Location northeastBound = new Location("");
+                    northeastBound.setLatitude(place.getViewport().northeast.latitude);
+                    northeastBound.setLongitude(place.getViewport().northeast.longitude);
+                    proximity = Math.round(northeastBound.distanceTo(placeLocation));
+                    Log.i(TAG , "Proximity: "+proximity);
+                }
+
+                lat = placeLocation.getLatitude();
+                lng = placeLocation.getLongitude();
+                float zoom = (proximity<200)?18.0f:
+                                (proximity<500)?17.0f:
+                                    (proximity<1000)?16.0f:
+                                        (proximity<5000)?15.0f:
+                                            (proximity<10000)?14.0f:13.0f;
+                moveMapPlaceMarker(placeLocation , zoom);
+
+                placeAddress = place.getName().toString();
+                addPlaceButton.setVisibility(View.VISIBLE);
+                String addPlace = getResources().getString(R.string.add_place);
+                addPlaceButton.setText(String.format(addPlace , placeAddress));
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+    }
+
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            placeAddress = intent.getStringExtra("ADDRESS");
+            addPlaceButton.setVisibility(View.VISIBLE);
+            String addPlace = getResources().getString(R.string.add_place);
+            addPlaceButton.setText(String.format(addPlace , placeAddress));
+        }
+    };
+
+    private void moveMapPlaceMarker(Location location , float zoom){
+        LatLng tempLatLng = new LatLng(location.getLatitude() , location.getLongitude());
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
+        if(marker!=null)marker.remove();
+        marker = map.addMarker(new MarkerOptions().position(tempLatLng)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+    }
+
     private void requestAddress(Double lat , Double lng){
         Intent intent = new Intent(MapActivity.this, AddressGenerator.class);
         intent.putExtra("lat" , lat);
@@ -211,27 +240,27 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         startService(intent);
     }
 
+    private void doTheJob(Location location){
+        this.lat = location.getLatitude();
+        this.lng = location.getLongitude();
+        this.pbLayout.setVisibility(View.INVISIBLE);
+        moveMapPlaceMarker(location , 18.0f);
+        requestAddress(location.getLatitude() , location.getLongitude());
+        Log.i(TAG , "JobDone: "+location);
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
-            lat = lastKnownLocation.getLatitude();
-            lng = lastKnownLocation.getLongitude();
-            Log.e(TAG , "lastknownlocation: "+lastKnownLocation.getLatitude()+" "+lastKnownLocation.getLongitude());
-            moveMapPlaceMarker(lastKnownLocation , 18.0f);
-            requestAddress(lastKnownLocation.getLatitude() , lastKnownLocation.getLongitude());
+            doTheJob(lastKnownLocation);
         }
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
-                lat = point.latitude;
-                lng = point.longitude;
-                Location tempLocation = new Location("");
-                lastKnownLocation = tempLocation;
-                tempLocation.setLatitude(point.latitude);
-                tempLocation.setLongitude(point.longitude);
-                moveMapPlaceMarker(tempLocation , 18.0f);
-                requestAddress(tempLocation.getLatitude() , tempLocation.getLongitude());
+                lastKnownLocation.setLatitude(point.latitude);
+                lastKnownLocation.setLongitude(point.longitude);
+                doTheJob(lastKnownLocation);
             }
         });
 
@@ -295,18 +324,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         lastKnownLocation = location;
-        lat = location.getLatitude();
-        lng = location.getLongitude();
-        moveMapPlaceMarker(location , 18.0f);
-        requestAddress(location.getLatitude() , location.getLongitude());
-    }
-
-    private void moveMapPlaceMarker(Location location , float zoom){
-        LatLng tempLatLng = new LatLng(location.getLatitude() , location.getLongitude());
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
-        if(marker!=null)marker.remove();
-        marker = map.addMarker(new MarkerOptions().position(tempLatLng)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        doTheJob(lastKnownLocation);
     }
 
     @NonNull
@@ -317,15 +335,5 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-    protected void getLastKnownLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION_REQUEST);
-            return;
-        }
-        lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
+
 }
