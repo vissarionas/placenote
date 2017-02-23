@@ -6,7 +6,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,17 +18,15 @@ import java.util.Locale;
 
 public class AddressGenerator extends Service {
 
-    private static final String TAG = "ADDRESS_GENERATOR";
     private Geocoder geocoder;
-    private Double lat, lng;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         geocoder = new Geocoder(this, Locale.getDefault());
-        lat = intent.getDoubleExtra("lat" , 0);
-        lng = intent.getDoubleExtra("lng" , 0);
+        Double lat = intent.getDoubleExtra("lat" , 0);
+        Double lng = intent.getDoubleExtra("lng" , 0);
         String address = getAddress(lat, lng);
-        if(!address.contentEquals("")){
+        if(address!=null){
             sendBroadcast(address);
         }
         return super.onStartCommand(intent, flags, startId);
@@ -58,7 +55,7 @@ public class AddressGenerator extends Service {
                 return sb.toString();
             }
         }
-     return "";
+     return null;
     }
 
     private void sendBroadcast(String address){

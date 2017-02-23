@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     private DBHandler dbHandler;
 
     private TextView noPlacesTV;
-
     private ListView placeLV;
     private CustomAdapter adapter;
 
@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().setSubtitle(R.string.main_subtite);
         dbHandler = new DBHandler(getApplicationContext());
-
         noPlacesTV = (TextView)findViewById(R.id.no_places_tv);
         noPlacesTV.setOnClickListener(new View.OnClickListener() {
             @Override

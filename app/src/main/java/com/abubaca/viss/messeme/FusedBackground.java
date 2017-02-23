@@ -130,7 +130,7 @@ public class FusedBackground extends Service implements LocationListener,
         if(location.getAccuracy()<1000){
             smallestDistance = 10000;
             for(Location noteLocation : locations){
-                place = dbHandler.getPlaceFromLocation(noteLocation);
+                place = dbHandler.getPlaceByLocation(noteLocation);
                 proximity = dbHandler.getPlaceProximity(place);
                 distance = noteLocation.distanceTo(location);
                 if(distance<50+proximity){

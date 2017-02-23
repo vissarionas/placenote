@@ -3,12 +3,15 @@ package com.abubaca.viss.messeme;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.abubaca.viss.messeme.NoteState.EMPTY;
 
 /**
  * Created by viss on 1/2/17.
@@ -68,7 +71,7 @@ class DBHandler extends SQLiteOpenHelper {
         dbInit();
         ContentValues values = new ContentValues();
         values.put("NOTE" , "");
-        values.put("STATE" , NoteState.EMPTY);
+        values.put("STATE" , EMPTY);
         values.put("NOTIFIED" , 0);
         db.update("PLACENOTES" , values , null , null );
         dbClose();
@@ -159,16 +162,20 @@ class DBHandler extends SQLiteOpenHelper {
         return cursor.getString(3);
     }
 
-    String getPlaceFromLocation(Location location){
+    String getPlaceByLocation(Location location){
         dbInit();
         String lat = String.valueOf(location.getLatitude());
         String lng = String.valueOf(location.getLongitude());
         if(cursor.getCount()>0){
-            do {
-                if (cursor.getString(1).equals(lat) && cursor.getString(2).equals(lng)){
-                    break;
-                }
-            }while(cursor.moveToNext());
+            try {
+                do {
+                    if (cursor.getString(1).equals(lat) && cursor.getString(2).equals(lng)){
+                        break;
+                    }
+                }while(cursor.moveToNext());
+            } catch (CursorIndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
         }
         dbClose();
         return cursor.getString(0);

@@ -28,16 +28,21 @@
         <LinearLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_weight="1.8">
+            android:layout_weight="1.8"
+            android:orientation="vertical">
             <Button
                 android:visibility="invisible"
-                android:textColor="@android:color/black"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:drawableEnd="@drawable/ic_add"
+                android:drawableRight="@drawable/ic_add"
+                android:drawablePadding="5dp"
+                android:textColor="@color/handsOnDarkBlue"
                 android:background="@android:color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/add_place_button"
-                android:textAllCaps="false"
-                android:elevation="5dp"/>
+                android:textAllCaps="false"/>
         </LinearLayout>
 
     </LinearLayout>

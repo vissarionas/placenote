@@ -2,6 +2,7 @@ package com.abubaca.viss.messeme;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,24 +65,24 @@ public class CustomAdapter extends BaseAdapter {
 
     private void setFlagColor(int state){
         switch (state){
-            case 0:
-                placeText.setTextColor(Color.parseColor("#444444"));
-                noteText.setTextColor(Color.parseColor("#444444"));
+            case NoteState.EMPTY:
+                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
+                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 break;
-            case 1:
-                placeText.setTextColor(Color.parseColor("#444444"));
+            case NoteState.INACTIVE:
+                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
-                noteText.setTextColor(Color.parseColor("#444444"));
+                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
                 break;
-            case 2:
-                placeText.setTextColor(Color.parseColor("#40a347"));
+            case NoteState.ACTIVE:
+                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
-                noteText.setTextColor(Color.parseColor("#40a347"));
+                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
                 break;
-            case 3:
-                placeText.setTextColor(Color.parseColor("#d41243"));
+            case NoteState.ALERTED:
+                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
-                noteText.setTextColor(Color.parseColor("#d41243"));
+                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));
                 break;
         }
     }

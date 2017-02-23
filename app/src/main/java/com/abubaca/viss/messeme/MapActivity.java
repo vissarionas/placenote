@@ -64,7 +64,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 0x2;
     protected static final String TAG = "MAP_ACTIVITY";
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
-    private LinearLayout mapLayout, pbLayout;
+    private LinearLayout pbLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
-        mapLayout = (LinearLayout)findViewById(R.id.map_layout);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
         connectGoogleApiClient();
     }
@@ -159,6 +158,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void searchIntent(){
+        pbLayout.setVisibility(View.INVISIBLE);
         try {
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -222,6 +222,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             addPlaceButton.setVisibility(View.VISIBLE);
             String addPlace = getResources().getString(R.string.add_place);
             addPlaceButton.setText(String.format(addPlace , placeAddress));
+            pbLayout.setVisibility(View.INVISIBLE);
         }
     };
 
@@ -243,7 +244,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void doTheJob(Location location){
         this.lat = location.getLatitude();
         this.lng = location.getLongitude();
-        this.pbLayout.setVisibility(View.INVISIBLE);
         moveMapPlaceMarker(location , 18.0f);
         requestAddress(location.getLatitude() , location.getLongitude());
         Log.i(TAG , "JobDone: "+location);

@@ -6,13 +6,17 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:drawableEnd="@drawable/ic_edit"
+        android:drawableRight="@drawable/ic_edit"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="5dp"
         android:hint="type your note here"
         android:layout_gravity="center"
+        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="22dp"
+        android:textAlignment="center"
         android:textColor="@android:color/black"
         android:id="@+id/note_text_view"/>
 
@@ -23,7 +27,7 @@
         android:layout_margin="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/trash"
+        app:srcCompat="@drawable/ic_trash"
         android:id="@+id/btn_delete" />
 
 

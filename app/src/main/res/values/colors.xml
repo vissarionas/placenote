@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303f9f</color>
-    <color name="colorAccent">#ff4081</color>
-    <color name="colorPrimaryViss">#000000</color>
-    <color name="colorPrimaryDarkViss">#4d7358</color>
-    <color name="orangeViss">#e39e54</color>
-    <color name="yellowViss">#e8d174</color>
-    <color name="cinnamonViss">#d64d4d</color>
-    <color name="simpleBrown">#5a4b48</color>
-    <color name="summertimeYellow">#e8d174</color>
-    <color name="summertimeOrange">#e39e54</color>
-    <color name="summertimeRed">#d64d4d</color>
-    <color name="summertimeGreenDark">#4d7358</color>
-    <color name="summertimeGreen">#9ed670</color>
+    <color name="messemeFuchsia">#ff4081</color>
+    <color name="messemeOrange">#e39e54</color>
+    <color name="messemeCinnamon">#d64d4d</color>
+    <color name="messemeBrown">#5a4b48</color>
+    <color name="messemeYellow">#e8d174</color>
+    <color name="messemeRed">#d64d4d</color>
+    <color name="messemeGreenDark">#4d7358</color>
+    <color name="messemeGreen">#9ed670</color>
 
     <color name="transparentBlack">#0D000000</color>
+
+    <color name="lostFoundBrown">#766327</color>
+    <color name="lostFoundBeige">#d6e17a</color>
+    <color name="lostFoundLightGreen">#6ba944</color>
+    <color name="lostFoundDarkGreen">#479044</color>
+    <color name="lostFoundVeraman">#26765c</color>
+
+    <color name="handsOnGrey">#4E4D4A</color>
+    <color name="handsOnDarkGrey">#353432</color>
+    <color name="handsOnLightGreen">#94BA65</color>
+    <color name="handsOnLightBlue">#2790B0</color>
+    <color name="handsOnDarkBlue">#2b4e72</color>
+
+    <color name="flagEmpty">#353432</color>
+    <color name="flagInactive">#353432</color>
+    <color name="flagActive">#93A42A</color>
+    <color name="flagAlerted">#DE6262</color>
 
 </resources>
