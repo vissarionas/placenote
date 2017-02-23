@@ -44,7 +44,7 @@ public class FusedBackground extends Service implements LocationListener,
     long interval;
     String place;
     Integer proximity;
-    float distance = 10000.0f;
+    float distance, smallestDistance;
     DBHandler dbHandler;
 
     @Nullable
@@ -71,9 +71,9 @@ public class FusedBackground extends Service implements LocationListener,
                 googleApiClient.connect();
                 Log.i(TAG , "created and connected gooleapiclient");
             }
+        }else if(googleApiClient!=null){
+            removeLocationUpdates();
         }
-
-
         super.onStartCommand(intent, flags, startId);
         return START_STICKY;
     }
@@ -120,21 +120,27 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.i(TAG , "location changed");
+        if(locations.isEmpty()){
+            removeLocationUpdates();
+            Log.e(TAG , locations.size()+". returned");
+            return;
+        }
+        Log.i(TAG , "Accuracy: "+location.getAccuracy());
         if(location.getAccuracy()<1000){
+            smallestDistance = 10000;
             for(Location noteLocation : locations){
                 place = dbHandler.getPlaceFromLocation(noteLocation);
                 proximity = dbHandler.getPlaceProximity(place);
-                distance = (noteLocation.distanceTo(location)-proximity<distance)?
-                        distance = noteLocation.distanceTo(location)-proximity :
-                        distance;
+                distance = noteLocation.distanceTo(location);
                 if(distance<50+proximity){
                     showNotification(place);
                 }
+                smallestDistance = distance<smallestDistance?distance:smallestDistance;
             }
-            interval = new IntervalGenerator2().getInterval(distance);
-            Log.i(TAG , "Distance: "+distance+" Interval: "+interval+" LR_interval: "+locationRequest.getInterval());
-            if(interval!=locationRequest.getInterval()) requestLocationUpdates(interval);
         }
+        interval = new IntervalGenerator2().getInterval(smallestDistance);
+        if(interval!=locationRequest.getInterval()) requestLocationUpdates(interval);
     }
 
     private void showNotification(String place){
@@ -151,7 +157,7 @@ public class FusedBackground extends Service implements LocationListener,
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.raw.notification_icon);
         builder.setLights(Color.GREEN , 2000 , 3000);
-        builder.setVibrate(new long[] { 200 , 600 , 200 , 600});
+        builder.setVibrate(new long[] { 300 , 600 , 300 , 800});
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
