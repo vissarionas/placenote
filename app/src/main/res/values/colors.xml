@@ -25,7 +25,7 @@
 
     <color name="flagEmpty">#353432</color>
     <color name="flagInactive">#353432</color>
-    <color name="flagActive">#93A42A</color>
+    <color name="flagActive">#88C425</color>
     <color name="flagAlerted">#DE6262</color>
 
 </resources>

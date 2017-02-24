@@ -1,31 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:layout_marginRight="3dp"
-    android:layout_marginLeft="3dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:text="Place"
-        android:gravity="start"
+
+    <LinearLayout
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/placeText"
-        android:textSize="21dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="5dp"/>
+        android:orientation="horizontal"
+        android:gravity="right"
+        android:background="@drawable/background"
+        android:weightSum="2">
 
-    <TextView
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="5dp"
-        android:layout_gravity="end"
-        android:gravity="end"
-        android:text="nothing noted"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/noteText"
-        android:textSize="15dp"/>
+
+        <LinearLayout
+            android:id="@+id/list_item_surface"
+            android:layout_weight="1.8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp">
+
+            <TextView
+                android:text="Place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/placeText"
+                android:textSize="21dp"/>
+
+            <TextView
+                android:text="nothing noted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/noteText"
+                android:textSize="15dp"/>
+
+        </LinearLayout>
+
+        <ImageButton
+            android:layout_weight="0.1"
+            android:background="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_dots_menu"
+            android:id="@+id/list_item_menu"
+            android:layout_gravity="center"
+            android:layout_margin="4dp"/>
+
+    </LinearLayout>
+
+
 
 </LinearLayout>
