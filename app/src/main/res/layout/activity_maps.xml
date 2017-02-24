@@ -31,6 +31,8 @@
             android:layout_weight="1.8"
             android:orientation="vertical">
             <Button
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
                 android:visibility="invisible"
                 android:layout_gravity="center"
                 android:gravity="center"

@@ -17,6 +17,7 @@
     <color name="lostFoundDarkGreen">#479044</color>
     <color name="lostFoundVeraman">#26765c</color>
 
+    <color name="handsOnLightGrey">#6D6C68</color>
     <color name="handsOnGrey">#4E4D4A</color>
     <color name="handsOnDarkGrey">#353432</color>
     <color name="handsOnLightGreen">#94BA65</color>
@@ -28,4 +29,5 @@
     <color name="flagActive">#88C425</color>
     <color name="flagAlerted">#DE6262</color>
 
+    <color name="whiteTinted">#e5e5e5</color>
 </resources>
