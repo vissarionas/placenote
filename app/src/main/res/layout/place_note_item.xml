@@ -33,6 +33,7 @@
                 android:textSize="21dp"/>
 
             <TextView
+                android:layout_marginBottom="3dp"
                 android:text="nothing noted"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

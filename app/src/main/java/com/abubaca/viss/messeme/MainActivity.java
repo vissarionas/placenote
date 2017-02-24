@@ -1,51 +1,40 @@
 package com.abubaca.viss.messeme;
 
-import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     static final String TAG = "MAIN_ACTIVITY";
     private static final int FINE_LOCATION_REQUEST = 0x1;
 
-    private DBHandler dbHandler;
     private PlaceNoteUtils placeNoteUtils;
     private PlacelistPopulator placelistPopulator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG , "onCreate()");
         setContentView(R.layout.activity_main);
         getSupportActionBar().setSubtitle(R.string.main_subtite);
-        dbHandler = new DBHandler(getApplicationContext());
         placeNoteUtils = new PlaceNoteUtils(MainActivity.this);
         placelistPopulator = new PlacelistPopulator(this);
     }
 
     @Override
     protected void onResume() {
-        placelistPopulator.populate();
-        startStopService();
+        placelistPopulator.populateListview();
+        new Starter(this).startStopFusedLocationService();
         super.onResume();
     }
 
-    private void startStopService(){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
-            return;
-        }
-        Intent i = new Intent(this , FusedBackground.class);
-        startService(i);
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(hasFocus) new Starter(this).startStopFusedLocationService();
     }
 
     @Override

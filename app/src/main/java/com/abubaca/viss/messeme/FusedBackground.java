@@ -58,9 +58,11 @@ public class FusedBackground extends Service implements LocationListener,
         Log.i(TAG , "Fused service started");
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
+
         if(locations.size()>0){
-            if(googleApiClient!=null) {
-                googleApiClient.reconnect();
+
+            if(googleApiClient!=null){
+                googleApiClient.connect();
                 Log.i(TAG , "googleapiclient connected");
             }else{
                 googleApiClient = new GoogleApiClient.Builder(this)
@@ -71,9 +73,11 @@ public class FusedBackground extends Service implements LocationListener,
                 googleApiClient.connect();
                 Log.i(TAG , "created and connected gooleapiclient");
             }
+
         }else if(googleApiClient!=null){
             removeLocationUpdates();
         }
+
         super.onStartCommand(intent, flags, startId);
         return START_STICKY;
     }
@@ -123,7 +127,7 @@ public class FusedBackground extends Service implements LocationListener,
         Log.i(TAG , "location changed");
         if(locations.isEmpty()){
             removeLocationUpdates();
-            Log.e(TAG , locations.size()+". returned");
+            Log.e(TAG , locations.size()+" notes. Returned");
             return;
         }
         Log.i(TAG , "Accuracy: "+location.getAccuracy());

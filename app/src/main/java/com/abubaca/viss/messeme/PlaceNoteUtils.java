@@ -3,11 +3,9 @@ package com.abubaca.viss.messeme;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +33,6 @@ public class PlaceNoteUtils {
     }
 
     void viewNote(final String place){
-        Log.i(TAG , "viewNote()");
         String note = dbHandler.getPlaceNote(place);
         if(note.equals("")){
             editNote(place);
@@ -114,7 +111,7 @@ public class PlaceNoteUtils {
                         }else{
                             dbHandler.updateNote(place , note , NoteState.EMPTY , 0);
                         }
-                        placelistPopulator.populate();
+                        placelistPopulator.populateListview();
                     }
                 });
         Dialog dialog = dialogBuilder.create();
@@ -130,7 +127,7 @@ public class PlaceNoteUtils {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.updateNote(placeName , "" , NoteState.EMPTY , 0);
-                        placelistPopulator.populate();
+                        placelistPopulator.populateListview();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -142,12 +139,6 @@ public class PlaceNoteUtils {
         alert.setTitle(placeName);
         alert.setCancelable(true);
         alert.show();
-    }
-
-    void showPlaceOnMap(String placeName){
-        Intent intent = new Intent(activity, ViewPlaceActivity.class);
-        intent.putExtra("PLACENAME" , placeName);
-        activity.startActivity(intent);
     }
 
     void editPlace(final String place){
@@ -168,7 +159,7 @@ public class PlaceNoteUtils {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dbHandler.updatePlaceName(place , nameEditText.getText().toString());
-                        placelistPopulator.populate();
+                        placelistPopulator.populateListview();
                     }
                 });
         Dialog dialog = dialogBuilder.create();
@@ -185,7 +176,7 @@ public class PlaceNoteUtils {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.deletePlace(placeName);
-                        placelistPopulator.populate();
+                        placelistPopulator.populateListview();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -206,7 +197,7 @@ public class PlaceNoteUtils {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearNotes();
-                        placelistPopulator.populate();
+                        placelistPopulator.populateListview();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -226,7 +217,7 @@ public class PlaceNoteUtils {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearDb();
-                        placelistPopulator.populate();
+                        placelistPopulator.populateListview();
                     }
                 })
                 .setNegativeButton(R.string.cancel , new DialogInterface.OnClickListener() {
