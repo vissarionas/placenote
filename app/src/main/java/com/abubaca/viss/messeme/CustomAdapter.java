@@ -31,13 +31,11 @@ public class CustomAdapter extends BaseAdapter {
     private LinearLayout listItemSurface;
     private List<PlaceNote> placeNotes;
     private Context context;
-    private DBHandler dbHandler;
     private PlaceNoteUtils placeNoteUtils;
 
     CustomAdapter(Activity activity , List<PlaceNote> placeNotes){
         this.placeNotes = placeNotes;
         this.context = activity;
-        dbHandler = new DBHandler(context);
         placeNoteUtils = new PlaceNoteUtils(activity);
         layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -78,6 +76,7 @@ public class CustomAdapter extends BaseAdapter {
         listItemSurface.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                placeNoteUtils.viewNote(getPlace(position));
             }
         });
         return convertView;
@@ -111,7 +110,7 @@ public class CustomAdapter extends BaseAdapter {
         popupMenu.show();
     }
 
-    String getPlace(int position){
+    private String getPlace(int position){
         return placeNotes.get(position).getPlace();
     }
 

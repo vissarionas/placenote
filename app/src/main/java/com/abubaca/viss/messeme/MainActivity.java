@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DBHandler dbHandler;
     private PlaceNoteUtils placeNoteUtils;
+    private PlacelistPopulator placelistPopulator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,13 +29,12 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setSubtitle(R.string.main_subtite);
         dbHandler = new DBHandler(getApplicationContext());
         placeNoteUtils = new PlaceNoteUtils(MainActivity.this);
+        placelistPopulator = new PlacelistPopulator(this);
     }
 
     @Override
     protected void onResume() {
-        Log.i(TAG ,"onResume()");
-        List<PlaceNote> placeNotes = dbHandler.getPlaceNotes();
-        new PlacelistPopulator(this).populate(placeNotes);
+        placelistPopulator.populate();
         startStopService();
         super.onResume();
     }
@@ -84,11 +84,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-    }
-
-    private void startMapActivity() {
-        Intent intent = new Intent(MainActivity.this, MapActivity.class);
-        startActivity(intent);
     }
 
 }

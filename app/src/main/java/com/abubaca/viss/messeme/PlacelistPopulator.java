@@ -5,10 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,16 +20,22 @@ public class PlacelistPopulator {
 
     private TextView noPlacesTV;
     private ListView placeLV;
-    private CustomAdapter adapter;
-    private PlaceNoteUtils placeNoteUtils;
+    private DBHandler dbHandler;
+    private View footerView;
 
     public PlacelistPopulator(final Activity activity){
         this.activity = activity;
+        dbHandler = new DBHandler(activity);
         placeLV = (ListView)activity.findViewById(R.id.place_lv);
         LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View footerView = inflater.inflate(R.layout.list_footer , null);
+        footerView = inflater.inflate(R.layout.list_footer , null);
+        footerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startMapActivity();
+            }
+        });
         placeLV.addFooterView(footerView);
-
         noPlacesTV = (TextView)activity.findViewById(R.id.no_places_tv);
         noPlacesTV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,10 +43,10 @@ public class PlacelistPopulator {
                 startMapActivity();
             }
         });
-        placeNoteUtils = new PlaceNoteUtils(activity);
     }
 
-    void populate(List<PlaceNote> list){
+    void populate(){
+        List<PlaceNote> list = dbHandler.getPlaceNotes();
         if(list.size()==0) {
             noPlacesTV.setVisibility(View.VISIBLE);
             placeLV.setVisibility(View.INVISIBLE);
@@ -51,18 +55,9 @@ public class PlacelistPopulator {
             placeLV.setVisibility(View.VISIBLE);
             noPlacesTV.setVisibility(View.INVISIBLE);
         }
-        adapter = new CustomAdapter(activity , list);
+        CustomAdapter adapter = new CustomAdapter(activity , list);
+        placeLV.removeFooterView(footerView);
         placeLV.setAdapter(adapter);
-        placeLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                try {
-                    placeNoteUtils.viewNote(adapter.getPlace(position));
-                } catch (IndexOutOfBoundsException e) {
-                    startMapActivity();
-                }
-            }
-        });
     }
 
     private void startMapActivity() {
