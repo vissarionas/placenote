@@ -3,7 +3,6 @@ package com.abubaca.viss.messeme;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
@@ -19,7 +18,7 @@ import static com.abubaca.viss.messeme.NoteState.EMPTY;
  * PLACENOTES NOTIFIED: 0=NOT_NOTIFIED , 1=NOTIFIED
  */
 
-class DBHandler extends SQLiteOpenHelper {
+class DBHandler extends SQLiteOpenHelper{
 
     private static int databaseVersion = 1;
     private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
@@ -31,11 +30,9 @@ class DBHandler extends SQLiteOpenHelper {
 
     private static SQLiteDatabase db;
     private Cursor cursor;
-    private Context context;
 
     DBHandler(Context context) {
         super(context, "messeme" , null , databaseVersion);
-        this.context = context;
     }
 
     @Override
@@ -97,21 +94,14 @@ class DBHandler extends SQLiteOpenHelper {
         dbClose();
     }
 
-    void updateNote(String place , String newNote , int state , Integer notified){
+    void updatePlaceNote(String place , String newNote , Integer state , Integer notified , String newPlace){
         dbInit();
         ContentValues values = new ContentValues();
+        if(newPlace!=null) values.put("PLACE" , newPlace);
         if(newNote != null) values.put("NOTE" , newNote);
-        values.put("STATE" , state);
+        if(state!=null) values.put("STATE" , state);
         if(notified != null) values.put("NOTIFIED" , notified);
         db.update("PLACENOTES" , values , "PLACE=?", new String[]{place});
-        dbClose();
-    }
-
-    void updatePlaceName(String place, String newName){
-        dbInit();
-        ContentValues values = new ContentValues();
-        values.put("PLACE" , newName);
-        db.update("PLACENOTES" , values , "PLACE=?" , new String[]{place});
         dbClose();
     }
 
@@ -153,7 +143,7 @@ class DBHandler extends SQLiteOpenHelper {
         dbInit();
         if(cursor.getCount()>0){
             do {
-                if(cursor.getString(0).equals(place)){
+                if(cursor.getString(0).contentEquals(place)){
                     break;
                 }
             }while(cursor.moveToNext());
@@ -167,15 +157,11 @@ class DBHandler extends SQLiteOpenHelper {
         String lat = String.valueOf(location.getLatitude());
         String lng = String.valueOf(location.getLongitude());
         if(cursor.getCount()>0){
-            try {
-                do {
-                    if (cursor.getString(1).equals(lat) && cursor.getString(2).equals(lng)){
-                        break;
-                    }
-                }while(cursor.moveToNext());
-            } catch (CursorIndexOutOfBoundsException e) {
-                e.printStackTrace();
-            }
+            do {
+                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lng)){
+                    break;
+                }
+            }while(cursor.moveToNext());
         }
         dbClose();
         return cursor.getString(0);
@@ -185,7 +171,7 @@ class DBHandler extends SQLiteOpenHelper {
         dbInit();
         if(cursor.getCount()>0){
             do{
-                if(cursor.getString(0).equals(place)){
+                if(cursor.getString(0).contentEquals(place)){
                     break;
                 }
             }while(cursor.moveToNext());
@@ -198,7 +184,7 @@ class DBHandler extends SQLiteOpenHelper {
         dbInit();
         if(cursor.getCount()>0){
             do {
-                if(cursor.getString(0).equals(place)){
+                if(cursor.getString(0).contentEquals(place)){
                      break;
                 }
             }while(cursor.moveToNext());

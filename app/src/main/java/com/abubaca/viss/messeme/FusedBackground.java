@@ -41,7 +41,7 @@ public class FusedBackground extends Service implements LocationListener,
     LocationRequest locationRequest;
     Location lastKnownLocation;
     List<Location> locations;
-    long interval;
+    long interval = 2000;
     String place;
     Integer proximity;
     float distance, smallestDistance;
@@ -62,8 +62,8 @@ public class FusedBackground extends Service implements LocationListener,
         if(locations.size()>0){
 
             if(googleApiClient!=null){
-                googleApiClient.connect();
-                Log.i(TAG , "googleapiclient connected");
+                Log.i(TAG , "googleapiclient not null");
+                requestLocationUpdates(interval);
             }else{
                 googleApiClient = new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)
@@ -85,14 +85,14 @@ public class FusedBackground extends Service implements LocationListener,
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         Log.e(TAG , "onTaskRemoved()");
-        restartSelf();
+//        restartSelf();
         super.onTaskRemoved(rootIntent);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG , "googleapiclient connected");
         lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        interval = 3000;
 //        interval = lastKnownLocation!=null?new IntervalGenerator().getInterval(lastKnownLocation , locations):2000;
         requestLocationUpdates(interval);
     }
@@ -148,7 +148,7 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void showNotification(String place){
-        dbHandler.updateNote(place , null , NoteState.ALERTED , 1);
+        dbHandler.updatePlaceNote(place , null , NoteState.ALERTED , 1 , null);
         locations = dbHandler.getNotesLocations();
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0 , intent , PendingIntent.FLAG_UPDATE_CURRENT);

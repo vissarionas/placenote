@@ -34,11 +34,11 @@ public class PlaceNoteUtils {
 
     void viewNote(final String place){
         String note = dbHandler.getPlaceNote(place);
-        if(note.equals("")){
+        if(note.contentEquals("")){
             editNote(place);
             return;
         }
-        if(dbHandler.isNotified(place))dbHandler.updateNote(place , null , NoteState.INACTIVE , null);
+        if(dbHandler.isNotified(place))dbHandler.updatePlaceNote(place , null , NoteState.INACTIVE , null , null);
         LayoutInflater inflater = activity.getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
         editView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -106,10 +106,11 @@ public class PlaceNoteUtils {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String note = noteEditText.getText().toString();
-                        if(!note.equals("")){
-                            dbHandler.updateNote(place , note , NoteState.ACTIVE , 0);
+                        if(!note.contentEquals("")){
+                            dbHandler.updatePlaceNote(place , note , NoteState.ACTIVE , 0 , null);
+                            new Starter(activity).startStopFusedLocationService();
                         }else{
-                            dbHandler.updateNote(place , note , NoteState.EMPTY , 0);
+                            dbHandler.updatePlaceNote(place , note , NoteState.EMPTY , 0 , null);
                         }
                         placelistPopulator.populateListview();
                     }
@@ -126,8 +127,9 @@ public class PlaceNoteUtils {
                 .setCancelable(false)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.updateNote(placeName , "" , NoteState.EMPTY , 0);
+                        dbHandler.updatePlaceNote(placeName , "" , NoteState.EMPTY , 0 , null);
                         placelistPopulator.populateListview();
+                        new Starter(activity).startStopFusedLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -158,7 +160,7 @@ public class PlaceNoteUtils {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dbHandler.updatePlaceName(place , nameEditText.getText().toString());
+                        dbHandler.updatePlaceNote(place , null , null , null ,nameEditText.getText().toString());
                         placelistPopulator.populateListview();
                     }
                 });
@@ -177,6 +179,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.deletePlace(placeName);
                         placelistPopulator.populateListview();
+                        new Starter(activity).startStopFusedLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -198,6 +201,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearNotes();
                         placelistPopulator.populateListview();
+                        new Starter(activity).startStopFusedLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -218,6 +222,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearDb();
                         placelistPopulator.populateListview();
+                        new Starter(activity).startStopFusedLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel , new DialogInterface.OnClickListener() {
