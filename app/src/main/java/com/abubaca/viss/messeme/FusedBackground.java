@@ -106,7 +106,7 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        alertDistance = location.getAccuracy() > 100 ? 100 : 20;
+        alertDistance = location.getAccuracy() > 100 ? 100 : 30;
         if (locations.isEmpty()) {
             removeLocationUpdates();
             return;

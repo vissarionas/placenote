@@ -63,7 +63,7 @@ public class PlaceNoteUtils {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-//                populateList();
+                placelistPopulator.populateListview();
             }
         });
         dialog.show();
