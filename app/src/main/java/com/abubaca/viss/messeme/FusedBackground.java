@@ -4,10 +4,15 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -42,6 +47,7 @@ public class FusedBackground extends Service implements LocationListener,
     Integer proximity;
     float distance, alertDistance, smallestDistance;
     DBHandler dbHandler;
+    Boolean wifiConnected = false;
 
     @Nullable
     @Override
@@ -54,7 +60,13 @@ public class FusedBackground extends Service implements LocationListener,
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
         smallestDistance = 10000;
+        registerNetworkStateReciever();
 
+        super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+    }
+
+    private void startStopGoogleApiClient(){
         if (locations.size() > 0) {
             if (googleApiClient != null) {
                 requestLocationUpdates(interval);
@@ -69,8 +81,6 @@ public class FusedBackground extends Service implements LocationListener,
         } else if (googleApiClient != null) {
             removeLocationUpdates();
         }
-        super.onStartCommand(intent, flags, startId);
-        return START_STICKY;
     }
 
     @Override
@@ -79,9 +89,27 @@ public class FusedBackground extends Service implements LocationListener,
         requestLocationUpdates(interval);
     }
 
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
+                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                wifiConnected = info.isConnected();
+                startStopGoogleApiClient();
+            }
+        }
+    };
+
+    void registerNetworkStateReciever(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
     private void requestLocationUpdates(long interval) {
         removeLocationUpdates();
         locationRequest = new LocationRequest();
+        if(wifiConnected) locationRequest.setNumUpdates(2);
         locationRequest.setInterval(interval);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
