@@ -1,8 +1,12 @@
 package com.abubaca.viss.messeme;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
 /**
@@ -20,5 +24,21 @@ public class SystemReciever extends BroadcastReceiver {
                 context.startService(i);
             }
         }
+    }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
+                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                Boolean wifiConnected = info.isConnected();
+            }
+        }
+    };
+
+    void registerNetworkStateReciever(Context context){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        context.registerReceiver(broadcastReceiver, intentFilter);
     }
 }

@@ -76,7 +76,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
-        connectGoogleApiClient();
+//        connectGoogleApiClient();
     }
 
     @Override
@@ -332,7 +332,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Boolean locationIsFresh(Location location){
         long time= System.currentTimeMillis();
         long lastKnownLocationTime = location.getTime();
-        return (time - lastKnownLocationTime < 20000);
+        return (time - lastKnownLocationTime < 60000);
     }
 
 

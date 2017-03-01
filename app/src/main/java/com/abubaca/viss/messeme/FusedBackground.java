@@ -109,12 +109,12 @@ public class FusedBackground extends Service implements LocationListener,
     private void requestLocationUpdates(long interval) {
         removeLocationUpdates();
         locationRequest = new LocationRequest();
-        if(wifiConnected) locationRequest.setNumUpdates(2);
+//        if(wifiConnected) locationRequest.setNumUpdates(2);
         locationRequest.setInterval(interval);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, FusedBackground.this);
-        Log.i(TAG, "Location updates requested with " + interval + " interval");
+        Log.i(TAG, "Location updates requested with " + locationRequest.getInterval() + " interval");
     }
 
     private void removeLocationUpdates() {
@@ -151,7 +151,11 @@ public class FusedBackground extends Service implements LocationListener,
                 smallestDistance = distance < smallestDistance ? distance : smallestDistance;
             }
         }
-        interval = new LocationIntervalGenerator().getInterval(smallestDistance);
+        if(wifiConnected){
+            interval = 120000;
+        }else{
+            interval = new LocationIntervalGenerator().getInterval(smallestDistance);
+        }
         Log.i(TAG, "smallestLocation: " + smallestDistance + " Interval: " + interval + " LocationRequest.getInterval: " + locationRequest.getInterval());
         if (interval != locationRequest.getInterval()) requestLocationUpdates(interval);
     }
@@ -179,8 +183,8 @@ public class FusedBackground extends Service implements LocationListener,
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
     }
-}
-//    @Override
+
+    //    @Override
 //    public void onTaskRemoved(Intent rootIntent) {
 //        Log.e(TAG , "onTaskRemoved()");
 //        restartSelf();
@@ -197,3 +201,5 @@ public class FusedBackground extends Service implements LocationListener,
 //                SystemClock.elapsedRealtime() + 2000,
 //                restartPendingIntent);
 //    }
+}
+

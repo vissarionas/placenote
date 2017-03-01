@@ -22,16 +22,14 @@
         android:layout_marginTop="5dp"
         android:id="@+id/place_gv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="@color/handsOnLightGrey"
-        android:footerDividersEnabled="true"/>
+        android:layout_height="match_parent"/>
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
         app:srcCompat="@drawable/ic_add"
-        android:tint="@color/handsOnDarkGrey"
+        android:tint="@color/freshCutDayWhite"
         android:id="@+id/add_place_floating_action_button"
         android:layout_gravity="bottom|right"
         android:layout_margin="15dp"
