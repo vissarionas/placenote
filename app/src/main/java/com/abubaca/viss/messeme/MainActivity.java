@@ -2,10 +2,12 @@ package com.abubaca.viss.messeme;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
 
     private PlaceNoteUtils placeNoteUtils;
     private PlacelistPopulator placelistPopulator;
+    private FloatingActionButton addPlaceFloatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,11 +25,22 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setSubtitle(R.string.main_subtite);
         placeNoteUtils = new PlaceNoteUtils(MainActivity.this);
         placelistPopulator = new PlacelistPopulator(this);
+        addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_floating_action_button);
     }
 
     @Override
     protected void onResume() {
+        if(getIntent().getAction().equals("NOTIFICATION")){
+            String place = getIntent().getStringExtra("PLACE");
+            placeNoteUtils.viewNote(place);
+        }
         placelistPopulator.populateListview();
+        addPlaceFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Starter(MainActivity.this).startMapActivity();
+            }
+        });
         new Starter(this).startStopFusedLocationService();
         super.onResume();
     }
@@ -48,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.action_drop_notes:
                 placeNoteUtils.clearNotes();
+                break;
+            case R.id.action_about:
+                break;
+            case R.id.action_help:
                 break;
         }
         return super.onOptionsItemSelected(item);

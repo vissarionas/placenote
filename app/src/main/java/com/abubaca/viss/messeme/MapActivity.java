@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -231,7 +232,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
         if(marker!=null)marker.remove();
         marker = map.addMarker(new MarkerOptions().position(tempLatLng)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
     }
 
     private void requestAddress(Double lat , Double lng){

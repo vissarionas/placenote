@@ -3,6 +3,7 @@ package com.abubaca.viss.messeme;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -65,7 +66,7 @@ public class CustomAdapter extends BaseAdapter {
         setFlagColor(placeNotes.get(position).getState());
         placeText.setText(placeNotes.get(position).getPlace());
         String note = placeNotes.get(position).getNote();
-        String subNote = note.length()>20 ? note.substring(0,20):note;
+        String subNote = note.length()>12 ? note.substring(0,10)+"..":note;
         noteText.setText(subNote);
         listItemMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,19 +123,21 @@ public class CustomAdapter extends BaseAdapter {
                 break;
             case NoteState.INACTIVE:
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
-//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
+//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
                 break;
             case NoteState.ACTIVE:
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
-//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
+//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
+                placeText.setTextSize(placeText.getTextSize());
                 break;
             case NoteState.ALERTED:
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));
-//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,26);
+//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));
                 break;
         }
     }
+
 }

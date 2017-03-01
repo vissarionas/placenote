@@ -30,4 +30,10 @@
     <color name="flagAlerted">#DE6262</color>
 
     <color name="whiteTinted">#e5e5e5</color>
+
+    <color name="freshCutDayBlue">#00A8C6</color>
+    <color name="freshCutDayLightBlue">#40C0CB</color>
+    <color name="freshCutDayWhite">#F9F2E7</color>
+    <color name="freshCutDayLightGreen">#aee239</color>
+    <color name="freshCutDayGreen">#8fbe00</color>
 </resources>

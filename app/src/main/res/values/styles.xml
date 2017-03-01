@@ -12,7 +12,7 @@
 
     <!--second override parent (actionbar) properties-->
     <style name="CustomActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/lostFoundLightGreen</item>
+        <item name="background">@color/freshCutDayLightBlue</item>
         <item name="titleTextStyle">@style/CustomActionBarText</item>
         <item name="subtitleTextStyle">@style/CustomActionBarText.Sub</item>
     </style>
@@ -20,8 +20,9 @@
     <!--last, apply overriden theme onto the actionbar by ovverriding the stock theme-->
     <style name="CustomTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="actionBarStyle">@style/CustomActionBar</item>
-        <item name="android:statusBarColor">@color/lostFoundDarkGreen</item>
+        <item name="android:statusBarColor">@color/freshCutDayBlue</item>
         <item name="android:fontFamily">android:fontFamily="sans-serif-light"</item>
+        <item name="colorAccent">@color/freshCutDayBlue</item>
     </style>
 
 

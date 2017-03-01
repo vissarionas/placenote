@@ -67,8 +67,9 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void startStopGoogleApiClient(){
+        Log.e(TAG , "StartingStopping googleapiclient");
         if (locations.size() > 0) {
-            if (googleApiClient != null) {
+            if (googleApiClient != null && googleApiClient.isConnected()) {
                 requestLocationUpdates(interval);
             } else {
                 googleApiClient = new GoogleApiClient.Builder(this)
@@ -160,6 +161,8 @@ public class FusedBackground extends Service implements LocationListener,
         dbHandler.updatePlaceNote(place, null, NoteState.ALERTED, 1, null);
         locations = dbHandler.getNotesLocations();
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction("NOTIFICATION");
+        intent.putExtra("PLACE" , place);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);

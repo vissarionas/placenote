@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@android:color/white"
+        android:background="@color/freshCutDayWhite"
         android:weightSum="2">
 
         <LinearLayout android:layout_height="match_parent"
@@ -36,6 +36,7 @@
                 android:visibility="invisible"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:drawableTint="@color/handsOnDarkGrey"
                 android:drawableEnd="@drawable/ic_add"
                 android:drawableRight="@drawable/ic_add"
                 android:drawablePadding="5dp"
