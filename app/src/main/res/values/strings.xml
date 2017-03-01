@@ -9,6 +9,11 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
 
+    <string name="about_text_header">This is the about text.</string>
+    <string name="help_text_header">This is the help text.</string>
+    <string name="about_text_content">This section contains things about me and my application</string>
+    <string name="help_text_content">Instructions for using this application go in this section</string>
+
     <string name="no_geocoder_available">No geocoder available</string>
     <string name="fetch_address">Fetch address</string>
     <string name="address_found">Address found</string>

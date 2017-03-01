@@ -66,8 +66,10 @@ public class MainActivity extends AppCompatActivity {
                 placeNoteUtils.clearNotes();
                 break;
             case R.id.action_about:
+                new Starter(this).startTextViewer("ABOUT");
                 break;
             case R.id.action_help:
+                new Starter(this).startTextViewer("HELP");
                 break;
         }
         return super.onOptionsItemSelected(item);

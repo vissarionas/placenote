@@ -39,4 +39,10 @@ public class Starter {
         intent.putExtra("PLACENAME" , placeName);
         activity.startActivity(intent);
     }
+
+    void startTextViewer(String action){
+        Intent intent = new Intent(activity , TextViewer.class);
+        intent.setAction(action);
+        activity.startActivity(intent);
+    }
 }
