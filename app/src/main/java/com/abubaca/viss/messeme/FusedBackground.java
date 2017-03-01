@@ -58,7 +58,6 @@ public class FusedBackground extends Service implements LocationListener,
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         dbHandler = new DBHandler(this);
-        locations = dbHandler.getNotesLocations();
         smallestDistance = 10000;
         registerNetworkStateReciever();
 
@@ -67,7 +66,6 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void startStopGoogleApiClient(){
-        Log.e(TAG , "StartingStopping googleapiclient");
         if (locations.size() > 0) {
             if (googleApiClient != null && googleApiClient.isConnected()) {
                 requestLocationUpdates(interval);
@@ -96,6 +94,7 @@ public class FusedBackground extends Service implements LocationListener,
             if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 wifiConnected = info.isConnected();
+                locations = dbHandler.getNotesLocations();
                 startStopGoogleApiClient();
             }
         }
@@ -158,7 +157,7 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void showNotification(String place) {
-        dbHandler.updatePlaceNote(place, null, NoteState.ALERTED, 1, null);
+        dbHandler.updatePlaceNote(place, null, Constants.NOTE_STATE_ALERTED, 1, null);
         locations = dbHandler.getNotesLocations();
         Intent intent = new Intent(this, MainActivity.class);
         intent.setAction("NOTIFICATION");

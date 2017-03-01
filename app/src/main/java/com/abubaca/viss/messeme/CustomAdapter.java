@@ -3,7 +3,6 @@ package com.abubaca.viss.messeme;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -117,22 +116,21 @@ public class CustomAdapter extends BaseAdapter {
 
     private void setFlagColor(int state){
         switch (state){
-            case NoteState.EMPTY:
+            case Constants.NOTE_STATE_EMPTY:
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 break;
-            case NoteState.INACTIVE:
+            case Constants.NOTE_STATE_INACTIVE:
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
                 break;
-            case NoteState.ACTIVE:
+            case Constants.NOTE_STATE_ACTIVE:
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
-                placeText.setTextSize(placeText.getTextSize());
                 break;
-            case NoteState.ALERTED:
+            case Constants.NOTE_STATE_ALERTED:
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));

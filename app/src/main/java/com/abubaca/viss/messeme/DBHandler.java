@@ -10,7 +10,7 @@ import android.location.Location;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.abubaca.viss.messeme.NoteState.EMPTY;
+import static com.abubaca.viss.messeme.Constants.NOTE_STATE_EMPTY;
 
 /**
  * Created by viss on 1/2/17.
@@ -68,7 +68,7 @@ class DBHandler extends SQLiteOpenHelper{
         dbInit();
         ContentValues values = new ContentValues();
         values.put("NOTE" , "");
-        values.put("STATE" , EMPTY);
+        values.put("STATE" , NOTE_STATE_EMPTY);
         values.put("NOTIFIED" , 0);
         db.update("PLACENOTES" , values , null , null );
         dbClose();
@@ -125,7 +125,7 @@ class DBHandler extends SQLiteOpenHelper{
 
         if(cursor.getCount()>0){
             do{
-                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == NoteState.ACTIVE && cursor.getInt(5) == 0){
+                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == Constants.NOTE_STATE_ACTIVE && cursor.getInt(5) == 0){
                     Location singlePlaceLocation = new Location("");
                     lat = Double.valueOf(cursor.getString(1));
                     lng = Double.valueOf(cursor.getString(2));

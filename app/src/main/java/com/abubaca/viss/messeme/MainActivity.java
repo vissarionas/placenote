@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private PlaceNoteUtils placeNoteUtils;
     private PlacelistPopulator placelistPopulator;
     private FloatingActionButton addPlaceFloatingActionButton;
+    private Boolean notified = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +31,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        if(getIntent().getAction().equals("NOTIFICATION")){
+        if(!notified && getIntent().getAction().equals("NOTIFICATION")){
             String place = getIntent().getStringExtra("PLACE");
             placeNoteUtils.viewNote(place);
+            notified = true;
         }
         placelistPopulator.populateListview();
         addPlaceFloatingActionButton.setOnClickListener(new View.OnClickListener() {
