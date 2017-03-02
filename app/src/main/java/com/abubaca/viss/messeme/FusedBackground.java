@@ -111,6 +111,7 @@ public class FusedBackground extends Service implements LocationListener,
         locationRequest = new LocationRequest();
 //        if(wifiConnected) locationRequest.setNumUpdates(2);
         locationRequest.setInterval(interval);
+        locationRequest.setSmallestDisplacement(20.0f);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, FusedBackground.this);
@@ -134,7 +135,7 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        alertDistance = location.getAccuracy() > 100 ? 100 : 30;
+        alertDistance = location.getAccuracy() > 100 ? 100 : 20;
         if (locations.isEmpty()) {
             removeLocationUpdates();
             return;
@@ -152,7 +153,7 @@ public class FusedBackground extends Service implements LocationListener,
             }
         }
         if(wifiConnected){
-            interval = 120000;
+            interval = 180000;
         }else{
             interval = new LocationIntervalGenerator().getInterval(smallestDistance);
         }
