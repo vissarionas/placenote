@@ -82,8 +82,6 @@ class DBHandler extends SQLiteOpenHelper{
 
     void insertToDb(String place, String lat, String lng , String note , int proximity){
         dbInit();
-//        if(lat.length()>10)lat = lat.substring(0,10);
-//        if(lng.length()>10)lng = lng.substring(0,10);
         ContentValues values = new ContentValues();
         values.put("PLACE",place);
         values.put("LAT",lat);

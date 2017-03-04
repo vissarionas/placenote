@@ -77,7 +77,7 @@ public class FusedBackground extends Service implements LocationListener,
                         .build();
                 googleApiClient.connect();
             }
-        } else if (googleApiClient != null) {
+        } else {
             removeLocationUpdates();
         }
     }
@@ -119,23 +119,20 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void removeLocationUpdates() {
-        Log.i(TAG, "Removed location updates");
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        if (googleApiClient != null) LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.e(TAG, "Google api client connection suspended");
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.e(TAG, "Google api client connection failed");
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        alertDistance = location.getAccuracy() > 100 ? 100 : 20;
+        alertDistance = location.getAccuracy() > 100 ? 100 : 30;
         if (locations.isEmpty()) {
             removeLocationUpdates();
             return;
@@ -153,11 +150,11 @@ public class FusedBackground extends Service implements LocationListener,
             }
         }
         if(wifiConnected){
-            interval = 180000;
+            interval = 300000;
         }else{
             interval = new LocationIntervalGenerator().getInterval(smallestDistance);
         }
-        Log.i(TAG, "smallestLocation: " + smallestDistance + " Interval: " + interval + " LocationRequest.getInterval: " + locationRequest.getInterval());
+        Log.i(TAG, "smallestDistance: " + smallestDistance + " Interval: " + interval + " LocationRequest.getInterval: " + locationRequest.getInterval());
         if (interval != locationRequest.getInterval()) requestLocationUpdates(interval);
     }
 
@@ -170,7 +167,6 @@ public class FusedBackground extends Service implements LocationListener,
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-//        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         builder.setSound(Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.notification));
         builder.setContentTitle(place);
         builder.setContentText(dbHandler.getPlaceNote(place));
@@ -184,8 +180,7 @@ public class FusedBackground extends Service implements LocationListener,
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
     }
-
-    //    @Override
+//    @Override
 //    public void onTaskRemoved(Intent rootIntent) {
 //        Log.e(TAG , "onTaskRemoved()");
 //        restartSelf();
