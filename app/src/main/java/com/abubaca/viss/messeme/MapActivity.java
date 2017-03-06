@@ -19,13 +19,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -84,7 +89,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addPlaceDialog(placeAddress);
+//                addPlaceDialog(placeAddress);
+                addPlaceCustomDialog(placeAddress);
             }
         });
         registerReceiver(broadcastReceiver , filter);
@@ -281,6 +287,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         dialogBuilder.setMessage(R.string.name_your_place);
 
         final EditText nameEditText = new EditText(this);
+
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
@@ -295,11 +302,43 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (!nameEditText.getText().toString().isEmpty()) {
-                            dbHandler.insertToDb(nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lng), "" , proximity);
+                            dbHandler.insertToDb(nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lng), "" , proximity , 0);
                             MapActivity.this.finish();
                         }
                     }
                 });
+        Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
+    private void addPlaceCustomDialog(String nameSuggestion){
+        LayoutInflater inflater = this.getLayoutInflater();
+        View addPlaceView = inflater.inflate(R.layout.add_place , null);
+        addPlaceView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        final EditText addPlaceET = (EditText)addPlaceView.findViewById(R.id.placeNameET);
+        final CheckBox usesWifiCB = (CheckBox)addPlaceView.findViewById(R.id.usesWifiCB);
+
+        addPlaceET.setText(nameSuggestion);
+        addPlaceET.setSelection(addPlaceET.getText().length());
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setMessage(R.string.name_your_place);
+        dialogBuilder.setView(addPlaceView);
+        dialogBuilder.setPositiveButton("OK" , new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                int usesWifi = usesWifiCB.isChecked()?1:0;
+                if(!addPlaceET.getText().toString().isEmpty()){
+                    dbHandler.insertToDb(addPlaceET.getText().toString(), String.valueOf(lat), String.valueOf(lng), "" , proximity , usesWifi);
+                    MapActivity.this.finish();
+                }
+            }
+        });
+
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();

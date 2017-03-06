@@ -44,8 +44,8 @@ public class FusedBackground extends Service implements LocationListener,
     List<Location> locations;
     long interval = 5000;
     String place;
-    Integer proximity;
-    float distance, alertDistance, smallestDistance;
+    Integer placeProximity;
+    float noteCurrentDistance , alertDistance, smallestDistance;
     DBHandler dbHandler;
     Boolean wifiConnected = false;
 
@@ -58,7 +58,6 @@ public class FusedBackground extends Service implements LocationListener,
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         dbHandler = new DBHandler(this);
-        smallestDistance = 10000;
         registerNetworkStateReciever();
 
         super.onStartCommand(intent, flags, startId);
@@ -88,6 +87,12 @@ public class FusedBackground extends Service implements LocationListener,
         requestLocationUpdates(interval);
     }
 
+    void registerNetworkStateReciever(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -100,18 +105,12 @@ public class FusedBackground extends Service implements LocationListener,
         }
     };
 
-    void registerNetworkStateReciever(){
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        registerReceiver(broadcastReceiver, intentFilter);
-    }
-
     private void requestLocationUpdates(long interval) {
         removeLocationUpdates();
         locationRequest = new LocationRequest();
 //        if(wifiConnected) locationRequest.setNumUpdates(2);
         locationRequest.setInterval(interval);
-        locationRequest.setSmallestDisplacement(20.0f);
+//        locationRequest.setSmallestDisplacement(20.0f);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, FusedBackground.this);
@@ -132,6 +131,7 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
+        smallestDistance = 20000;
         alertDistance = location.getAccuracy() > 100 ? 100 : 30;
         if (locations.isEmpty()) {
             removeLocationUpdates();
@@ -139,15 +139,19 @@ public class FusedBackground extends Service implements LocationListener,
         }
 
         if (location.getAccuracy()<1000) {
+
             for (Location noteLocation : locations) {
                 place = dbHandler.getPlaceByLocation(noteLocation);
-                proximity = (dbHandler.getPlaceProximity(place) > 200) ? dbHandler.getPlaceProximity(place) : 0;
-                distance = noteLocation.distanceTo(location);
-                if (distance < alertDistance + proximity) {
+                placeProximity = (dbHandler.getPlaceProximity(place) > 200) ? dbHandler.getPlaceProximity(place) : 0;
+                noteCurrentDistance = noteLocation.distanceTo(location);
+                if (noteCurrentDistance < alertDistance + placeProximity) {
                     showNotification(place);
                 }
-                smallestDistance = distance < smallestDistance ? distance : smallestDistance;
+                if(!dbHandler.locationUsesWifi(noteLocation)){
+                    smallestDistance = noteLocation.distanceTo(location)<smallestDistance?noteLocation.distanceTo(location):smallestDistance;
+                }
             }
+
         }
         if(wifiConnected){
             interval = 300000;

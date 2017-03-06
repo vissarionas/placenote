@@ -77,7 +77,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".TextViewer"></activity>
+        <activity android:name=".AboutHelpViewer"></activity>
     </application>
 
 </manifest>

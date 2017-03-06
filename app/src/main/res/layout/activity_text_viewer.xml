@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.abubaca.viss.messeme.TextViewer">
+    tools:context="com.abubaca.viss.messeme.AboutHelpViewer">
 
     <TextView
         android:layout_width="match_parent"

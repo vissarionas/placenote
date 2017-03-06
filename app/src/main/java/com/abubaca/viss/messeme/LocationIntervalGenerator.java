@@ -16,8 +16,10 @@ public class LocationIntervalGenerator {
             interval = 20000;
         }else if(distance<5000){
             interval = 60000;
-        }else{
+        }else if(distance<10000){
             interval = 120000;
+        }else{
+            interval = 240000;
         }
     return interval;
     }

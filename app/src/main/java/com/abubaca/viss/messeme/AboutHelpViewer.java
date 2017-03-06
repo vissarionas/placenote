@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
-public class TextViewer extends AppCompatActivity {
+public class AboutHelpViewer extends AppCompatActivity {
 
     TextView textViewerHeader , textViewerContent;
 

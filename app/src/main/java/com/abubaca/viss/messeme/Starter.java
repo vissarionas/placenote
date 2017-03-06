@@ -41,7 +41,7 @@ public class Starter {
     }
 
     void startTextViewer(String action){
-        Intent intent = new Intent(activity , TextViewer.class);
+        Intent intent = new Intent(activity , AboutHelpViewer.class);
         intent.setAction(action);
         activity.startActivity(intent);
     }

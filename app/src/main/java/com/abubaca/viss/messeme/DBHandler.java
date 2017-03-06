@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ import static com.abubaca.viss.messeme.Constants.NOTE_STATE_EMPTY;
  * Created by viss on 1/2/17.
  *
  * PLACENOTES NOTIFIED: 0=NOT_NOTIFIED , 1=NOTIFIED
+ * PLACENOTES USES_WIFI: 0=NOT_USES , 1=USES;
+ *
  */
 
 class DBHandler extends SQLiteOpenHelper{
@@ -24,7 +28,7 @@ class DBHandler extends SQLiteOpenHelper{
     private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
             "LAT TEXT , LNG TEXT , NOTE TEXT ," +
             " STATE INTEGER DEFAULT 0 , NOTIFIED INTEGER DEFAULT 0 ," +
-            " PROXIMITY INTEGER)";
+            " PROXIMITY INTEGER , USES_WIFI INTEGER DEFAULT 0)";
     private final static String selectAllFromTable = "SELECT * FROM PLACENOTES ORDER BY STATE DESC , PLACE ASC";
     private final static String TAG = "DBHANDLER";
 
@@ -80,7 +84,7 @@ class DBHandler extends SQLiteOpenHelper{
         dbClose();
     }
 
-    void insertToDb(String place, String lat, String lng , String note , int proximity){
+    void insertToDb(String place, String lat, String lng , String note , int proximity , int usesWifi){
         dbInit();
         ContentValues values = new ContentValues();
         values.put("PLACE",place);
@@ -88,6 +92,7 @@ class DBHandler extends SQLiteOpenHelper{
         values.put("LNG",lng);
         values.put("NOTE",note);
         values.put("PROXIMITY",proximity);
+        values.put("USES_WIFI",usesWifi);
         db.insert("PLACENOTES" , null , values);
         dbClose();
     }
@@ -122,8 +127,9 @@ class DBHandler extends SQLiteOpenHelper{
         List<Location> placeLocations = new ArrayList<>();
 
         if(cursor.getCount()>0){
-            do{
-                if(!cursor.getString(3).isEmpty() && cursor.getInt(4) == Constants.NOTE_STATE_ACTIVE && cursor.getInt(5) == 0){
+            do {
+                if (!cursor.getString(3).isEmpty() && cursor.getInt(4) == Constants.NOTE_STATE_ACTIVE
+                        && cursor.getInt(5) == 0) {
                     Location singlePlaceLocation = new Location("");
                     lat = Double.valueOf(cursor.getString(1));
                     lng = Double.valueOf(cursor.getString(2));
@@ -131,10 +137,25 @@ class DBHandler extends SQLiteOpenHelper{
                     singlePlaceLocation.setLongitude(lng);
                     placeLocations.add(singlePlaceLocation);
                 }
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         dbClose();
         return placeLocations;
+    }
+
+    Boolean locationUsesWifi(Location location){
+        dbInit();
+        String lat = String.valueOf(location.getLatitude());
+        String lng = String.valueOf(location.getLongitude());
+        if(cursor.getCount()>0){
+            do {
+                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lng)){
+                    break;
+                }
+            }while(cursor.moveToNext());
+        }
+        dbClose();
+        return cursor.getInt(7) == 1;
     }
 
     String getPlaceNote(String place){

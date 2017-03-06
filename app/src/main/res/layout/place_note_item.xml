@@ -6,56 +6,55 @@
 
     <LinearLayout
         android:id="@+id/place_note_item"
-        android:layout_marginBottom="5dp"
-        android:layout_marginRight="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="right"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="5dp"
         android:background="@drawable/background"
-        android:weightSum="2"
-        android:elevation="5dp">
+        android:gravity="right"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
 
         <LinearLayout
             android:id="@+id/list_item_surface"
-            android:layout_weight="1.8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
+            android:layout_weight="1.8"
+            android:orientation="vertical">
 
             <TextView
-                android:text="Place"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:id="@+id/placeText"
-                android:textSize="18dp"
-                android:maxLines="1"/>
-
-            <TextView
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="3dp"
-                android:text="nothing noted"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:text="Place"
+                android:textSize="18dp" />
+
+            <TextView
                 android:id="@+id/noteText"
-                android:textSize="15dp"
-                android:maxLines="1"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:layout_marginTop="15dp"
+                android:maxLines="1"
+                android:text="nothing noted"
+                android:textSize="15dp" />
 
         </LinearLayout>
 
         <ImageButton
-            android:layout_weight="0.1"
-            android:background="@android:color/white"
+            android:id="@+id/list_item_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_dots_menu"
-            android:id="@+id/list_item_menu"
             android:layout_gravity="center|top"
-            android:layout_margin="2dp"/>
+            android:layout_margin="2dp"
+            android:layout_weight="0.1"
+            android:background="@android:color/white"
+            android:src="@drawable/ic_dots_menu" />
 
     </LinearLayout>
 
