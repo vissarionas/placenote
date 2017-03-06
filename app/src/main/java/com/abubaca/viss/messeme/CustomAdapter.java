@@ -79,7 +79,7 @@ public class CustomAdapter extends BaseAdapter {
         placeText.setText(subPlace);
         if(!dbHandler.placeUsesWifi(place)) wifiUsageStatus.setVisibility(View.INVISIBLE);
         String note = placeNotes.get(position).getNote();
-        String subNote = note.length()>8 ? note.substring(0,6)+"..":note;
+        String subNote = note.length()>11 ? note.substring(0,9)+"..":note;
         noteText.setText(subNote);
         listItemMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,28 +142,20 @@ public class CustomAdapter extends BaseAdapter {
     private void setFlagColor(int state){
         switch (state){
             case Constants.NOTE_STATE_EMPTY:
-//                placeNoteItem.setScaleX(0.98f);
-//                placeNoteItem.setScaleY(0.98f);
-                placeNoteItem.setElevation(2.0f);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 break;
             case Constants.NOTE_STATE_INACTIVE:
-//                placeNoteItem.setScaleX(0.98f);
-//                placeNoteItem.setScaleY(0.98f);
-                placeNoteItem.setElevation(2.0f);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
                 break;
             case Constants.NOTE_STATE_ACTIVE:
-                placeNoteItem.setElevation(5.0f);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
                 break;
             case Constants.NOTE_STATE_ALERTED:
-                placeNoteItem.setElevation(5.0f);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));

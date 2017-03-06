@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:title="Edit name"
+        android:title="Edit place name"
         android:id="@+id/edit_name">
     </item>
     <item
-        android:title="Toggle wifi trigger"
+        android:title="Wifi as trigger"
         android:id="@+id/wifi_toggle"
         android:checkable="true">
     </item>
@@ -18,7 +18,7 @@
         android:id="@+id/clear_note">
     </item>
     <item
-        android:title="Delete place"
+        android:title="Delete this place"
         android:id="@+id/delete_place">
     </item>
 </menu>

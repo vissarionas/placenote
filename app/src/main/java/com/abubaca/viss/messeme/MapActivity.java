@@ -191,7 +191,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     northeastBound.setLatitude(place.getViewport().northeast.latitude);
                     northeastBound.setLongitude(place.getViewport().northeast.longitude);
                     proximity = Math.round(northeastBound.distanceTo(placeLocation));
-                    Log.i(TAG , "Proximity: "+proximity);
                 }
 
                 lat = placeLocation.getLatitude();
@@ -257,7 +256,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         this.lng = location.getLongitude();
         moveMapPlaceMarker(location , 18.0f);
         requestAddress(location.getLatitude() , location.getLongitude());
-        Log.i(TAG , "JobDone: "+location);
     }
 
     @Override
@@ -290,14 +288,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.wifi_usage_title);
         builder.setMessage(R.string.wifi_usage_explained);
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 usesWifi = true;
                 addPlaceCustomDialog(placeAddress);
             }
         });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 usesWifi = false;
