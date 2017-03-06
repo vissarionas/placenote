@@ -1,10 +1,8 @@
 package com.abubaca.viss.messeme;
 
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,7 +10,6 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity {
 
     static final String TAG = "MAIN_ACTIVITY";
-    private static final int FINE_LOCATION_REQUEST = 0x1;
 
     private PlaceNoteUtils placeNoteUtils;
     private PlacelistPopulator placelistPopulator;
@@ -24,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().setSubtitle(R.string.main_subtite);
-        placeNoteUtils = new PlaceNoteUtils(MainActivity.this);
+        placeNoteUtils = new PlaceNoteUtils(this);
         placelistPopulator = new PlacelistPopulator(this);
         addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_floating_action_button);
     }
@@ -75,21 +72,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case FINE_LOCATION_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG, "granted permission for coarse location");
-                } else {
-                    Log.e(TAG, "permission for location denied");
-                }
-                return;
-            }
-        }
-    }
 
 }
 

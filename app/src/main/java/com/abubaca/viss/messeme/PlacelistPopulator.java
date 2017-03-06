@@ -43,8 +43,10 @@ public class PlacelistPopulator {
         placeList = dbHandler.getPlaceNotes();
         if(placeList.size()==0) {
             noPlacesTV.setVisibility(View.VISIBLE);
-            placeGV.setVisibility(View.INVISIBLE);
             noPlacesTV.setText(R.string.no_places);
+            CustomAdapter adapter = new CustomAdapter(activity , placeList);
+            placeGV.setAdapter(adapter);
+            placeGV.setVisibility(View.INVISIBLE);
             return;
         }
         placeGV.setVisibility(View.VISIBLE);

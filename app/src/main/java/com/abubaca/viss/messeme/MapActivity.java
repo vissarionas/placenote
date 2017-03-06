@@ -287,8 +287,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void askForWifiUsage(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getResources().getString(R.string.wifi_usage_title));
-        builder.setMessage(getResources().getString(R.string.wifi_usage_explained));
+        builder.setTitle(R.string.wifi_usage_title);
+        builder.setMessage(R.string.wifi_usage_explained);
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
