@@ -57,6 +57,7 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG , "fused started");
         dbHandler = new DBHandler(this);
         registerNetworkStateReciever();
 
@@ -147,7 +148,7 @@ public class FusedBackground extends Service implements LocationListener,
                 if (noteCurrentDistance < alertDistance + placeProximity) {
                     showNotification(place);
                 }
-                if(!dbHandler.locationUsesWifi(noteLocation)){
+                if(!dbHandler.placeUsesWifi(place)){
                     smallestDistance = noteLocation.distanceTo(location)<smallestDistance?noteLocation.distanceTo(location):smallestDistance;
                 }
             }
@@ -163,7 +164,7 @@ public class FusedBackground extends Service implements LocationListener,
     }
 
     private void showNotification(String place) {
-        dbHandler.updatePlaceNote(place, null, Constants.NOTE_STATE_ALERTED, 1, null);
+        dbHandler.updatePlaceNote(place, null, Constants.NOTE_STATE_ALERTED, 1, null , null);
         locations = dbHandler.getNotesLocations();
         Intent intent = new Intent(this, MainActivity.class);
         intent.setAction("NOTIFICATION");

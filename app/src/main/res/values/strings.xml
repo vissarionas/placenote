@@ -38,5 +38,7 @@
     <string name="map_search">Search</string>
     <string name="add_place">Add %1$s to your placelist</string>
     <string name="name_your_place">Name your place</string>
+    <string name="wifi_usage_title">Wifi notification trigger</string>
+    <string name="wifi_usage_explained">If you have access to a wifi network in this place, use this to trigger notifications.\nImproves battery life!</string>
 
 </resources>

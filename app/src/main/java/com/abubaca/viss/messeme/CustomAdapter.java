@@ -2,7 +2,9 @@ package com.abubaca.viss.messeme;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -27,11 +30,14 @@ public class CustomAdapter extends BaseAdapter {
 
     private LayoutInflater layoutInflater;
     private TextView placeText , noteText;
+    private ImageView wifiUsageStatus;
     private LinearLayout placeNoteItem;
     private List<PlaceNote> placeNotes;
     private Context context;
     private Activity activity;
     private PlaceNoteUtils placeNoteUtils;
+    private DBHandler dbHandler;
+    private PlacelistPopulator placelistPopulator;
 
     CustomAdapter(Activity activity , List<PlaceNote> placeNotes){
         this.placeNotes = placeNotes;
@@ -39,6 +45,8 @@ public class CustomAdapter extends BaseAdapter {
         this.activity = activity;
         placeNoteUtils = new PlaceNoteUtils(activity);
         layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        dbHandler = new DBHandler(context);
+        placelistPopulator = new PlacelistPopulator(activity);
     }
 
     @Override
@@ -61,13 +69,17 @@ public class CustomAdapter extends BaseAdapter {
         convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
         placeText = (TextView)convertView.findViewById(R.id.placeText);
         noteText = (TextView)convertView.findViewById(R.id.noteText);
+        wifiUsageStatus = (ImageView)convertView.findViewById(R.id.wifi_usage_status);
         ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
         LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
         placeNoteItem = (LinearLayout)convertView.findViewById(R.id.place_note_item);
         setFlagColor(placeNotes.get(position).getState());
-        placeText.setText(placeNotes.get(position).getPlace());
+        String place = placeNotes.get(position).getPlace();
+        String subPlace = place.length()>12 ? place.substring(0,10)+".." : place;
+        placeText.setText(subPlace);
+        if(!dbHandler.placeUsesWifi(place)) wifiUsageStatus.setVisibility(View.INVISIBLE);
         String note = placeNotes.get(position).getNote();
-        String subNote = note.length()>12 ? note.substring(0,10)+"..":note;
+        String subNote = note.length()>8 ? note.substring(0,6)+"..":note;
         noteText.setText(subNote);
         listItemMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,6 +100,7 @@ public class CustomAdapter extends BaseAdapter {
         PopupMenu popupMenu = new PopupMenu(context , view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.edit_place_menu , popupMenu.getMenu());
+        popupMenu.getMenu().getItem(1).setChecked(dbHandler.placeUsesWifi(getPlace(position)));
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -95,6 +108,16 @@ public class CustomAdapter extends BaseAdapter {
                 switch (item.getItemId()){
                     case R.id.edit_name:
                         placeNoteUtils.editPlace(place);
+                        return true;
+                    case R.id.wifi_toggle:
+                        if(item.isChecked()){
+                            dbHandler.updatePlaceNote(place , null , null , null , null , 0);
+                            placelistPopulator.populateListview();
+                        }else{
+                            dbHandler.updatePlaceNote(place , null , null , null , null , 1);
+                            placelistPopulator.populateListview();
+                        }
+                        Log.i(TAG , "checked: "+item.isChecked());
                         return true;
                     case R.id.view_on_map:
                         new Starter(activity).startViewPlaceActivity(place);
@@ -119,15 +142,15 @@ public class CustomAdapter extends BaseAdapter {
     private void setFlagColor(int state){
         switch (state){
             case Constants.NOTE_STATE_EMPTY:
-                placeNoteItem.setScaleX(0.97f);
-                placeNoteItem.setScaleY(0.97f);
+//                placeNoteItem.setScaleX(0.98f);
+//                placeNoteItem.setScaleY(0.98f);
                 placeNoteItem.setElevation(2.0f);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 break;
             case Constants.NOTE_STATE_INACTIVE:
-                placeNoteItem.setScaleX(0.97f);
-                placeNoteItem.setScaleY(0.97f);
+//                placeNoteItem.setScaleX(0.98f);
+//                placeNoteItem.setScaleY(0.98f);
                 placeNoteItem.setElevation(2.0f);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);

@@ -63,7 +63,7 @@ class DBHandler extends SQLiteOpenHelper{
     void clearDb(){
         dbInit();
         if(cursor.getCount()>0) {
-            db.execSQL("DELETE FROM PLACENOTES");
+            db.delete("PLACENOTES" , null , null);
         }
         dbClose();
     }
@@ -97,13 +97,14 @@ class DBHandler extends SQLiteOpenHelper{
         dbClose();
     }
 
-    void updatePlaceNote(String place , String newNote , Integer state , Integer notified , String newPlace){
+    void updatePlaceNote(String place , String newNote , Integer state , Integer notified , String newPlace , Integer uses_wifi){
         dbInit();
         ContentValues values = new ContentValues();
         if(newPlace!=null) values.put("PLACE" , newPlace);
         if(newNote != null) values.put("NOTE" , newNote);
         if(state!=null) values.put("STATE" , state);
         if(notified != null) values.put("NOTIFIED" , notified);
+        if(uses_wifi!=null) values.put("USES_WIFI" , uses_wifi);
         db.update("PLACENOTES" , values , "PLACE=?", new String[]{place});
         dbClose();
     }
@@ -143,13 +144,11 @@ class DBHandler extends SQLiteOpenHelper{
         return placeLocations;
     }
 
-    Boolean locationUsesWifi(Location location){
+    Boolean placeUsesWifi(String place){
         dbInit();
-        String lat = String.valueOf(location.getLatitude());
-        String lng = String.valueOf(location.getLongitude());
         if(cursor.getCount()>0){
             do {
-                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lng)){
+                if (cursor.getString(0).contentEquals(place)){
                     break;
                 }
             }while(cursor.moveToNext());

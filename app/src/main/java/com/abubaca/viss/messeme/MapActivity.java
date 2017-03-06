@@ -8,16 +8,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputFilter;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,10 +26,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -71,6 +68,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected static final String TAG = "MAP_ACTIVITY";
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
     private LinearLayout pbLayout;
+    private Boolean usesWifi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,10 +87,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                addPlaceDialog(placeAddress);
-                addPlaceCustomDialog(placeAddress);
+                askForWifiUsage();
             }
         });
+        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(broadcastReceiver , filter);
         connectGoogleApiClient();
         super.onResume();
@@ -225,6 +223,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                usesWifi = info.isConnected();
+                return;
+            }
             placeAddress = intent.getStringExtra("ADDRESS");
             addPlaceButton.setVisibility(View.VISIBLE);
             String addPlace = getResources().getString(R.string.add_place);
@@ -282,33 +285,33 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
-    private void addPlaceDialog(String nameSuggestion) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage(R.string.name_your_place);
+    private void askForWifiUsage(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.wifi_usage_title));
+        builder.setMessage(getResources().getString(R.string.wifi_usage_explained));
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                usesWifi = true;
+                addPlaceCustomDialog(placeAddress);
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                usesWifi = false;
+                addPlaceCustomDialog(placeAddress);
+            }
+        });
+        builder.setCancelable(true);
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
 
-        final EditText nameEditText = new EditText(this);
+            }
+        });
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        nameEditText.setLayoutParams(params);
-        nameEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-        nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(20)});
-        nameEditText.setText(nameSuggestion);
-        nameEditText.setSelection(nameEditText.getText().length());
-        dialogBuilder.setView(nameEditText);
-        dialogBuilder.setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (!nameEditText.getText().toString().isEmpty()) {
-                            dbHandler.insertToDb(nameEditText.getText().toString(), String.valueOf(lat), String.valueOf(lng), "" , proximity , 0);
-                            MapActivity.this.finish();
-                        }
-                    }
-                });
-        Dialog dialog = dialogBuilder.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        Dialog dialog = builder.create();
         dialog.show();
     }
 
@@ -321,6 +324,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         ));
         final EditText addPlaceET = (EditText)addPlaceView.findViewById(R.id.placeNameET);
         final CheckBox usesWifiCB = (CheckBox)addPlaceView.findViewById(R.id.usesWifiCB);
+        if(usesWifi) usesWifiCB.setChecked(true);
 
         addPlaceET.setText(nameSuggestion);
         addPlaceET.setSelection(addPlaceET.getText().length());

@@ -5,6 +5,11 @@
         android:id="@+id/edit_name">
     </item>
     <item
+        android:title="Toggle wifi trigger"
+        android:id="@+id/wifi_toggle"
+        android:checkable="true">
+    </item>
+    <item
         android:title="View on map"
         android:id="@+id/view_on_map">
     </item>
