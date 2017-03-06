@@ -226,13 +226,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 usesWifi = info.isConnected();
-                return;
             }
-            placeAddress = intent.getStringExtra("ADDRESS");
-            addPlaceButton.setVisibility(View.VISIBLE);
-            String addPlace = getResources().getString(R.string.add_place);
-            addPlaceButton.setText(String.format(addPlace , placeAddress));
-            pbLayout.setVisibility(View.INVISIBLE);
+            if(intent.hasExtra("ADDRESS")){
+                placeAddress = intent.getStringExtra("ADDRESS");
+                addPlaceButton.setVisibility(View.VISIBLE);
+                String addPlace = getResources().getString(R.string.add_place);
+                addPlaceButton.setText(String.format(addPlace , placeAddress));
+                pbLayout.setVisibility(View.INVISIBLE);
+            }
         }
     };
 
