@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center|top"
             android:layout_weight="0.1"
-            android:background="@android:color/white"
+            android:background="@android:color/transparent"
             android:src="@drawable/ic_dots_menu" />
 
         <LinearLayout

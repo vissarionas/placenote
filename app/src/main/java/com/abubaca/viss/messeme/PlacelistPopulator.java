@@ -2,6 +2,7 @@ package com.abubaca.viss.messeme;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,14 +22,14 @@ public class PlacelistPopulator {
 
     private Activity activity;
     private TextView noPlacesTV;
-    private GridView placeGV;
+    private ListView placeLV;
     private DBHandler dbHandler;
     List<PlaceNote> placeList;
 
     public PlacelistPopulator(final Activity activity){
         this.activity = activity;
         dbHandler = new DBHandler(activity);
-        placeGV = (GridView)activity.findViewById(R.id.place_gv);
+        placeLV = (ListView)activity.findViewById(R.id.place_gv);
         noPlacesTV = (TextView)activity.findViewById(R.id.no_places_tv);
         noPlacesTV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,14 +46,14 @@ public class PlacelistPopulator {
             noPlacesTV.setVisibility(View.VISIBLE);
             noPlacesTV.setText(R.string.no_places);
             CustomAdapter adapter = new CustomAdapter(activity , placeList);
-            placeGV.setAdapter(adapter);
-            placeGV.setVisibility(View.INVISIBLE);
+            placeLV.setAdapter(adapter);
+            placeLV.setVisibility(View.INVISIBLE);
             return;
         }
-        placeGV.setVisibility(View.VISIBLE);
+        placeLV.setVisibility(View.VISIBLE);
         noPlacesTV.setVisibility(View.INVISIBLE);
         CustomAdapter adapter = new CustomAdapter(activity , placeList);
-        placeGV.setAdapter(adapter);
+        placeLV.setAdapter(adapter);
     }
 
 //    private void addListviewFooter(ListView listView){
@@ -76,3 +77,4 @@ public class PlacelistPopulator {
 //        }
 //    }
 }
+

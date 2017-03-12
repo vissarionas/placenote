@@ -3,6 +3,7 @@ package com.abubaca.viss.messeme;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,7 +14,6 @@ public class MainActivity extends AppCompatActivity {
     static final String TAG = "MAIN_ACTIVITY";
 
     private PlaceNoteUtils placeNoteUtils;
-    private PlacelistPopulator placelistPopulator;
     private FloatingActionButton addPlaceFloatingActionButton;
     private Boolean notified = false;
 
@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().setSubtitle(R.string.main_subtite);
         placeNoteUtils = new PlaceNoteUtils(this);
-        placelistPopulator = new PlacelistPopulator(this);
         addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_floating_action_button);
     }
 
@@ -34,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
             placeNoteUtils.viewNote(place);
             notified = true;
         }
-        placelistPopulator.populateListview();
+        new ListPopulator(this).execute();
         addPlaceFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

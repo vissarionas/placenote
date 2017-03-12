@@ -8,8 +8,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.RingtoneManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -111,7 +113,7 @@ public class FusedBackground extends Service implements LocationListener,
         locationRequest = new LocationRequest();
 //        if(wifiConnected) locationRequest.setNumUpdates(2);
         locationRequest.setInterval(interval);
-//        locationRequest.setSmallestDisplacement(20.0f);
+        locationRequest.setSmallestDisplacement(10.0f);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, FusedBackground.this);
@@ -173,6 +175,7 @@ public class FusedBackground extends Service implements LocationListener,
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSound(Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.notification));
+//        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         builder.setContentTitle(place);
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);

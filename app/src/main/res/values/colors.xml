@@ -36,4 +36,5 @@
     <color name="freshCutDayWhite">#F9F2E7</color>
     <color name="freshCutDayLightGreen">#aee239</color>
     <color name="freshCutDayGreen">#8fbe00</color>
+    <color name="freshCutDayInactive">#FCFAF5</color>
 </resources>

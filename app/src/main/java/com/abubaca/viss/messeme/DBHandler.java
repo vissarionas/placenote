@@ -154,7 +154,7 @@ class DBHandler extends SQLiteOpenHelper{
             }while(cursor.moveToNext());
         }
         dbClose();
-        return cursor.getInt(7) == 1;
+        return cursor.getInt(7) == Constants.WIFI_TRIGGERED_NOTE;
     }
 
     String getPlaceNote(String place){

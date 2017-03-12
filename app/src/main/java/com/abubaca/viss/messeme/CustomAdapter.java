@@ -3,6 +3,7 @@ package com.abubaca.viss.messeme;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,7 +38,6 @@ public class CustomAdapter extends BaseAdapter {
     private Activity activity;
     private PlaceNoteUtils placeNoteUtils;
     private DBHandler dbHandler;
-    private PlacelistPopulator placelistPopulator;
 
     CustomAdapter(Activity activity , List<PlaceNote> placeNotes){
         this.placeNotes = placeNotes;
@@ -46,7 +46,6 @@ public class CustomAdapter extends BaseAdapter {
         placeNoteUtils = new PlaceNoteUtils(activity);
         layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         dbHandler = new DBHandler(context);
-        placelistPopulator = new PlacelistPopulator(activity);
     }
 
     @Override
@@ -111,11 +110,11 @@ public class CustomAdapter extends BaseAdapter {
                         return true;
                     case R.id.wifi_toggle:
                         if(item.isChecked()){
-                            dbHandler.updatePlaceNote(place , null , null , null , null , 0);
-                            placelistPopulator.populateListview();
+                            dbHandler.updatePlaceNote(place , null , null , null , null , Constants.DATA_TRIGGERED_NOTE);
+                            new ListPopulator(activity).execute();
                         }else{
-                            dbHandler.updatePlaceNote(place , null , null , null , null , 1);
-                            placelistPopulator.populateListview();
+                            dbHandler.updatePlaceNote(place , null , null , null , null , Constants.WIFI_TRIGGERED_NOTE);
+                            new ListPopulator(activity).execute();
                         }
                         Log.i(TAG , "checked: "+item.isChecked());
                         return true;
@@ -142,10 +141,12 @@ public class CustomAdapter extends BaseAdapter {
     private void setFlagColor(int state){
         switch (state){
             case Constants.NOTE_STATE_EMPTY:
+                placeNoteItem.setBackgroundResource(R.drawable.background_inactive);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 break;
             case Constants.NOTE_STATE_INACTIVE:
+                placeNoteItem.setBackgroundResource(R.drawable.background_inactive);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
