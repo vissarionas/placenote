@@ -59,8 +59,9 @@ public class FusedBackground extends Service implements LocationListener,
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG , "fused started");
+        Log.i(TAG ,"service started");
         dbHandler = new DBHandler(this);
+        //Register a broadcast reciever to get the wifi status of the device.
         registerNetworkStateReciever();
 
         super.onStartCommand(intent, flags, startId);
@@ -69,6 +70,7 @@ public class FusedBackground extends Service implements LocationListener,
 
     private void startStopGoogleApiClient(){
         if (locations.size() > 0) {
+            Log.i(TAG , "locations.size > 0");
             if (googleApiClient != null && googleApiClient.isConnected()) {
                 requestLocationUpdates(interval);
             } else {
@@ -80,6 +82,7 @@ public class FusedBackground extends Service implements LocationListener,
                 googleApiClient.connect();
             }
         } else {
+            Log.i(TAG , "locations.size == 0");
             removeLocationUpdates();
         }
     }
@@ -99,6 +102,7 @@ public class FusedBackground extends Service implements LocationListener,
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //Check wifi status and start google api client according to the value of wifiConnected boolean
             if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 wifiConnected = info.isConnected();
@@ -111,17 +115,18 @@ public class FusedBackground extends Service implements LocationListener,
     private void requestLocationUpdates(long interval) {
         removeLocationUpdates();
         locationRequest = new LocationRequest();
-//        if(wifiConnected) locationRequest.setNumUpdates(2);
         locationRequest.setInterval(interval);
         locationRequest.setSmallestDisplacement(10.0f);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, FusedBackground.this);
+        if (googleApiClient != null && googleApiClient.isConnected())
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, FusedBackground.this);
         Log.i(TAG, "Location updates requested with " + locationRequest.getInterval() + " interval");
     }
 
     private void removeLocationUpdates() {
-        if (googleApiClient != null) LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        if (googleApiClient != null && googleApiClient.isConnected())
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
     @Override

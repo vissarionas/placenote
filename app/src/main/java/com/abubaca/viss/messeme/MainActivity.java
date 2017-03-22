@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        //Check if the activity started by the pending intent of a notification
         if(!notified && getIntent().getAction().equals("NOTIFICATION")){
             String place = getIntent().getStringExtra("PLACE");
             placeNoteUtils.viewNote(place);
