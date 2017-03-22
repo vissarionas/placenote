@@ -10,13 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
         android:background="@drawable/background"
         android:gravity="end"
         android:orientation="horizontal"
-        android:weightSum="2"
-        android:elevation="5dp">
+        android:weightSum="2">
 
         <ImageButton
             android:id="@+id/list_item_menu"
@@ -38,15 +35,31 @@
             android:layout_weight="1.9"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/placeText"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:layout_gravity="end"
-                android:layout_marginRight="10dp"
-                android:text="Place"
-                android:textSize="18dp" />
+                android:orientation="horizontal"
+                android:layout_gravity="end|center">
+
+                <TextView
+                    android:layout_gravity="center"
+                    android:id="@+id/placeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:layout_marginRight="10dp"
+                    android:text="Place"
+                    android:textSize="18dp" />
+
+                <ImageView
+                    android:id="@+id/wifi_usage_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/wifi_usage" />
+
+            </LinearLayout>
+
+
 
             <View style="@style/Divider" />
 
@@ -65,13 +78,6 @@
                     android:maxLines="1"
                     android:text="nothing noted"
                     android:textSize="15dp" />
-
-                <ImageView
-                    android:layout_gravity="center|end"
-                    android:id="@+id/wifi_usage_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/wifi_usage" />
 
             </LinearLayout>
 

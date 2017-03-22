@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -79,7 +80,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
-//        connectGoogleApiClient();
     }
 
     @Override
@@ -226,12 +226,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 usesWifi = info.isConnected();
             }
-            if(intent.hasExtra("ADDRESS")){
+            if(intent.getAction().contentEquals("GET_ADDRESS")){
                 placeAddress = intent.getStringExtra("ADDRESS");
                 addPlaceButton.setVisibility(View.VISIBLE);
+                pbLayout.setVisibility(View.INVISIBLE);
                 String addPlace = getResources().getString(R.string.add_place);
                 addPlaceButton.setText(String.format(addPlace , placeAddress));
-                pbLayout.setVisibility(View.INVISIBLE);
             }
         }
     };

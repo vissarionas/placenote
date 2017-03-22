@@ -17,9 +17,7 @@
         android:visibility="invisible"/>
 
     <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:numColumns="2"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_margin="5dp"
         android:id="@+id/place_gv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

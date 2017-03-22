@@ -6,6 +6,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,9 +27,7 @@ public class AddressGenerator extends Service {
         Double lat = intent.getDoubleExtra("lat" , 0);
         Double lng = intent.getDoubleExtra("lng" , 0);
         String address = getAddress(lat, lng);
-        if(address!=null){
-            sendBroadcast(address);
-        }
+        sendBroadcast(address);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -43,6 +42,7 @@ public class AddressGenerator extends Service {
         try {
             addresses = geocoder.getFromLocation(lat, lng , 1);
         } catch (IOException e) {
+            Toast.makeText(this, "Address unavailable.\nSlow Internet connection might be the issue" , Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
         if(addresses.size()>0) {

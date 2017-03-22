@@ -32,6 +32,7 @@
     <color name="whiteTinted">#e5e5e5</color>
 
     <color name="freshCutDayBlue">#00A8C6</color>
+    <color name="freshCutDayBlueLighter">#0AB0CE</color>
     <color name="freshCutDayLightBlue">#40C0CB</color>
     <color name="freshCutDayWhite">#F9F2E7</color>
     <color name="freshCutDayLightGreen">#aee239</color>
