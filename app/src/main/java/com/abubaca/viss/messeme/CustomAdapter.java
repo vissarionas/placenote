@@ -72,13 +72,13 @@ public class CustomAdapter extends BaseAdapter {
         ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
         LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
         placeNoteItem = (LinearLayout)convertView.findViewById(R.id.place_note_item);
-        setFlagColor(placeNotes.get(position).getState());
+//        setFlagColor(placeNotes.get(position).getState());
         String place = placeNotes.get(position).getPlace();
-        String subPlace = place.length()>12 ? place.substring(0,10)+".." : place;
+        String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
         placeText.setText(subPlace);
         if(!dbHandler.placeUsesWifi(place)) wifiUsageStatus.setVisibility(View.INVISIBLE);
         String note = placeNotes.get(position).getNote();
-        String subNote = note.length()>11 ? note.substring(0,9)+"..":note;
+        String subNote = note.length()>20 ? note.substring(0,18)+"..":note;
         noteText.setText(subNote);
         listItemMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override

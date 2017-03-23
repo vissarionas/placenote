@@ -42,7 +42,7 @@ public class AddressGenerator extends Service {
         try {
             addresses = geocoder.getFromLocation(lat, lng , 1);
         } catch (IOException e) {
-            Toast.makeText(this, "Address unavailable.\nSlow Internet connection might be the issue" , Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.address_generator_error_message , Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
         if(addresses.size()>0) {

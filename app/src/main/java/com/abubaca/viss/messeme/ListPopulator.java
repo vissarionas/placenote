@@ -34,11 +34,6 @@ public class ListPopulator extends AsyncTask<Void, Void , List<PlaceNote>> {
     }
 
     @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-    }
-
-    @Override
     protected List<PlaceNote> doInBackground(Void... params) {
         return dbHandler.getPlaceNotes();
     }

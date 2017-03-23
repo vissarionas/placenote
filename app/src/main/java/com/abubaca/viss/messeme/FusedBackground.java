@@ -70,7 +70,6 @@ public class FusedBackground extends Service implements LocationListener,
 
     private void startStopGoogleApiClient(){
         if (locations.size() > 0) {
-            Log.i(TAG , "locations.size > 0");
             if (googleApiClient != null && googleApiClient.isConnected()) {
                 requestLocationUpdates(interval);
             } else {
@@ -82,7 +81,6 @@ public class FusedBackground extends Service implements LocationListener,
                 googleApiClient.connect();
             }
         } else {
-            Log.i(TAG , "locations.size == 0");
             removeLocationUpdates();
         }
     }
@@ -150,7 +148,8 @@ public class FusedBackground extends Service implements LocationListener,
 
             for (Location noteLocation : locations) {
                 place = dbHandler.getPlaceByLocation(noteLocation);
-                placeProximity = (dbHandler.getPlaceProximity(place) > 200) ? dbHandler.getPlaceProximity(place) : 0;
+                int tempProximity = dbHandler.getPlaceProximity(place);
+                placeProximity = (tempProximity > 200) ? tempProximity : 0;
                 noteCurrentDistance = noteLocation.distanceTo(location);
                 if (noteCurrentDistance < alertDistance + placeProximity) {
                     showNotification(place);
@@ -184,7 +183,7 @@ public class FusedBackground extends Service implements LocationListener,
         builder.setContentTitle(place);
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);
-        builder.setSmallIcon(R.raw.notification_icon);
+        builder.setSmallIcon(R.drawable.notification_smile);
         builder.setLights(Color.GREEN, 2000, 3000);
         builder.setVibrate(new long[]{300, 600, 300, 800});
         builder.setContentIntent(pendingIntent);

@@ -151,7 +151,7 @@ public class PlaceNoteUtils {
         nameEditText.setLayoutParams(params);
         nameEditText.setText(place);
         nameEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-        nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(20)});
+        nameEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(25)});
         nameEditText.setSelection(nameEditText.getText().length());
         dialogBuilder.setView(nameEditText);
         dialogBuilder.setPositiveButton(R.string.ok,
