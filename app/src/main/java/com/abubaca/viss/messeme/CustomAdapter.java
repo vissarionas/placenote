@@ -2,10 +2,7 @@ package com.abubaca.viss.messeme;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,8 +28,6 @@ public class CustomAdapter extends BaseAdapter {
 
     private LayoutInflater layoutInflater;
     private TextView placeText , noteText;
-    private ImageView wifiUsageStatus;
-    private LinearLayout placeNoteItem;
     private List<PlaceNote> placeNotes;
     private Context context;
     private Activity activity;
@@ -68,11 +63,10 @@ public class CustomAdapter extends BaseAdapter {
         convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
         placeText = (TextView)convertView.findViewById(R.id.placeText);
         noteText = (TextView)convertView.findViewById(R.id.noteText);
-        wifiUsageStatus = (ImageView)convertView.findViewById(R.id.wifi_usage_status);
+        ImageView wifiUsageStatus = (ImageView)convertView.findViewById(R.id.wifi_usage_status);
         ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
         LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
-        placeNoteItem = (LinearLayout)convertView.findViewById(R.id.place_note_item);
-//        setFlagColor(placeNotes.get(position).getState());
+        setFlagColor(placeNotes.get(position).getState());
         String place = placeNotes.get(position).getPlace();
         String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
         placeText.setText(subPlace);
@@ -116,7 +110,6 @@ public class CustomAdapter extends BaseAdapter {
                             dbHandler.updatePlaceNote(place , null , null , null , null , Constants.WIFI_TRIGGERED_NOTE);
                             new ListPopulator(activity).execute();
                         }
-                        Log.i(TAG , "checked: "+item.isChecked());
                         return true;
                     case R.id.view_on_map:
                         new Starter(activity).startViewPlaceActivity(place);
@@ -141,12 +134,10 @@ public class CustomAdapter extends BaseAdapter {
     private void setFlagColor(int state){
         switch (state){
             case Constants.NOTE_STATE_EMPTY:
-                placeNoteItem.setBackgroundResource(R.drawable.background_inactive);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
                 break;
             case Constants.NOTE_STATE_INACTIVE:
-                placeNoteItem.setBackgroundResource(R.drawable.background_inactive);
                 placeText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
                 noteText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));

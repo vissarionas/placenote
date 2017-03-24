@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         app:srcCompat="@drawable/ic_add"
-        android:tint="@color/freshCutDayWhite"
+        android:tint="@android:color/white"
         android:id="@+id/add_place_floating_action_button"
         android:layout_gravity="bottom|right"
         android:layout_margin="15dp"

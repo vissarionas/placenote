@@ -226,7 +226,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 usesWifi = info.isConnected();
             }
-            if(intent.getAction().contentEquals("GET_ADDRESS")){
+            if(intent.getAction().equals("GET_ADDRESS")){
                 placeAddress = intent.getStringExtra("ADDRESS");
                 addPlaceButton.setVisibility(View.VISIBLE);
                 pbLayout.setVisibility(View.INVISIBLE);

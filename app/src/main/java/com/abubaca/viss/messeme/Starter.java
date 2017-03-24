@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 
 /**
@@ -44,5 +45,12 @@ public class Starter {
         Intent intent = new Intent(activity , AboutHelpViewer.class);
         intent.setAction(action);
         activity.startActivity(intent);
+    }
+
+    void startEmailClient(){
+        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto","vissarionas@gmail.com", null));
+        intent.putExtra(Intent.EXTRA_SUBJECT, "messeme");
+        activity.startActivity(Intent.createChooser(intent, "Contact via email..."));
     }
 }

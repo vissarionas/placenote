@@ -47,7 +47,7 @@ public class ListPopulator extends AsyncTask<Void, Void , List<PlaceNote>> {
             CustomAdapter adapter = new CustomAdapter(activity , placeNotes);
             placeLV.setAdapter(adapter);
             placeLV.setVisibility(View.INVISIBLE);
-        }else {
+        }else{
             placeLV.setVisibility(View.VISIBLE);
             noPlacesTV.setVisibility(View.INVISIBLE);
             CustomAdapter adapter = new CustomAdapter(activity, placeNotes);

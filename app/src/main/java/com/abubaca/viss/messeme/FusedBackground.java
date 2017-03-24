@@ -8,10 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
-import android.media.RingtoneManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -61,27 +59,30 @@ public class FusedBackground extends Service implements LocationListener,
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG ,"service started");
         dbHandler = new DBHandler(this);
-        //Register a broadcast reciever to get the wifi status of the device.
-        registerNetworkStateReciever();
+        //Get notes locations and if they count more than one..
+        //register a broadcast reciever to get the wifi status of the device.
+        locations = dbHandler.getNotesLocations();
+        if(locations.size()>0){
+            startStopGoogleApiClient();
+            registerNetworkStateReciever();
+        }else{
+            removeLocationUpdates();
+        }
 
         super.onStartCommand(intent, flags, startId);
         return START_STICKY;
     }
 
     private void startStopGoogleApiClient(){
-        if (locations.size() > 0) {
-            if (googleApiClient != null && googleApiClient.isConnected()) {
-                requestLocationUpdates(interval);
-            } else {
-                googleApiClient = new GoogleApiClient.Builder(this)
-                        .addConnectionCallbacks(this)
-                        .addOnConnectionFailedListener(this)
-                        .addApi(LocationServices.API)
-                        .build();
-                googleApiClient.connect();
-            }
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            requestLocationUpdates(interval);
         } else {
-            removeLocationUpdates();
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            googleApiClient.connect();
         }
     }
 
@@ -104,8 +105,6 @@ public class FusedBackground extends Service implements LocationListener,
             if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 wifiConnected = info.isConnected();
-                locations = dbHandler.getNotesLocations();
-                startStopGoogleApiClient();
             }
         }
     };
@@ -158,7 +157,6 @@ public class FusedBackground extends Service implements LocationListener,
                     smallestDistance = noteLocation.distanceTo(location)<smallestDistance?noteLocation.distanceTo(location):smallestDistance;
                 }
             }
-
         }
         if(wifiConnected){
             interval = 300000;
@@ -179,7 +177,6 @@ public class FusedBackground extends Service implements LocationListener,
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSound(Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.notification));
-//        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         builder.setContentTitle(place);
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);

@@ -2,6 +2,8 @@ package com.abubaca.viss.messeme;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
@@ -14,8 +16,28 @@ public class AboutHelpViewer extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_viewer);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         textViewerHeader = (TextView)findViewById(R.id.textViewerHeader);
         textViewerContent = (TextView)findViewById(R.id.textViewerContent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.about_help_menu , menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.action_email:
+                new Starter(this).startEmailClient();
+                break;
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

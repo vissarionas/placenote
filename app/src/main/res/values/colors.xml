@@ -17,24 +17,24 @@
     <color name="lostFoundDarkGreen">#479044</color>
     <color name="lostFoundVeraman">#26765c</color>
 
-    <color name="handsOnLightGrey">#6D6C68</color>
+    <color name="handsOnLightGrey">#b4b4b2</color>
     <color name="handsOnGrey">#4E4D4A</color>
     <color name="handsOnDarkGrey">#353432</color>
     <color name="handsOnLightGreen">#94BA65</color>
     <color name="handsOnLightBlue">#2790B0</color>
     <color name="handsOnDarkBlue">#2b4e72</color>
 
-    <color name="flagEmpty">#353432</color>
-    <color name="flagInactive">#353432</color>
-    <color name="flagActive">#88C425</color>
-    <color name="flagAlerted">#DE6262</color>
+    <color name="flagEmpty">#6e6d6b</color>
+    <color name="flagInactive">#6e6d6b</color>
+    <color name="flagActive">#79af20</color>
+    <color name="flagAlerted">#c65353</color>
 
     <color name="whiteTinted">#e5e5e5</color>
 
     <color name="freshCutDayBlue">#00A8C6</color>
     <color name="freshCutDayBlueLighter">#0AB0CE</color>
     <color name="freshCutDayLightBlue">#40C0CB</color>
-    <color name="freshCutDayWhite">#F9F2E7</color>
+    <color name="freshCutDayWhite">#f9f2e7</color>
     <color name="freshCutDayLightGreen">#aee239</color>
     <color name="freshCutDayGreen">#8fbe00</color>
     <color name="freshCutDayInactive">#FCFAF5</color>
