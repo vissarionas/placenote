@@ -97,11 +97,11 @@ class DBHandler extends SQLiteOpenHelper{
         dbClose();
     }
 
-    void updatePlaceNote(String place , String newNote , Integer state , Integer notified , String newPlace , Integer uses_wifi){
+    void updatePlaceNote(String place , String note , Integer state , Integer notified , String newPlace , Integer uses_wifi){
         dbInit();
         ContentValues values = new ContentValues();
         if(newPlace!=null) values.put("PLACE" , newPlace);
-        if(newNote != null) values.put("NOTE" , newNote);
+        if(note != null) values.put("NOTE" , note);
         if(state!=null) values.put("STATE" , state);
         if(notified != null) values.put("NOTIFIED" , notified);
         if(uses_wifi!=null) values.put("USES_WIFI" , uses_wifi);

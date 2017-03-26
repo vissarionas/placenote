@@ -3,6 +3,7 @@ package com.abubaca.viss.messeme;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -60,32 +62,34 @@ public class CustomAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
-        placeText = (TextView)convertView.findViewById(R.id.placeText);
-        noteText = (TextView)convertView.findViewById(R.id.noteText);
-        ImageView wifiUsageStatus = (ImageView)convertView.findViewById(R.id.wifi_usage_status);
-        ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
-        LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
-        setFlagColor(placeNotes.get(position).getState());
-        String place = placeNotes.get(position).getPlace();
-        String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
-        placeText.setText(subPlace);
-        if(!dbHandler.placeUsesWifi(place)) wifiUsageStatus.setVisibility(View.INVISIBLE);
-        String note = placeNotes.get(position).getNote();
-        String subNote = note.length()>20 ? note.substring(0,18)+"..":note;
-        noteText.setText(subNote);
-        listItemMenuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showMenu(v , position);
-            }
-        });
-        listItemSurface.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                placeNoteUtils.viewNote(getPlace(position));
-            }
-        });
+        if(placeNotes.size()>0){
+            convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
+            placeText = (TextView)convertView.findViewById(R.id.placeText);
+            noteText = (TextView)convertView.findViewById(R.id.noteText);
+            ImageView wifiUsageStatus = (ImageView)convertView.findViewById(R.id.wifi_usage_status);
+            ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
+            LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
+            setFlagColor(placeNotes.get(position).getState());
+            String place = placeNotes.get(position).getPlace();
+            String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
+            placeText.setText(subPlace);
+            if(!dbHandler.placeUsesWifi(place)) wifiUsageStatus.setVisibility(View.INVISIBLE);
+            String note = placeNotes.get(position).getNote();
+            String subNote = note.length()>20 ? note.substring(0,18)+"..":note;
+            noteText.setText(subNote);
+            listItemMenuButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showMenu(v , position);
+                }
+            });
+            listItemSurface.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    placeNoteUtils.viewNote(getPlace(position));
+                }
+            });
+        }
         return convertView;
     }
 
@@ -105,11 +109,10 @@ public class CustomAdapter extends BaseAdapter {
                     case R.id.wifi_toggle:
                         if(item.isChecked()){
                             dbHandler.updatePlaceNote(place , null , null , null , null , Constants.DATA_TRIGGERED_NOTE);
-                            new ListPopulator(activity).execute();
+                            new ListPopulator(activity).populate();
                         }else{
                             dbHandler.updatePlaceNote(place , null , null , null , null , Constants.WIFI_TRIGGERED_NOTE);
-                            new ListPopulator(activity).execute();
-                        }
+                            new ListPopulator(activity).populate();                        }
                         return true;
                     case R.id.view_on_map:
                         new Starter(activity).startViewPlaceActivity(place);

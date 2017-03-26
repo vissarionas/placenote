@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
             placeNoteUtils.viewNote(place);
             notified = true;
         }
-        new ListPopulator(this).execute();
+        new ListPopulator(this).populate();
         addPlaceFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

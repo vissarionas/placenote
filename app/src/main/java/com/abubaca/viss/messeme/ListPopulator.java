@@ -2,6 +2,7 @@ package com.abubaca.viss.messeme;
 
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -12,13 +13,14 @@ import java.util.List;
  * Created by viss on 3/12/17.
  */
 
-public class ListPopulator extends AsyncTask<Void, Void , List<PlaceNote>> {
+public class ListPopulator {
 
     private final static String TAG = "LIST_POPULATOR";
     private Activity activity;
     private TextView noPlacesTV;
     private ListView placeLV;
     private DBHandler dbHandler;
+    private List<PlaceNote> placeNotes;
 
     public ListPopulator(final Activity activity){
         this.activity = activity;
@@ -33,25 +35,23 @@ public class ListPopulator extends AsyncTask<Void, Void , List<PlaceNote>> {
         });
     }
 
-    @Override
-    protected List<PlaceNote> doInBackground(Void... params) {
-        return dbHandler.getPlaceNotes();
-    }
-
-    @Override
-    protected void onPostExecute(List<PlaceNote> placeNotes) {
-        super.onPostExecute(placeNotes);
-        if(placeNotes.size()==0) {
+    public void populate(){
+        placeNotes=dbHandler.getPlaceNotes();
+        if(placeNotes.size()>0) {
+            placeLV.setVisibility(View.VISIBLE);
+            noPlacesTV.setVisibility(View.INVISIBLE);
+            CustomAdapter adapter = new CustomAdapter(activity, placeNotes);
+            placeLV.setAdapter(adapter);
+        }else{
             noPlacesTV.setVisibility(View.VISIBLE);
             noPlacesTV.setText(R.string.no_places);
             CustomAdapter adapter = new CustomAdapter(activity , placeNotes);
             placeLV.setAdapter(adapter);
             placeLV.setVisibility(View.INVISIBLE);
-        }else{
-            placeLV.setVisibility(View.VISIBLE);
-            noPlacesTV.setVisibility(View.INVISIBLE);
-            CustomAdapter adapter = new CustomAdapter(activity, placeNotes);
-            placeLV.setAdapter(adapter);
         }
     }
+
+
+
+
 }
