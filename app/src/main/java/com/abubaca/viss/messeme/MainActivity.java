@@ -1,6 +1,8 @@
 package com.abubaca.viss.messeme;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -97,6 +99,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.getItem(0);
+        item.setChecked(batterySaverOn());
+        if(item.isChecked()){
+            item.setIcon(R.drawable.battery_saver_on);
+        }else{
+            item.setIcon(R.drawable.battery_saver_off);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -113,12 +127,31 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()){
             case R.id.action_battery_save:
-                Log.i(TAG , "battery saver");
+                if(!item.isChecked()){
+                    item.setChecked(true);
+                    item.setIcon(R.drawable.battery_saver_on);
+                    savePreferences(item.isChecked());
+                }else{
+                    item.setChecked(false);
+                    item.setIcon(R.drawable.battery_saver_off);
+                    savePreferences(item.isChecked());
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void savePreferences(Boolean batterySaver){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("battery_saver" , batterySaver);
+        editor.apply();
+    }
+
+    private Boolean batterySaverOn(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        return preferences.getBoolean("battery_saver" , true);
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {

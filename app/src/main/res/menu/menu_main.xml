@@ -5,7 +5,7 @@
     <item
         android:id="@+id/action_battery_save"
         android:orderInCategory="100"
-        android:icon="@drawable/battery_saver"
+        android:icon="@drawable/battery_saver_off"
         android:title="@string/action_battery_save"
         app:showAsAction="always"/>
 
