@@ -69,7 +69,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected static final String TAG = "MAP_ACTIVITY";
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
     private LinearLayout pbLayout;
-    private Boolean usesWifi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +86,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                askForWifiUsage();
+                addPlaceCustomDialog(placeAddress);
             }
         });
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
@@ -222,10 +221,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                usesWifi = info.isConnected();
-            }
             if(intent.getAction().equals("GET_ADDRESS")){
                 placeAddress = intent.getStringExtra("ADDRESS");
                 addPlaceButton.setVisibility(View.VISIBLE);
@@ -284,36 +279,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
-    private void askForWifiUsage(){
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.wifi_usage_title);
-        builder.setMessage(R.string.wifi_usage_explained);
-        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                usesWifi = true;
-                addPlaceCustomDialog(placeAddress);
-            }
-        });
-        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                usesWifi = false;
-                addPlaceCustomDialog(placeAddress);
-            }
-        });
-        builder.setCancelable(true);
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-
-            }
-        });
-
-        Dialog dialog = builder.create();
-        dialog.show();
-    }
-
     private void addPlaceCustomDialog(String nameSuggestion){
         LayoutInflater inflater = this.getLayoutInflater();
         View addPlaceView = inflater.inflate(R.layout.add_place , null);
@@ -322,8 +287,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         final EditText addPlaceET = (EditText)addPlaceView.findViewById(R.id.placeNameET);
-        final CheckBox usesWifiCB = (CheckBox)addPlaceView.findViewById(R.id.usesWifiCB);
-        if(usesWifi) usesWifiCB.setChecked(true);
 
         addPlaceET.setText(nameSuggestion);
         addPlaceET.setSelection(addPlaceET.getText().length());
@@ -334,9 +297,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         dialogBuilder.setPositiveButton("OK" , new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                int usesWifi = usesWifiCB.isChecked()?1:0;
                 if(!addPlaceET.getText().toString().isEmpty()){
-                    dbHandler.insertToDb(addPlaceET.getText().toString(), String.valueOf(lat), String.valueOf(lng), "" , proximity , usesWifi);
+                    dbHandler.insertToDb(addPlaceET.getText().toString(), String.valueOf(lat), String.valueOf(lng), "" , proximity);
                     MapActivity.this.finish();
                 }
             }

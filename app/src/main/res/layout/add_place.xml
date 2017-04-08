@@ -12,12 +12,5 @@
         android:inputType="text"
         android:maxLength="25"/>
 
-    <CheckBox
-        android:id="@+id/usesWifiCB"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Use WIFI to trigger notifications" />
-
-
 
 </LinearLayout>

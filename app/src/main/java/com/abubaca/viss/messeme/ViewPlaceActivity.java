@@ -77,6 +77,6 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
 
         //place marker where user just clicked
         marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
     }
 }

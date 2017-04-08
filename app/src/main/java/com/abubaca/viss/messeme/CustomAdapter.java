@@ -66,14 +66,12 @@ public class CustomAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
             placeText = (TextView)convertView.findViewById(R.id.placeText);
             noteText = (TextView)convertView.findViewById(R.id.noteText);
-            ImageView wifiUsageStatus = (ImageView)convertView.findViewById(R.id.wifi_usage_status);
             ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
             LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
             setFlagColor(placeNotes.get(position).getState());
             String place = placeNotes.get(position).getPlace();
             String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
             placeText.setText(subPlace);
-            if(!dbHandler.placeUsesWifi(place)) wifiUsageStatus.setVisibility(View.INVISIBLE);
             String note = placeNotes.get(position).getNote();
             String subNote = note.length()>20 ? note.substring(0,18)+"..":note;
             noteText.setText(subNote);
@@ -97,7 +95,6 @@ public class CustomAdapter extends BaseAdapter {
         PopupMenu popupMenu = new PopupMenu(context , view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.edit_place_menu , popupMenu.getMenu());
-        popupMenu.getMenu().getItem(1).setChecked(dbHandler.placeUsesWifi(getPlace(position)));
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -105,14 +102,6 @@ public class CustomAdapter extends BaseAdapter {
                 switch (item.getItemId()){
                     case R.id.edit_name:
                         placeNoteUtils.editPlace(place);
-                        return true;
-                    case R.id.wifi_toggle:
-                        if(item.isChecked()){
-                            dbHandler.updatePlaceNote(place , null , null , null , null , Constants.DATA_TRIGGERED_NOTE);
-                            new ListPopulator(activity).populate();
-                        }else{
-                            dbHandler.updatePlaceNote(place , null , null , null , null , Constants.WIFI_TRIGGERED_NOTE);
-                            new ListPopulator(activity).populate();                        }
                         return true;
                     case R.id.view_on_map:
                         new Starter(activity).startViewPlaceActivity(place);

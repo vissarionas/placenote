@@ -37,7 +37,7 @@ public class PlaceNoteUtils {
             editNote(place);
             return;
         }
-        if(dbHandler.isNotified(place))dbHandler.updatePlaceNote(place , null , Constants.NOTE_STATE_INACTIVE, null , null , null);
+        if(dbHandler.isNotified(place))dbHandler.updatePlaceNote(place , null , Constants.NOTE_STATE_INACTIVE, null , null);
         LayoutInflater inflater = activity.getLayoutInflater();
         View editView = inflater.inflate(R.layout.edit_note , null);
         editView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -106,10 +106,10 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int which) {
                         String note = noteEditText.getText().toString();
                         if(!note.contentEquals("")){
-                            dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_ACTIVE, 0 , null , null);
+                            dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_ACTIVE, 0 , null);
                             new Starter(activity).startStopFusedLocationService();
                         }else{
-                            dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_EMPTY, 0 , null , null);
+                            dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_EMPTY, 0 , null);
                         }
                         new ListPopulator(activity).populate();
                     }
@@ -126,7 +126,7 @@ public class PlaceNoteUtils {
                 .setCancelable(false)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.updatePlaceNote(placeName , "" , Constants.NOTE_STATE_EMPTY, 0 , null , null);
+                        dbHandler.updatePlaceNote(placeName , "" , Constants.NOTE_STATE_EMPTY, 0 , null);
                         new ListPopulator(activity).populate();
                         new Starter(activity).startStopFusedLocationService();
                     }
@@ -159,7 +159,7 @@ public class PlaceNoteUtils {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dbHandler.updatePlaceNote(place , null , null , null ,nameEditText.getText().toString() , null);
+                        dbHandler.updatePlaceNote(place , null , null , null ,nameEditText.getText().toString());
                         new ListPopulator(activity).populate();                    }
                 });
         Dialog dialog = dialogBuilder.create();

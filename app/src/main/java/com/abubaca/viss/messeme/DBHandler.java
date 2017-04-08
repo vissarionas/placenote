@@ -28,7 +28,7 @@ class DBHandler extends SQLiteOpenHelper{
     private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
             "LAT TEXT , LNG TEXT , NOTE TEXT ," +
             " STATE INTEGER DEFAULT 0 , NOTIFIED INTEGER DEFAULT 0 ," +
-            " PROXIMITY INTEGER , USES_WIFI INTEGER DEFAULT 0)";
+            " PROXIMITY INTEGER)";
     private final static String selectAllFromTable = "SELECT * FROM PLACENOTES ORDER BY STATE DESC , PLACE ASC";
     private final static String TAG = "DBHANDLER";
 
@@ -84,7 +84,7 @@ class DBHandler extends SQLiteOpenHelper{
         dbClose();
     }
 
-    void insertToDb(String place, String lat, String lng , String note , int proximity , int usesWifi){
+    void insertToDb(String place, String lat, String lng , String note , int proximity){
         dbInit();
         ContentValues values = new ContentValues();
         values.put("PLACE",place);
@@ -92,19 +92,17 @@ class DBHandler extends SQLiteOpenHelper{
         values.put("LNG",lng);
         values.put("NOTE",note);
         values.put("PROXIMITY",proximity);
-        values.put("USES_WIFI",usesWifi);
         db.insert("PLACENOTES" , null , values);
         dbClose();
     }
 
-    void updatePlaceNote(String place , String note , Integer state , Integer notified , String newPlace , Integer uses_wifi){
+    void updatePlaceNote(String place , String note , Integer state , Integer notified , String newPlace){
         dbInit();
         ContentValues values = new ContentValues();
         if(newPlace!=null) values.put("PLACE" , newPlace);
         if(note != null) values.put("NOTE" , note);
         if(state!=null) values.put("STATE" , state);
         if(notified != null) values.put("NOTIFIED" , notified);
-        if(uses_wifi!=null) values.put("USES_WIFI" , uses_wifi);
         db.update("PLACENOTES" , values , "PLACE=?", new String[]{place});
         dbClose();
     }
@@ -142,19 +140,6 @@ class DBHandler extends SQLiteOpenHelper{
         }
         dbClose();
         return placeLocations;
-    }
-
-    Boolean placeUsesWifi(String place){
-        dbInit();
-        if(cursor.getCount()>0){
-            do {
-                if (cursor.getString(0).contentEquals(place)){
-                    break;
-                }
-            }while(cursor.moveToNext());
-        }
-        dbClose();
-        return cursor.getInt(7) == Constants.WIFI_TRIGGERED_NOTE;
     }
 
     String getPlaceNote(String place){
