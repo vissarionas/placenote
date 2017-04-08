@@ -14,8 +14,8 @@
         <LinearLayout android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical"
-            android:layout_weight="0.2"
-            android:layout_margin="5dp">
+            android:layout_weight="0.3"
+            android:layout_margin="2dp">
 
             <fragment
                 android:id="@+id/map"
@@ -28,22 +28,23 @@
         <LinearLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_weight="1.8"
+            android:layout_weight="1.7"
             android:orientation="vertical">
             <Button
+                android:textSize="17dp"
                 android:paddingRight="10dp"
                 android:paddingLeft="10dp"
                 android:visibility="invisible"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:drawableTint="@color/handsOnDarkGrey"
-                android:drawableEnd="@drawable/ic_add"
-                android:drawableRight="@drawable/ic_add"
+                android:drawableTint="@color/freshCutDayLightGreen"
+                android:drawableEnd="@drawable/add"
+                android:drawableRight="@drawable/add"
                 android:drawablePadding="5dp"
-                android:textColor="@color/handsOnDarkBlue"
-                android:background="@android:color/white"
+                android:textColor="@android:color/white"
+                android:background="@color/freshCutDayLightGreen"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:id="@+id/add_place_button"
                 android:textAllCaps="false"/>
         </LinearLayout>
