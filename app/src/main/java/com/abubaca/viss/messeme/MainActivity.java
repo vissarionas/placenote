@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity
     private Boolean notified = false;
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
+    private Boolean batterySaver = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +85,9 @@ public class MainActivity extends AppCompatActivity
                 new Starter(MainActivity.this).startMapActivity();
             }
         });
-        new Starter(this).startStopFusedLocationService();
+        batterySaver = new Preferences().getBatterySaverState(this);
+        Log.i(TAG , "Battery saver: "+batterySaver);
+        new Starter(this).startStopFusedLocationService(batterySaver);
         super.onResume();
     }
 
@@ -101,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.getItem(0);
-        item.setChecked(batterySaverOn());
+        item.setChecked(batterySaver);
         if(item.isChecked()){
             item.setIcon(R.drawable.battery_saver_on);
         }else{
@@ -140,6 +143,8 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
         }
+        batterySaver = new Preferences().getBatterySaverState(this);
+        new Starter(this).startStopFusedLocationService(batterySaver);
         return super.onOptionsItemSelected(item);
     }
 
@@ -148,11 +153,6 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("battery_saver" , batterySaver);
         editor.apply();
-    }
-
-    private Boolean batterySaverOn(){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        return preferences.getBoolean("battery_saver" , true);
     }
 
     @Override

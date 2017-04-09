@@ -3,7 +3,6 @@ package com.abubaca.viss.messeme;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,11 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -34,7 +31,6 @@ public class CustomAdapter extends BaseAdapter {
     private Context context;
     private Activity activity;
     private PlaceNoteUtils placeNoteUtils;
-    private DBHandler dbHandler;
 
     CustomAdapter(Activity activity , List<PlaceNote> placeNotes){
         this.placeNotes = placeNotes;
@@ -42,7 +38,6 @@ public class CustomAdapter extends BaseAdapter {
         this.activity = activity;
         placeNoteUtils = new PlaceNoteUtils(activity);
         layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        dbHandler = new DBHandler(context);
     }
 
     @Override

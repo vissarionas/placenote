@@ -62,7 +62,7 @@
             android:screenOrientation="portrait"/>
 
         <service
-            android:name=".FusedBackground"
+            android:name=".FusedLocationService"
             android:exported="false" />
 
         <!-- <service android:name=".LocationBackground" -->

@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,9 +24,11 @@ public class PlaceNoteUtils {
     private final static String TAG = "PLACENOTE_UTILS";
     private Activity activity;
     private DBHandler dbHandler;
+    private Boolean batterySaver;
 
-    public PlaceNoteUtils(Activity activity){
+    PlaceNoteUtils(Activity activity){
         this.activity = activity;
+        batterySaver = new Preferences().getBatterySaverState(activity);
         dbHandler = new DBHandler(activity);
     }
 
@@ -107,7 +108,7 @@ public class PlaceNoteUtils {
                         String note = noteEditText.getText().toString();
                         if(!note.contentEquals("")){
                             dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_ACTIVE, 0 , null);
-                            new Starter(activity).startStopFusedLocationService();
+                            new Starter(activity).startStopFusedLocationService(batterySaver);
                         }else{
                             dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_EMPTY, 0 , null);
                         }
@@ -116,7 +117,7 @@ public class PlaceNoteUtils {
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.setTitle("Note");
+        dialog.setTitle(R.string.note);
         dialog.show();
     }
 
@@ -128,7 +129,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.updatePlaceNote(placeName , "" , Constants.NOTE_STATE_EMPTY, 0 , null);
                         new ListPopulator(activity).populate();
-                        new Starter(activity).startStopFusedLocationService();
+                        new Starter(activity).startStopFusedLocationService(batterySaver);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -177,7 +178,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.deletePlace(placeName);
                         new ListPopulator(activity).populate();
-                        new Starter(activity).startStopFusedLocationService();
+                        new Starter(activity).startStopFusedLocationService(batterySaver);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -199,7 +200,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearNotes();
                         new ListPopulator(activity).populate();
-                        new Starter(activity).startStopFusedLocationService();
+                        new Starter(activity).startStopFusedLocationService(batterySaver);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -220,7 +221,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearDb();
                         new ListPopulator(activity).populate();
-                        new Starter(activity).startStopFusedLocationService();
+                        new Starter(activity).startStopFusedLocationService(batterySaver);
                     }
                 })
                 .setNegativeButton(R.string.cancel , new DialogInterface.OnClickListener() {

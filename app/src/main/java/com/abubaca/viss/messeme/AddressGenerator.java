@@ -55,7 +55,7 @@ public class AddressGenerator extends Service {
                 return sb.toString();
             }
         }
-     return null;
+     return "this place";
     }
 
     private void sendBroadcast(String address){

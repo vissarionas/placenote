@@ -14,19 +14,21 @@ import android.support.v4.app.ActivityCompat;
 public class Starter {
 
     private static final String TAG = "STARTER";
+
     private static final int FINE_LOCATION_REQUEST = 0x1;
     private Activity activity;
 
-    public Starter(Activity activity){
+    Starter(Activity activity){
         this.activity = activity;
     }
 
-    void startStopFusedLocationService(){
+    void startStopFusedLocationService(Boolean batterySaver){
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
             return;
         }
-        Intent i = new Intent(activity , FusedBackground.class);
+        Intent i = new Intent(activity , FusedLocationService.class);
+        i.putExtra("BATTERY_SAVER" , batterySaver);
         activity.startService(i);
     }
 
@@ -49,8 +51,8 @@ public class Starter {
 
     void startEmailClient(){
         Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto","vissarionas@gmail.com", null));
-        intent.putExtra(Intent.EXTRA_SUBJECT, "messeme");
-        activity.startActivity(Intent.createChooser(intent, "Contact via email..."));
+                "mailto", activity.getResources().getString(R.string.email), null));
+        intent.putExtra(Intent.EXTRA_SUBJECT, R.string.app_name);
+        activity.startActivity(Intent.createChooser(intent, "Contact via email"));
     }
 }

@@ -9,13 +9,13 @@ public class LocationIntervalGenerator {
     long getInterval(float distance){
         long interval;
         if(distance<200){
-            interval = 8000;
+            interval = 6000;
         }else if(distance<500) {
-            interval = 20000;
+            interval = 14000;
         }else if(distance<1000){
-            interval = 60000;
+            interval = 50000;
         }else if(distance<5000){
-            interval = 120000;
+            interval = 100000;
         }else if(distance<10000){
             interval = 400000;
         }else{

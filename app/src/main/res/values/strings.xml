@@ -27,7 +27,6 @@
     <string name="invalid_lat_long_used">Invalid latitude or longitude used</string>
 
     <string name="main_title">Place list</string>
-    <string name="main_subtite">places you can send a note</string>
     <string name="add_new_place">Add a new place</string>
     <string name="confirm_delete_places">Are you sure you want to delete all places?\nThis cannot be undone.</string>
     <string name="no_places">Your placelist is empty.\n\nClick here or the plus button, and add your first place.</string>
@@ -36,6 +35,7 @@
     <string name="confirm_delete_place">Are you sure you want to remove %1$s ?</string>
     <string name="type_a_note_here">type a note here</string>
     <string name="place_name">Place name</string>
+    <string name="note">Note</string>
 
     <string name="maps_title">Navigate</string>
     <string name="maps_subtitle">..add a new place</string>
@@ -53,5 +53,7 @@
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="email">vissarionas@gmail.com</string>
 
 </resources>
