@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_remove_places"
-            android:title="Remove all places" />
-        <item
-            android:id="@+id/nav_clear_notes"
-            android:title="Clear all notes" />
+    <item android:title="Danger zone">
+        <menu>
+            <item
+                android:id="@+id/nav_remove_places"
+                android:title="@string/action_remove_places"
+                android:icon="@drawable/warning"/>
+            <item
+                android:id="@+id/nav_clear_notes"
+                android:title="@string/action_remove_notes"
+                android:icon="@drawable/warning"/>
+        </menu>
+    </item>
 
-    </group>
 
-    <item android:title="Info">
+
+    <item android:title="@string/info">
         <menu>
             <item
                 android:id="@+id/nav_about"
-                android:title="About" />
+                android:title="@string/about"
+                android:icon="@drawable/about"/>
             <item
                 android:id="@+id/nav_help"
-                android:title="Help" />
+                android:title="@string/help"
+                android:icon="@drawable/help"/>
         </menu>
     </item>
 

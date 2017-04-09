@@ -12,7 +12,7 @@ class Preferences {
 
     Boolean getBatterySaverState(Activity activity){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-        return preferences.getBoolean("battery_saver" , true);
+        return preferences.getBoolean("battery_saver" , false);
     }
 
 }

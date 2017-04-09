@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Messeme</string>
     <string name="action_battery_save">Battery saver</string>
-    <string name="action_drop_db">Remove places</string>
-    <string name="action_drop_notes">Remove notes</string>
+    <string name="action_remove_places">Remove places</string>
+    <string name="action_remove_notes">Remove notes</string>
     <string name="action_about">About</string>
     <string name="action_help">Usage / Help</string>
     <string name="action_email">Contact</string>
@@ -12,9 +12,12 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
 
+    <string name="info">Info</string>
+    <string name="about">About</string>
+    <string name="help">Help</string>
     <string name="about_help">About &amp; Help</string>
     <string name="about_text_header">About</string>
-    <string name="help_text_header">Usage &amp; Help</string>
+    <string name="help_text_header">Help</string>
     <string name="about_text_content">This section contains things about me and my application</string>
     <string name="help_text_content">Instructions for using this application go in this section</string>
 
@@ -42,11 +45,7 @@
     <string name="map_search">Search</string>
     <string name="add_place">Add %1$s to your placelist</string>
     <string name="name_your_place">Name your place</string>
-    <string name="wifi_usage_title">Use wifi to trigger notifications?</string>
-    <string name="wifi_usage_explained">Tip for preventing battery drain.
-        \nIf you have access to a wifi network at this exact place, use this to trigger notifications
-        while connected to this wifi network.
-    </string>
+
     <string name="address_generator_error_message">Address unavailable.
         \nSlow Internet connection might be the issue.
     </string>
@@ -55,5 +54,8 @@
     <string name="drawer_close">Close navigation drawer</string>
 
     <string name="email">vissarionas@gmail.com</string>
+
+    <string name="battery_saver_on">battery saver enabled</string>
+    <string name="battery_saver_off">battery saver disabled</string>
 
 </resources>

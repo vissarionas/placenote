@@ -134,12 +134,12 @@ public class MainActivity extends AppCompatActivity
                     item.setChecked(true);
                     item.setIcon(R.drawable.battery_saver_on);
                     savePreferences(item.isChecked());
-                    new CustomToast(this).makeSuccessToast("battery saver enabled");
+                    new CustomToast(this).makeSuccessToast(getResources().getString(R.string.battery_saver_on));
                 }else{
                     item.setChecked(false);
                     item.setIcon(R.drawable.battery_saver_off);
                     savePreferences(item.isChecked());
-                    new CustomToast(this).makeWarningToast("battery saver disabled");
+                    new CustomToast(this).makeWarningToast(getResources().getString(R.string.battery_saver_off));
                 }
                 break;
         }
