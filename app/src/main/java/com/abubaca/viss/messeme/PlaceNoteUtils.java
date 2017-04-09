@@ -28,7 +28,7 @@ public class PlaceNoteUtils {
 
     PlaceNoteUtils(Activity activity){
         this.activity = activity;
-        batterySaver = new Preferences().getBatterySaverState(activity);
+        batterySaver = new Preferences().getBatterySaverState(activity.getApplicationContext());
         dbHandler = new DBHandler(activity);
     }
 

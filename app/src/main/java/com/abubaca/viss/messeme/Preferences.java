@@ -1,6 +1,6 @@
 package com.abubaca.viss.messeme;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -10,8 +10,8 @@ import android.preference.PreferenceManager;
 
 class Preferences {
 
-    Boolean getBatterySaverState(Activity activity){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+    Boolean getBatterySaverState(Context context){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean("battery_saver" , false);
     }
 

@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
                 new Starter(MainActivity.this).startMapActivity();
             }
         });
-        batterySaver = new Preferences().getBatterySaverState(this);
+        batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         Log.i(TAG , "Battery saver: "+batterySaver);
         new Starter(this).startStopFusedLocationService(batterySaver);
         super.onResume();
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
         }
-        batterySaver = new Preferences().getBatterySaverState(this);
+        batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         new Starter(this).startStopFusedLocationService(batterySaver);
         return super.onOptionsItemSelected(item);
     }

@@ -28,7 +28,6 @@ public class Starter {
             return;
         }
         Intent i = new Intent(activity , FusedLocationService.class);
-        i.putExtra("BATTERY_SAVER" , batterySaver);
         activity.startService(i);
     }
 

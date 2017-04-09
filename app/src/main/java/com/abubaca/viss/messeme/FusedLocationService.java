@@ -59,7 +59,7 @@ public class FusedLocationService extends Service implements LocationListener,
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG ,"service started");
-        batterySaver = intent.getBooleanExtra("BATTERY_SAVER" , true);
+        batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         dbHandler = new DBHandler(this);
         //Get notes locations and if they count more than one..
         //register a broadcast reciever to get the wifi status of the device.
