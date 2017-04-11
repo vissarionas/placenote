@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
@@ -28,6 +30,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -47,6 +50,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
@@ -287,9 +293,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         final EditText addPlaceET = (EditText)addPlaceView.findViewById(R.id.placeNameET);
+        final Spinner iconSpinner = (Spinner)addPlaceView.findViewById(R.id.icon_spinner);
 
         addPlaceET.setText(nameSuggestion);
         addPlaceET.setSelection(addPlaceET.getText().length());
+
+        List<Drawable> drawables = new ArrayList<>();
+        drawables.add(MapActivity.this.getDrawable(R.drawable.place_home));
+        drawables.add(MapActivity.this.getDrawable(R.drawable.place_work));
+        SpinnerAdapter adapter = new SpinnerAdapter(drawables , getApplicationContext());
+        iconSpinner.setAdapter(adapter);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setMessage(R.string.name_your_place);
