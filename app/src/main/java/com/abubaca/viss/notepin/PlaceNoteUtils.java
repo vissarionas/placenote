@@ -61,7 +61,7 @@ public class PlaceNoteUtils {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                new ListPopulator(activity).populate();
+                new PlaceListPopulator(activity).populate();
             }
         });
         dialog.show();
@@ -110,7 +110,7 @@ public class PlaceNoteUtils {
                         }else{
                             dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_EMPTY, 0 , null);
                         }
-                        new ListPopulator(activity).populate();
+                        new PlaceListPopulator(activity).populate();
                     }
                 });
         Dialog dialog = dialogBuilder.create();
@@ -126,7 +126,7 @@ public class PlaceNoteUtils {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.updatePlaceNote(placeName , "" , Constants.NOTE_STATE_EMPTY, 0 , null);
-                        new ListPopulator(activity).populate();
+                        new PlaceListPopulator(activity).populate();
                         new Starter(activity).startStopFusedLocationService();
                     }
                 })
@@ -159,7 +159,7 @@ public class PlaceNoteUtils {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dbHandler.updatePlaceNote(place , null , null , null ,nameEditText.getText().toString());
-                        new ListPopulator(activity).populate();                    }
+                        new PlaceListPopulator(activity).populate();                    }
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -175,7 +175,7 @@ public class PlaceNoteUtils {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.deletePlace(placeName);
-                        new ListPopulator(activity).populate();
+                        new PlaceListPopulator(activity).populate();
                         new Starter(activity).startStopFusedLocationService();
                     }
                 })
@@ -197,7 +197,7 @@ public class PlaceNoteUtils {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearNotes();
-                        new ListPopulator(activity).populate();
+                        new PlaceListPopulator(activity).populate();
                         new Starter(activity).startStopFusedLocationService();
                     }
                 })
@@ -218,7 +218,7 @@ public class PlaceNoteUtils {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearDb();
-                        new ListPopulator(activity).populate();
+                        new PlaceListPopulator(activity).populate();
                         new Starter(activity).startStopFusedLocationService();
                     }
                 })

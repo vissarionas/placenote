@@ -14,5 +14,4 @@ class Preferences {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean("battery_saver" , false);
     }
-
 }

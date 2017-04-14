@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.drawer_icon);
+        getSupportActionBar().setLogo(R.drawable.battery_saver_off);
+
         placeNoteUtils = new PlaceNoteUtils(this);
         addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_floating_action_button);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                getSupportActionBar().setTitle(R.string.main_title);
+                getSupportActionBar().setTitle(R.string.app_name);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity
             placeNoteUtils.viewNote(place);
             notified = true;
         }
-        new ListPopulator(this).populate();
+        new PlaceListPopulator(this).populate();
         addPlaceFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

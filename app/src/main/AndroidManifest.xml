@@ -62,7 +62,7 @@
             android:screenOrientation="portrait"/>
 
         <service
-            android:name="com.abubaca.viss.notepin.FusedLocationService"
+            android:name="com.abubaca.viss.notepin.LocationService"
             android:exported="false" />
 
         <!-- <service android:name=".LocationBackground" -->

@@ -27,7 +27,7 @@ public class Starter {
             ActivityCompat.requestPermissions(activity , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
             return;
         }
-        Intent i = new Intent(activity , FusedLocationService.class);
+        Intent i = new Intent(activity , LocationService.class);
         activity.startService(i);
     }
 
