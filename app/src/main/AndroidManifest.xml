@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.abubaca.viss.messeme">
+    package="com.abubaca.viss.notepin">
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -25,7 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/CustomTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.abubaca.viss.notepin.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,34 +46,34 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapActivity"
+            android:name="com.abubaca.viss.notepin.MapActivity"
             android:label="@string/maps_title"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName="com.abubaca.viss.notepin.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ViewPlaceActivity"
-            android:parentActivityName=".MainActivity"
+            android:name="com.abubaca.viss.notepin.ViewPlaceActivity"
+            android:parentActivityName="com.abubaca.viss.notepin.MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".AboutHelpViewer"
+            android:name="com.abubaca.viss.notepin.AboutHelpViewer"
             android:label="@string/about_help"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName="com.abubaca.viss.notepin.MainActivity"
             android:screenOrientation="portrait"/>
 
         <service
-            android:name=".FusedLocationService"
+            android:name="com.abubaca.viss.notepin.FusedLocationService"
             android:exported="false" />
 
         <!-- <service android:name=".LocationBackground" -->
         <!-- android:exported="false"/> -->
 
         <service
-            android:name=".AddressGenerator"
+            android:name="com.abubaca.viss.notepin.AddressGenerator"
             android:exported="false" />
 
         <receiver
-            android:name=".SystemReciever"
+            android:name="com.abubaca.viss.notepin.SystemReciever"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
