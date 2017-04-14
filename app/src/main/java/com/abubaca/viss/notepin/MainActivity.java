@@ -32,8 +32,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.drawer_icon);
-        getSupportActionBar().setLogo(R.drawable.battery_saver_off);
-
         placeNoteUtils = new PlaceNoteUtils(this);
         addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_floating_action_button);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);

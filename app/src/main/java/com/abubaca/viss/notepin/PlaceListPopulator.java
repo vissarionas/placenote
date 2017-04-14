@@ -28,19 +28,22 @@ public class PlaceListPopulator {
         noPlacesTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                noPlacesTV.setClickable(false);
+                noPlacesTV.setTextColor(R.color.handsOnGrey);
                 new Starter(activity).startMapActivity();
             }
         });
     }
 
     public void populate(){
-        placeNotes=dbHandler.getPlaceNotes();
+        placeNotes = dbHandler.getPlaceNotes();
         if(placeNotes.size()>0) {
             placeLV.setVisibility(View.VISIBLE);
             noPlacesTV.setVisibility(View.INVISIBLE);
             PlaceListAdapter adapter = new PlaceListAdapter(activity, placeNotes);
             placeLV.setAdapter(adapter);
         }else{
+            noPlacesTV.setClickable(true);
             noPlacesTV.setVisibility(View.VISIBLE);
             noPlacesTV.setText(R.string.no_places);
             PlaceListAdapter adapter = new PlaceListAdapter(activity , placeNotes);

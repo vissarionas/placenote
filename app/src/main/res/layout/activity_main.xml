@@ -14,10 +14,12 @@
         android:background="@color/freshCutDayWhite">
 
         <TextView
+            android:elevation="5dp"
             android:layout_margin="15dp"
             android:id="@+id/no_places_tv"
             android:textSize="20sp"
             android:gravity="center"
+            android:clickable="true"
             android:textColor="@color/handsOnDarkGrey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

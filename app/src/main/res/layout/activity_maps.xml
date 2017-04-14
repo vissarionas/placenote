@@ -30,6 +30,7 @@
             android:layout_width="match_parent"
             android:layout_weight="1.7"
             android:orientation="vertical">
+
             <Button
                 android:textSize="17dp"
                 android:paddingRight="10dp"
@@ -37,6 +38,7 @@
                 android:visibility="invisible"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:elevation="5dp"
                 android:drawableTint="@color/freshCutDayLightGreen"
                 android:drawableEnd="@drawable/add"
                 android:drawableRight="@drawable/add"

@@ -11,7 +11,7 @@
 
     <color name="flagNoteEmpty">#2E2633</color>
     <color name="flagNoteInactive">#2E2633</color>
-    <color name="flagNoteActive">#00C176</color>
+    <color name="flagNoteActive">#69be00</color>
     <color name="flagNoteAlerted">#CC0C39</color>
 
     <color name="freshCutDayBlue">#00A8C6</color>
