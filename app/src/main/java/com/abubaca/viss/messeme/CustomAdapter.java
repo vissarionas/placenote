@@ -121,23 +121,23 @@ public class CustomAdapter extends BaseAdapter {
     private void setFlagColor(int state){
         switch (state){
             case Constants.NOTE_STATE_EMPTY:
-                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
-                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagEmpty));
+                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteEmpty));
+                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteEmpty));
                 break;
             case Constants.NOTE_STATE_INACTIVE:
-                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
+                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteInactive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
-                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagInactive));
+                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteInactive));
                 break;
             case Constants.NOTE_STATE_ACTIVE:
-                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
+                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteActive));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
-                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagActive));
+                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteActive));
                 break;
             case Constants.NOTE_STATE_ALERTED:
-                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));
+                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteAlerted));
 //                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
-                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagAlerted));
+                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteAlerted));
                 break;
         }
     }

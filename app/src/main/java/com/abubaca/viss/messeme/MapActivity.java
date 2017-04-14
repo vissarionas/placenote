@@ -293,21 +293,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         final EditText addPlaceET = (EditText)addPlaceView.findViewById(R.id.placeNameET);
-        final Spinner iconSpinner = (Spinner)addPlaceView.findViewById(R.id.icon_spinner);
 
         addPlaceET.setText(nameSuggestion);
         addPlaceET.setSelection(addPlaceET.getText().length());
 
-        List<Drawable> drawables = new ArrayList<>();
-        drawables.add(MapActivity.this.getDrawable(R.drawable.place_home));
-        drawables.add(MapActivity.this.getDrawable(R.drawable.place_work));
-        SpinnerAdapter adapter = new SpinnerAdapter(drawables , getApplicationContext());
-        iconSpinner.setAdapter(adapter);
-
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setMessage(R.string.name_your_place);
         dialogBuilder.setView(addPlaceView);
-        dialogBuilder.setPositiveButton("OK" , new DialogInterface.OnClickListener() {
+        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(!addPlaceET.getText().toString().isEmpty()){

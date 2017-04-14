@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.NetworkInfo;
@@ -61,8 +62,6 @@ public class FusedLocationService extends Service implements LocationListener,
         Log.i(TAG ,"service started");
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         dbHandler = new DBHandler(this);
-        //Get notes locations and if they count more than one..
-        //register a broadcast reciever to get the wifi status of the device.
         locations = dbHandler.getNotesLocations();
         if(locations.size()>0){
             startStopGoogleApiClient();
@@ -181,7 +180,8 @@ public class FusedLocationService extends Service implements LocationListener,
         builder.setContentTitle(place);
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);
-        builder.setSmallIcon(R.drawable.notification_smile);
+        builder.setSmallIcon(R.drawable.notification);
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources() , R.mipmap.ic_launcher));
         builder.setLights(Color.GREEN, 2000, 3000);
         builder.setVibrate(new long[]{300, 600, 300, 800});
         builder.setContentIntent(pendingIntent);
@@ -190,6 +190,8 @@ public class FusedLocationService extends Service implements LocationListener,
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
     }
+
+
 //    @Override
 //    public void onTaskRemoved(Intent rootIntent) {
 //        Log.e(TAG , "onTaskRemoved()");

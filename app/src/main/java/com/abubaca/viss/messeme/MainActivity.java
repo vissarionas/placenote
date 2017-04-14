@@ -10,7 +10,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -86,8 +85,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
-        Log.i(TAG , "Battery saver: "+batterySaver);
-        new Starter(this).startStopFusedLocationService(batterySaver);
+        new Starter(this).startStopFusedLocationService();
         super.onResume();
     }
 
@@ -134,17 +132,17 @@ public class MainActivity extends AppCompatActivity
                     item.setChecked(true);
                     item.setIcon(R.drawable.battery_saver_on);
                     savePreferences(item.isChecked());
-                    new CustomToast(this).makeSuccessToast(getResources().getString(R.string.battery_saver_on));
+                    new CustomToast().makeSuccessToast(this , getResources().getString(R.string.battery_saver_on));
                 }else{
                     item.setChecked(false);
                     item.setIcon(R.drawable.battery_saver_off);
                     savePreferences(item.isChecked());
-                    new CustomToast(this).makeWarningToast(getResources().getString(R.string.battery_saver_off));
+                    new CustomToast().makeWarningToast(this, getResources().getString(R.string.battery_saver_off));
                 }
                 break;
         }
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
-        new Starter(this).startStopFusedLocationService(batterySaver);
+        new Starter(this).startStopFusedLocationService();
         return super.onOptionsItemSelected(item);
     }
 
