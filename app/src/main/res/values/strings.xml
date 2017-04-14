@@ -13,21 +13,13 @@
     <string name="ok">OK</string>
 
     <string name="info">Info</string>
-    <string name="about">About</string>
+    <string name="privacy_policy">Privacy policy</string>
     <string name="help">Help</string>
-    <string name="about_help">About &amp; Help</string>
-    <string name="about_text_header">About</string>
     <string name="help_text_header">Help</string>
-    <string name="about_text_content">This section contains things about me and my application</string>
-    <string name="help_text_content">Instructions for using this application go in this section</string>
-
-    <string name="no_geocoder_available">No geocoder available</string>
-    <string name="fetch_address">Fetch address</string>
-    <string name="address_found">Address found</string>
-    <string name="no_address_found">Sorry, no address found</string>
-    <string name="no_location_data_provided">No location data provided</string>
-    <string name="service_not_available">Sorry, the service is not available</string>
-    <string name="invalid_lat_long_used">Invalid latitude or longitude used</string>
+    <string name="help_text_content">Instructions for using this application.\nFirst you add places in your placelist,
+        by adding the green plus button and navigating to your desired place.\Then, you can click on a place in the list on the main page, and type a note.\n
+    By clicking ok, you are all set. A notification will pop-up when you arrive at this particular place.\
+    Have fun :D</string>
 
     <string name="add_new_place">Add a new place</string>
     <string name="confirm_delete_places">Are you sure you want to delete all places?\nThis cannot be undone.</string>

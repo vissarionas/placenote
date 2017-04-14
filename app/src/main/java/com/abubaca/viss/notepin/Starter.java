@@ -42,9 +42,15 @@ public class Starter {
         activity.startActivity(intent);
     }
 
-    void startTextViewer(String action){
-        Intent intent = new Intent(activity , AboutHelpViewer.class);
-        intent.setAction(action);
+    void startHelpActivity(){
+        Intent intent = new Intent(activity , HelpActivity.class);
+        activity.startActivity(intent);
+    }
+
+    void startPrivacyPolicyWeb(){
+        String url = "http://vissariontsitoglou.com/notepin.html";
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
         activity.startActivity(intent);
     }
 

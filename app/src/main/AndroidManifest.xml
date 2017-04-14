@@ -56,8 +56,8 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.abubaca.viss.notepin.AboutHelpViewer"
-            android:label="@string/about_help"
+            android:name="com.abubaca.viss.notepin.HelpActivity"
+            android:label="@string/help"
             android:parentActivityName="com.abubaca.viss.notepin.MainActivity"
             android:screenOrientation="portrait"/>
 

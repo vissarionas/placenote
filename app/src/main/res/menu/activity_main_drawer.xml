@@ -19,13 +19,13 @@
     <item android:title="@string/info">
         <menu>
             <item
-                android:id="@+id/nav_about"
-                android:title="@string/about"
-                android:icon="@drawable/about"/>
-            <item
                 android:id="@+id/nav_help"
                 android:title="@string/help"
                 android:icon="@drawable/help"/>
+            <item
+                android:id="@+id/nav_privacy_policy"
+                android:title="@string/privacy_policy"
+                android:icon="@drawable/privacy_policy"/>
         </menu>
     </item>
 

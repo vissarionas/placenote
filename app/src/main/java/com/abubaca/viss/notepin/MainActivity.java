@@ -164,11 +164,11 @@ public class MainActivity extends AppCompatActivity
             case (R.id.nav_clear_notes):
                 placeNoteUtils.clearNotes();
                 break;
-            case (R.id.nav_about):
-                new Starter(this).startTextViewer("ABOUT");
-                break;
             case (R.id.nav_help):
-                new Starter(this).startTextViewer("HELP");
+                new Starter(this).startHelpActivity();
+                break;
+            case (R.id.nav_privacy_policy):
+                new Starter(this).startPrivacyPolicyWeb();
                 break;
         }
 
