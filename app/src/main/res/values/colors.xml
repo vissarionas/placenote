@@ -21,4 +21,7 @@
     <color name="freshCutDayLightGreen">#aee239</color>
     <color name="freshCutDayGreen">#8fbe00</color>
 
+    <color name="toastSuccess">#D98FBE00</color>
+    <color name="toastWarning">#D9CC0C39</color>
+
 </resources>

@@ -15,11 +15,16 @@
     <string name="info">Info</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="help">Help</string>
-    <string name="help_text_header">Help</string>
-    <string name="help_text_content">Instructions for using this application.\nFirst you add places in your placelist,
-        by adding the green plus button and navigating to your desired place.\Then, you can click on a place in the list on the main page, and type a note.\n
-    By clicking ok, you are all set. A notification will pop-up when you arrive at this particular place.\
-    Have fun :D</string>
+    <string name="help_text_header">Usage instructions.</string>
+    <string name="help_text_content">At first you have to add at least one place in your placelist.\n
+        Click the green plus button and navigate to your desired place.\n
+        When your pin is at the desired position on the map,
+        click the green button at the bottom of your screen,
+        give it a name and save it.\n\n
+        Then, you can click on a place in your placelist, and type a note.\n
+        By clicking ok, you are all set.\n
+        A notification will pop-up when you arrive at this particular place.\n\n
+        Have fun :D</string>
 
     <string name="add_new_place">Add a new place</string>
     <string name="confirm_delete_places">Are you sure you want to delete all places?\nThis cannot be undone.</string>
@@ -40,6 +45,8 @@
     <string name="address_generator_error_message">Address unavailable.
         \nSlow Internet connection might be the issue.
     </string>
+    <string name="bad_accuracy">Approximate location found
+Check your location settings for better accuracy</string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>

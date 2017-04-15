@@ -26,6 +26,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -136,14 +137,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(2000);
         locationRequest.setFastestInterval(1000);
-        locationRequest.setNumUpdates(1);
+//        locationRequest.setNumUpdates(1);
         locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapActivity.this);
     }
 
     private void removeLocationUpdates(){
-        Log.i(TAG , "Removed location updates");
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
     }
 
@@ -327,6 +327,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
+        if(location.getAccuracy()>1000) return;
+        if(location.getAccuracy()<100) removeLocationUpdates();
+        if(location.getAccuracy()>500){
+            Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_SHORT).show();
+        }
         lastKnownLocation = location;
         doTheJob(lastKnownLocation);
     }
