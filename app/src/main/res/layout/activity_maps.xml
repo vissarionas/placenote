@@ -38,7 +38,6 @@
                 android:visibility="invisible"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:elevation="5dp"
                 android:drawableTint="@color/freshCutDayLightGreen"
                 android:drawableEnd="@drawable/add"
                 android:drawableRight="@drawable/add"
@@ -54,17 +53,28 @@
     </LinearLayout>
 
     <LinearLayout
+        android:orientation="vertical"
         android:id="@+id/pb_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        android:gravity="center">
 
 
         <ProgressBar
             android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/getting_location_pb"/>
+            style="@android:style/Widget.ProgressBar.Small" />
+
+        <TextView
+            android:textSize="18sp"
+            android:gravity="center"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/getting_location" />
+
 
     </LinearLayout>
 </FrameLayout>

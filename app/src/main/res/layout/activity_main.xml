@@ -11,10 +11,9 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/freshCutDayWhite">
+        android:background="@android:color/white">
 
         <TextView
-            android:elevation="5dp"
             android:layout_margin="15dp"
             android:id="@+id/no_places_tv"
             android:textSize="20sp"
@@ -31,16 +30,17 @@
             android:id="@+id/place_gv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="@android:color/transparent"/>
+            android:divider="@android:color/transparent"
+            android:background="@color/freshCutDayWhiteBright"/>
 
         <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
-            app:srcCompat="@drawable/ic_add"
+            app:srcCompat="@drawable/plus"
             android:tint="@android:color/white"
             android:id="@+id/add_place_floating_action_button"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:layout_margin="15dp"
             app:backgroundTint="@color/freshCutDayLightGreen"
             app:fabSize="normal"

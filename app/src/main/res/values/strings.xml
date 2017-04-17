@@ -1,12 +1,11 @@
 <resources>
     <string name="app_name">Notepin</string>
     <string name="action_battery_save">Battery saver</string>
-    <string name="action_remove_places">Remove places</string>
-    <string name="action_remove_notes">Remove notes</string>
+    <string name="action_remove_places">Remove all places</string>
+    <string name="action_remove_notes">Clear all notes</string>
     <string name="action_about">About</string>
     <string name="action_help">Usage / Help</string>
     <string name="action_email">Contact</string>
-    <string name="dummy_text">Dummy Text</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="cancel">Cancel</string>
@@ -52,8 +51,8 @@
     <string name="place_name">Place name</string>
     <string name="note">Note</string>
 
-    <string name="maps_title">Navigate</string>
-    <string name="maps_subtitle">..add a new place</string>
+    <string name="getting_location">Getting location..</string>
+    <string name="maps_title">Map</string>
     <string name="map_search">Search</string>
     <string name="add_place">Add %1$s to your placelist</string>
     <string name="name_your_place">Name your place</string>

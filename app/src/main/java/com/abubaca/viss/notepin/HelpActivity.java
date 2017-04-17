@@ -16,7 +16,7 @@ public class HelpActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.about_help_menu , menu);
+        getMenuInflater().inflate(R.menu.help_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

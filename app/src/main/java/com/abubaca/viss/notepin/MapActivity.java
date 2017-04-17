@@ -43,7 +43,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -73,7 +72,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        getSupportActionBar().setSubtitle(R.string.maps_subtitle);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
@@ -137,7 +135,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(2000);
         locationRequest.setFastestInterval(1000);
-//        locationRequest.setNumUpdates(1);
         locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapActivity.this);
@@ -188,6 +185,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     northeastBound.setLatitude(place.getViewport().northeast.latitude);
                     northeastBound.setLongitude(place.getViewport().northeast.longitude);
                     proximity = Math.round(northeastBound.distanceTo(placeLocation));
+                    proximity = place.getPlaceTypes().contains(1011)?proximity*4:proximity;
+                    Log.i(TAG , "Place: "+proximity+" "+place.getAttributions()+" "+place.getLocale()+" "+place.getPlaceTypes());
                 }
 
                 lat = placeLocation.getLatitude();
@@ -224,6 +223,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 addPlaceButton.setVisibility(View.VISIBLE);
                 pbLayout.setVisibility(View.INVISIBLE);
                 String addPlace = getResources().getString(R.string.add_place);
+                getSupportActionBar().setTitle(placeAddress);
                 addPlaceButton.setText(String.format(addPlace , placeAddress));
             }
         }
@@ -231,7 +231,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void moveMapPlaceMarker(Location location , float zoom){
         LatLng tempLatLng = new LatLng(location.getLatitude() , location.getLongitude());
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
         if(marker!=null)marker.remove();
         marker = map.addMarker(new MarkerOptions().position(tempLatLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));

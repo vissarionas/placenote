@@ -2,7 +2,6 @@ package com.abubaca.viss.notepin;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -10,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -26,7 +26,7 @@ public class PlaceListAdapter extends BaseAdapter {
 
 
     private LayoutInflater layoutInflater;
-    private TextView placeText , noteText;
+    private ImageView stateIV;
     private List<PlaceNote> placeNotes;
     private Context context;
     private Activity activity;
@@ -59,11 +59,13 @@ public class PlaceListAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         if(placeNotes.size()>0){
             convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
-            placeText = (TextView)convertView.findViewById(R.id.placeText);
-            noteText = (TextView)convertView.findViewById(R.id.noteText);
+            TextView placeText = (TextView)convertView.findViewById(R.id.placeText);
+            TextView noteText = (TextView)convertView.findViewById(R.id.noteText);
+            stateIV = (ImageView)convertView.findViewById(R.id.stateIV);
+
             ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
-            LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
-            setFlagColor(placeNotes.get(position).getState());
+            final LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
+            setStateColor(placeNotes.get(position).getState());
             String place = placeNotes.get(position).getPlace();
             String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
             placeText.setText(subPlace);
@@ -89,7 +91,7 @@ public class PlaceListAdapter extends BaseAdapter {
     private void showMenu(View view , final int position){
         PopupMenu popupMenu = new PopupMenu(context , view);
         MenuInflater inflater = popupMenu.getMenuInflater();
-        inflater.inflate(R.menu.edit_place_menu , popupMenu.getMenu());
+        inflater.inflate(R.menu.place_menu, popupMenu.getMenu());
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -118,26 +120,20 @@ public class PlaceListAdapter extends BaseAdapter {
         return placeNotes.get(position).getPlace();
     }
 
-    private void setFlagColor(int state){
+    private void setStateColor(int state){
         switch (state){
             case Constants.NOTE_STATE_EMPTY:
-                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteEmpty));
-                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteEmpty));
-                break;
-            case Constants.NOTE_STATE_INACTIVE:
-                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteInactive));
-//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
-                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteInactive));
+                stateIV.setVisibility(View.INVISIBLE);
+//                stateIV.setImageResource(R.drawable.note_inactive);
                 break;
             case Constants.NOTE_STATE_ACTIVE:
-                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteActive));
-//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
-                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteActive));
+                stateIV.setImageResource(R.drawable.note_active);
+                break;
+            case Constants.NOTE_STATE_INACTIVE:
+                stateIV.setImageResource(R.drawable.note_inactive);
                 break;
             case Constants.NOTE_STATE_ALERTED:
-                placeText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteAlerted));
-//                placeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,19);
-                noteText.setTextColor(ContextCompat.getColor(context , R.color.flagNoteAlerted));
+                stateIV.setImageResource(R.drawable.note_alert);
                 break;
         }
     }
