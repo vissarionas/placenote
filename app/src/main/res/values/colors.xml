@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="transparentBlack">#0D000000</color>
-
-    <color name="handsOnLightGrey">#b4b4b2</color>
     <color name="handsOnGrey">#4E4D4A</color>
     <color name="handsOnDarkGrey">#353432</color>
-    <color name="handsOnLightGreen">#94BA65</color>
-    <color name="handsOnLightBlue">#2790B0</color>
-    <color name="handsOnDarkBlue">#2b4e72</color>
-
-    <color name="flagNoteEmpty">#2E2633</color>
-    <color name="flagNoteInactive">#2E2633</color>
-    <color name="flagNoteActive">#69be00</color>
-    <color name="flagNoteAlerted">#CC0C39</color>
 
     <color name="freshCutDayBlue">#00A8C6</color>
     <color name="freshCutDayBlueLighter">#0AB0CE</color>

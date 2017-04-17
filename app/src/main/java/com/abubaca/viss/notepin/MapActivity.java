@@ -186,7 +186,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     northeastBound.setLongitude(place.getViewport().northeast.longitude);
                     proximity = Math.round(northeastBound.distanceTo(placeLocation));
                     proximity = place.getPlaceTypes().contains(1011)?proximity*4:proximity;
-                    Log.i(TAG , "Place: "+proximity+" "+place.getAttributions()+" "+place.getLocale()+" "+place.getPlaceTypes());
                 }
 
                 lat = placeLocation.getLatitude();
@@ -200,6 +199,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 placeAddress = place.getName().toString();
                 addPlaceButton.setVisibility(View.VISIBLE);
+                getSupportActionBar().setTitle(placeAddress);
                 String addPlace = getResources().getString(R.string.add_place);
                 addPlaceButton.setText(String.format(addPlace , placeAddress));
 
