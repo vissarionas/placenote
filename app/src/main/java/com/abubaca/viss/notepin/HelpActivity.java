@@ -4,19 +4,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 public class HelpActivity extends AppCompatActivity {
-
-    TextView textViewerHeader , textViewerContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_text_viewer);
+        setContentView(R.layout.activity_help);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        textViewerHeader = (TextView)findViewById(R.id.textViewerHeader);
-        textViewerContent = (TextView)findViewById(R.id.textViewerContent);
     }
 
     @Override
@@ -36,12 +31,5 @@ public class HelpActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        textViewerHeader.setText(R.string.help_text_header);
-        textViewerContent.setText(R.string.help_text_content);
     }
 }

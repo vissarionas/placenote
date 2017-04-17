@@ -181,7 +181,7 @@ public class LocationService extends Service implements LocationListener,
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.drawable.notification);
-        builder.setLargeIcon(BitmapFactory.decodeResource(getResources() , R.mipmap.ic_launcher));
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources() , R.mipmap.notification_large_icon));
         builder.setLights(Color.GREEN, 2000, 3000);
         builder.setVibrate(new long[]{300, 600, 300, 800});
         builder.setContentIntent(pendingIntent);
