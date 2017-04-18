@@ -1,10 +1,8 @@
 package com.abubaca.viss.notepin;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -14,17 +12,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -67,12 +60,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected static final String TAG = "MAP_ACTIVITY";
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
     private LinearLayout pbLayout;
+    private PlaceNoteUtils placeNoteUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        placeNoteUtils = new PlaceNoteUtils(this);
         dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
@@ -83,7 +78,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addPlaceCustomDialog(placeAddress);
+                placeNoteUtils.addNewPlace(placeAddress , lat , lng , proximity);
             }
         });
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
@@ -278,36 +273,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
-    private void addPlaceCustomDialog(String nameSuggestion){
-        LayoutInflater inflater = this.getLayoutInflater();
-        View addPlaceView = inflater.inflate(R.layout.add_place , null);
-        addPlaceView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        ));
-        final EditText addPlaceET = (EditText)addPlaceView.findViewById(R.id.placeNameET);
-
-        addPlaceET.setText(nameSuggestion);
-        addPlaceET.setSelection(addPlaceET.getText().length());
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage(R.string.name_your_place);
-        dialogBuilder.setView(addPlaceView);
-        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(!addPlaceET.getText().toString().isEmpty()){
-                    dbHandler.insertToDb(addPlaceET.getText().toString(), String.valueOf(lat), String.valueOf(lng), "" , proximity);
-                    MapActivity.this.finish();
-                }
-            }
-        });
-
-        Dialog dialog = dialogBuilder.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.show();
-    }
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         getLastKnownLocation();
@@ -342,7 +307,5 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         long lastKnownLocationTime = location.getTime();
         return (time - lastKnownLocationTime < 60000);
     }
-
-
 
 }

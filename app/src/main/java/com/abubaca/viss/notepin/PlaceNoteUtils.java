@@ -30,6 +30,41 @@ public class PlaceNoteUtils {
         dbHandler = new DBHandler(activity);
     }
 
+    void addNewPlace(String nameSuggestion , final Double lat , final Double lng  , final int proximity){
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View addPlaceView = inflater.inflate(R.layout.add_place , null);
+        addPlaceView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        final EditText addPlaceET = (EditText)addPlaceView.findViewById(R.id.placeNameET);
+
+        addPlaceET.setText(nameSuggestion);
+        addPlaceET.setSelection(addPlaceET.getText().length());
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setMessage(R.string.name_your_place);
+        dialogBuilder.setView(addPlaceView);
+        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(!addPlaceET.getText().toString().isEmpty()){
+                    String place = addPlaceET.getText().toString();
+                    if(!dbHandler.placeExists(place)){
+                        dbHandler.insertToDb(place, String.valueOf(lat), String.valueOf(lng), "" , proximity);
+                        activity.finish();
+                    }else{
+                        new CustomToast().makeWarningToast(activity , activity.getString(R.string.place_exists));
+                    }
+                }
+            }
+        });
+
+        Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
     void viewNote(final String place){
         String note = dbHandler.getPlaceNote(place);
         if(note.contentEquals("")){
@@ -158,8 +193,15 @@ public class PlaceNoteUtils {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dbHandler.updatePlaceNote(place , null , null , null ,nameEditText.getText().toString());
-                        new PlaceListPopulator(activity).populate();                    }
+                        String newPlaceName = nameEditText.getText().toString();
+                        if(!dbHandler.placeExists(newPlaceName)){
+                            dbHandler.updatePlaceNote(place , null , null , null , newPlaceName);
+                            new PlaceListPopulator(activity).populate();
+                        }else if(!newPlaceName.contentEquals(place)){
+                            new CustomToast().makeWarningToast(activity , activity.getString(R.string.place_exists));
+                        }
+                    }
+
                 });
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);

@@ -41,10 +41,10 @@
             android:tint="@android:color/white"
             android:id="@+id/add_place_floating_action_button"
             android:layout_gravity="bottom|end"
-            android:layout_margin="15dp"
+            android:layout_margin="35dp"
             app:backgroundTint="@color/freshCutDayLightGreen"
             app:fabSize="normal"
-            app:elevation="5dp" />
+            app:elevation="5dp"/>
 
     </FrameLayout>
 

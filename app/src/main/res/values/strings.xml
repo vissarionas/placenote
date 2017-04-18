@@ -56,6 +56,7 @@
     <string name="map_search">Search</string>
     <string name="add_place">Add %1$s to your placelist</string>
     <string name="name_your_place">Name your place</string>
+    <string name="place_exists">Place already exists</string>
 
     <string name="address_generator_error_message">Address unavailable.
         \nSlow Internet connection might be the issue.

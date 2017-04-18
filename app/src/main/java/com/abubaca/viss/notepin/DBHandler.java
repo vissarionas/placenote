@@ -194,6 +194,17 @@ class DBHandler extends SQLiteOpenHelper{
         return cursor.getInt(5) == 1;
     }
 
+    Boolean placeExists(String place){
+        List<String> places = new ArrayList<>();
+        dbInit();
+        if(cursor.getCount()>0){
+            do {
+                places.add(cursor.getString(0));
+            } while(cursor.moveToNext());
+        }
+        return places.contains(place);
+    }
+
     Cursor getFullCursor(){
         dbInit();
         dbClose();
