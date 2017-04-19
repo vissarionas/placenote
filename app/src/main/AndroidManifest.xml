@@ -25,7 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/CustomTheme">
         <activity
-            android:name="com.abubaca.viss.notepin.MainActivity"
+            android:name=".MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,34 +46,33 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.abubaca.viss.notepin.MapActivity"
+            android:name=".MapActivity"
             android:label="@string/maps_title"
-            android:parentActivityName="com.abubaca.viss.notepin.MainActivity"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.abubaca.viss.notepin.ViewPlaceActivity"
-            android:parentActivityName="com.abubaca.viss.notepin.MainActivity"
+            android:name=".ViewPlaceActivity"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name="com.abubaca.viss.notepin.HelpActivity"
+            android:name=".HelpActivity"
             android:label="@string/help"
-            android:parentActivityName="com.abubaca.viss.notepin.MainActivity"
-            android:screenOrientation="portrait"/>
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
 
         <service
-            android:name="com.abubaca.viss.notepin.LocationService"
+            android:name=".LocationService"
             android:exported="false" />
 
         <!-- <service android:name=".LocationBackground" -->
         <!-- android:exported="false"/> -->
 
         <service
-            android:name="com.abubaca.viss.notepin.AddressGenerator"
+            android:name=".AddressGenerator"
             android:exported="false" />
 
         <receiver
-            android:name="com.abubaca.viss.notepin.SystemReciever"
+            android:name=".SystemReciever"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -82,6 +81,8 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name=".LocationLog"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

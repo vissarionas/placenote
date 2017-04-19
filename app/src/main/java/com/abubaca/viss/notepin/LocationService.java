@@ -27,6 +27,9 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
@@ -137,6 +140,7 @@ public class LocationService extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
+        sendAccuracyBroadcast((int)location.getAccuracy() , location.getTime());
         smallestDistance = 20000;
         alertDistance = location.getAccuracy() > 100 ? 100 : 20;
         if (locations.isEmpty()) {
@@ -189,6 +193,14 @@ public class LocationService extends Service implements LocationListener,
         Notification notification = builder.build();
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
+    }
+
+    private void sendAccuracyBroadcast(int accuracy , long time){
+        Intent intent = new Intent();
+        intent.setAction("ACCURACY");
+        intent.putExtra("ACCURACY" , accuracy);
+        intent.putExtra("TIME" , time);
+        sendBroadcast(intent);
     }
 
 

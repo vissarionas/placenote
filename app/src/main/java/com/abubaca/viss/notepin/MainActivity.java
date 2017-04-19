@@ -83,6 +83,13 @@ public class MainActivity extends AppCompatActivity
                 new Starter(MainActivity.this).startMapActivity();
             }
         });
+        addPlaceFloatingActionButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                new Starter(MainActivity.this).startLogActivity();
+                return true;
+            }
+        });
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         new Starter(this).startStopFusedLocationService();
         super.onResume();
