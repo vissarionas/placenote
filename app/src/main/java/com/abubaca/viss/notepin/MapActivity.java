@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -50,9 +49,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Marker marker;
     private String placeAddress = null;
     private Double lat , lng;
-    private int proximity = 0;
+    private int proximity = 150;
     private Button addPlaceButton;
-    private DBHandler dbHandler;
     private GoogleApiClient googleApiClient;
     private Location lastKnownLocation;
     private static final int FINE_LOCATION_PERMISSION_REQUEST = 0x1;
@@ -68,7 +66,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         placeNoteUtils = new PlaceNoteUtils(this);
-        dbHandler = new DBHandler(getApplicationContext());
         addPlaceButton = (Button)findViewById(R.id.add_place_button);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
     }
@@ -81,7 +78,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 placeNoteUtils.addNewPlace(placeAddress , lat , lng , proximity);
             }
         });
-        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(broadcastReceiver , filter);
         connectGoogleApiClient();
         super.onResume();
@@ -91,6 +87,32 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onPause() {
         this.unregisterReceiver(broadcastReceiver);
         super.onPause();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
+            presentUserLocation(lastKnownLocation);
+        }
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                lastKnownLocation.setLatitude(point.latitude);
+                lastKnownLocation.setLongitude(point.longitude);
+                presentUserLocation(lastKnownLocation);
+            }
+        });
+
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (marker!=null) {
+                    marker.remove();
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -190,7 +212,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     (proximity<1000)?16.0f:
                                         (proximity<5000)?15.0f:
                                             (proximity<10000)?14.0f:13.0f;
-                moveMapPlaceMarker(placeLocation , zoom);
+                pointLocation(placeLocation , zoom);
 
                 placeAddress = place.getName().toString();
                 addPlaceButton.setVisibility(View.VISIBLE);
@@ -224,53 +246,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     };
 
-    private void moveMapPlaceMarker(Location location , float zoom){
-        LatLng tempLatLng = new LatLng(location.getLatitude() , location.getLongitude());
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
-        if(marker!=null)marker.remove();
-        marker = map.addMarker(new MarkerOptions().position(tempLatLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+    private void presentUserLocation(Location location){
+        this.lat = location.getLatitude();
+        this.lng = location.getLongitude();
+        getAddress(location.getLatitude() , location.getLongitude());
+        pointLocation(location , 18.0f);
     }
 
-    private void requestAddress(Double lat , Double lng){
+    private void getAddress(Double lat , Double lng){
         Intent intent = new Intent(MapActivity.this, AddressGenerator.class);
         intent.putExtra("lat" , lat);
         intent.putExtra("lng" , lng);
         startService(intent);
     }
 
-    private void doTheJob(Location location){
-        this.lat = location.getLatitude();
-        this.lng = location.getLongitude();
-        moveMapPlaceMarker(location , 18.0f);
-        requestAddress(location.getLatitude() , location.getLongitude());
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        map = googleMap;
-        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
-            doTheJob(lastKnownLocation);
-        }
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng point) {
-                lastKnownLocation.setLatitude(point.latitude);
-                lastKnownLocation.setLongitude(point.longitude);
-                doTheJob(lastKnownLocation);
-            }
-        });
-
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                if (marker!=null) {
-                    marker.remove();
-                }
-                return false;
-            }
-        });
+    private void pointLocation(Location location , float zoom){
+        LatLng tempLatLng = new LatLng(location.getLatitude() , location.getLongitude());
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
+        if(marker!=null) marker.remove();
+        marker = map.addMarker(new MarkerOptions().position(tempLatLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
     }
 
     @Override
@@ -293,19 +288,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         if(location.getAccuracy()>1000) return;
+        if(location.getAccuracy()>500) Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_SHORT).show();
         if(location.getAccuracy()<100) removeLocationUpdates();
-        if(location.getAccuracy()>500){
-            Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_SHORT).show();
-        }
         lastKnownLocation = location;
-        doTheJob(lastKnownLocation);
+        presentUserLocation(lastKnownLocation);
     }
 
     @NonNull
     private Boolean locationIsFresh(Location location){
         long time= System.currentTimeMillis();
         long lastKnownLocationTime = location.getTime();
-        return (time - lastKnownLocationTime < 60000);
+        return (time - lastKnownLocationTime < 120000);
     }
 
 }

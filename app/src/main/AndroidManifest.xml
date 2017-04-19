@@ -81,8 +81,6 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".LocationLog"
-            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

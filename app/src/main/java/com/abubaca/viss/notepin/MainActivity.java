@@ -83,13 +83,6 @@ public class MainActivity extends AppCompatActivity
                 new Starter(MainActivity.this).startMapActivity();
             }
         });
-        addPlaceFloatingActionButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                new Starter(MainActivity.this).startLogActivity();
-                return true;
-            }
-        });
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         new Starter(this).startStopFusedLocationService();
         super.onResume();
@@ -138,12 +131,12 @@ public class MainActivity extends AppCompatActivity
                     item.setChecked(true);
                     item.setIcon(R.drawable.battery_saver_on);
                     savePreferences(item.isChecked());
-                    new CustomToast().makeSuccessToast(this , getResources().getString(R.string.battery_saver_on));
+                    new CustomToast().makeToast(this , Constants.SUCCESS_TOAST , getResources().getString(R.string.battery_saver_on));
                 }else{
                     item.setChecked(false);
                     item.setIcon(R.drawable.battery_saver_off);
                     savePreferences(item.isChecked());
-                    new CustomToast().makeWarningToast(this, getResources().getString(R.string.battery_saver_off));
+                    new CustomToast().makeToast(this, Constants.WARNING_TOAST , getResources().getString(R.string.battery_saver_off));
                 }
                 break;
         }

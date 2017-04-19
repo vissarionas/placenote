@@ -4,12 +4,12 @@ package com.abubaca.viss.notepin;
  * Created by viss on 1/3/17.
  */
 
-public class PlaceNote {
+class PlaceNote {
 
     private String place , note;
     private int state;
 
-    public PlaceNote(String place , String note , int state){
+    PlaceNote(String place , String note , int state){
         this.place = place;
         this.note = note;
         this.state = state;
@@ -23,7 +23,7 @@ public class PlaceNote {
         return this.note;
     }
 
-    public int getState(){
+    int getState(){
         return this.state;
     }
 

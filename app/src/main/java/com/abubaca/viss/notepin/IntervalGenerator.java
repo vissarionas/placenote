@@ -13,7 +13,7 @@ public class IntervalGenerator {
         }else if(distance<500) {
             interval = 14000;
         }else if(distance<1000){
-            interval = 50000;
+            interval = 60000;
         }else if(distance<5000){
             interval = 100000;
         }else if(distance<10000){

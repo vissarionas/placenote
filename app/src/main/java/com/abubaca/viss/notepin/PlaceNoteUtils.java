@@ -54,7 +54,7 @@ public class PlaceNoteUtils {
                         dbHandler.insertToDb(place, String.valueOf(lat), String.valueOf(lng), "" , proximity);
                         activity.finish();
                     }else{
-                        new CustomToast().makeWarningToast(activity , activity.getString(R.string.place_exists));
+                        new CustomToast().makeToast(activity , Constants.WARNING_TOAST , activity.getString(R.string.place_exists));
                     }
                 }
             }
@@ -198,7 +198,7 @@ public class PlaceNoteUtils {
                             dbHandler.updatePlaceNote(place , null , null , null , newPlaceName);
                             new PlaceListPopulator(activity).populate();
                         }else if(!newPlaceName.contentEquals(place)){
-                            new CustomToast().makeWarningToast(activity , activity.getString(R.string.place_exists));
+                            new CustomToast().makeToast(activity , Constants.WARNING_TOAST , activity.getString(R.string.place_exists));
                         }
                     }
 

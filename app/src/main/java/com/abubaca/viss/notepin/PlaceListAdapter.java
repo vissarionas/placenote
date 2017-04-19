@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,11 +32,14 @@ public class PlaceListAdapter extends BaseAdapter {
     private Context context;
     private Activity activity;
     private PlaceNoteUtils placeNoteUtils;
+    private List<String> selectedPlaces;
+    private LinearLayout listItemSurface;
 
     PlaceListAdapter(Activity activity , List<PlaceNote> placeNotes){
         this.placeNotes = placeNotes;
         this.context = activity;
         this.activity = activity;
+        selectedPlaces = new ArrayList<>();
         placeNoteUtils = new PlaceNoteUtils(activity);
         layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -63,8 +67,8 @@ public class PlaceListAdapter extends BaseAdapter {
             TextView noteText = (TextView)convertView.findViewById(R.id.noteText);
             stateIV = (ImageView)convertView.findViewById(R.id.stateIV);
 
-            ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
-            final LinearLayout listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item_surface);
+            final ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
+            listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item);
             setStateColor(placeNotes.get(position).getState());
             String place = placeNotes.get(position).getPlace();
             String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
@@ -82,6 +86,14 @@ public class PlaceListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     placeNoteUtils.viewNote(getPlace(position));
+                }
+            });
+            listItemSurface.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                        selectedPlaces.add(getPlace(position));
+                        v.setBackgroundResource(R.drawable.background_selected);
+                    return true;
                 }
             });
         }
@@ -124,7 +136,6 @@ public class PlaceListAdapter extends BaseAdapter {
         switch (state){
             case Constants.NOTE_STATE_EMPTY:
                 stateIV.setVisibility(View.INVISIBLE);
-//                stateIV.setImageResource(R.drawable.note_inactive);
                 break;
             case Constants.NOTE_STATE_ACTIVE:
                 stateIV.setImageResource(R.drawable.note_active);

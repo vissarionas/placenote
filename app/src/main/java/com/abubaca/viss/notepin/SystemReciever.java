@@ -13,8 +13,7 @@ public class SystemReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            if (intent.getAction().equalsIgnoreCase(
-                    Intent.ACTION_BOOT_COMPLETED)) {
+            if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {
                 Intent i = new Intent(context, LocationService.class);
                 context.startService(i);
             }

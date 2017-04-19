@@ -60,9 +60,4 @@ public class Starter {
         intent.putExtra(Intent.EXTRA_SUBJECT, R.string.app_name);
         activity.startActivity(Intent.createChooser(intent, "Contact via email"));
     }
-
-    void startLogActivity(){
-        Intent intent = new Intent(activity , LocationLog.class);
-        activity.startActivity(intent);
-    }
 }

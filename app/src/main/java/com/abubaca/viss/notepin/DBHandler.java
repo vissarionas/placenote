@@ -10,8 +10,6 @@ import android.location.Location;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.abubaca.viss.notepin.Constants.NOTE_STATE_EMPTY;
-
 /**
  * Created by viss on 1/2/17.
  *
@@ -22,13 +20,14 @@ import static com.abubaca.viss.notepin.Constants.NOTE_STATE_EMPTY;
 
 class DBHandler extends SQLiteOpenHelper{
 
+    private final static String TAG = "DBHANDLER";
+
     private static int databaseVersion = 1;
     private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
             "LAT TEXT , LNG TEXT , NOTE TEXT ," +
             " STATE INTEGER DEFAULT 0 , NOTIFIED INTEGER DEFAULT 0 ," +
             " PROXIMITY INTEGER)";
     private final static String selectAllFromTable = "SELECT * FROM PLACENOTES ORDER BY STATE DESC , PLACE ASC";
-    private final static String TAG = "DBHANDLER";
 
     private static SQLiteDatabase db;
     private Cursor cursor;
@@ -70,7 +69,7 @@ class DBHandler extends SQLiteOpenHelper{
         dbInit();
         ContentValues values = new ContentValues();
         values.put("NOTE" , "");
-        values.put("STATE" , NOTE_STATE_EMPTY);
+        values.put("STATE" , Constants.NOTE_STATE_EMPTY);
         values.put("NOTIFIED" , 0);
         db.update("PLACENOTES" , values , null , null );
         dbClose();
@@ -144,13 +143,25 @@ class DBHandler extends SQLiteOpenHelper{
         dbInit();
         if(cursor.getCount()>0){
             do {
-                if(cursor.getString(0).contentEquals(place)){
-                    break;
-                }
+                if(cursor.getString(0).contentEquals(place)) break;
             }while(cursor.moveToNext());
         }
         dbClose();
         return cursor.getString(3);
+    }
+
+    Location getPlaceLocation(String place){
+        dbInit();
+        if(cursor.getCount()>0){
+            do{
+                if(cursor.getString(0).contentEquals(place)) break;
+            } while (cursor.moveToNext());
+        }
+        dbClose();
+        Location placeLocation = new Location("");
+        placeLocation.setLatitude(Double.valueOf(cursor.getString(1)));
+        placeLocation.setLongitude(Double.valueOf(cursor.getString(2)));
+        return placeLocation;
     }
 
     String getPlaceByLocation(Location location){
@@ -159,9 +170,7 @@ class DBHandler extends SQLiteOpenHelper{
         String lng = String.valueOf(location.getLongitude());
         if(cursor.getCount()>0){
             do {
-                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lng)){
-                    break;
-                }
+                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lng)) break;
             }while(cursor.moveToNext());
         }
         dbClose();
@@ -172,9 +181,7 @@ class DBHandler extends SQLiteOpenHelper{
         dbInit();
         if(cursor.getCount()>0){
             do{
-                if(cursor.getString(0).contentEquals(place)){
-                    break;
-                }
+                if(cursor.getString(0).contentEquals(place)) break;
             }while(cursor.moveToNext());
         }
         dbClose();
@@ -185,9 +192,7 @@ class DBHandler extends SQLiteOpenHelper{
         dbInit();
         if(cursor.getCount()>0){
             do {
-                if(cursor.getString(0).contentEquals(place)){
-                     break;
-                }
+                if(cursor.getString(0).contentEquals(place)) break;
             }while(cursor.moveToNext());
         }
         dbClose();
@@ -202,6 +207,7 @@ class DBHandler extends SQLiteOpenHelper{
                 places.add(cursor.getString(0));
             } while(cursor.moveToNext());
         }
+        dbClose();
         return places.contains(place);
     }
 

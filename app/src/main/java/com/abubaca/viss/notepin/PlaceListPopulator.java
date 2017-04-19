@@ -2,6 +2,7 @@ package com.abubaca.viss.notepin;
 
 import android.app.Activity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -18,9 +19,8 @@ public class PlaceListPopulator {
     private TextView noPlacesTV;
     private ListView placeLV;
     private DBHandler dbHandler;
-    private List<PlaceNote> placeNotes;
 
-    public PlaceListPopulator(final Activity activity){
+    PlaceListPopulator(final Activity activity){
         this.activity = activity;
         dbHandler = new DBHandler(activity);
         placeLV = (ListView)activity.findViewById(R.id.place_gv);
@@ -35,8 +35,8 @@ public class PlaceListPopulator {
         });
     }
 
-    public void populate(){
-        placeNotes = dbHandler.getPlaceNotes();
+    void populate(){
+        List<PlaceNote> placeNotes = dbHandler.getPlaceNotes();
         if(placeNotes.size()>0) {
             placeLV.setVisibility(View.VISIBLE);
             noPlacesTV.setVisibility(View.INVISIBLE);
@@ -51,8 +51,4 @@ public class PlaceListPopulator {
             placeLV.setVisibility(View.INVISIBLE);
         }
     }
-
-
-
-
 }

@@ -19,7 +19,6 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -27,9 +26,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
@@ -53,6 +49,7 @@ public class LocationService extends Service implements LocationListener,
     DBHandler dbHandler;
     Boolean wifiConnected = false;
     Boolean batterySaver = true;
+    String log;
 
     @Nullable
     @Override
@@ -62,7 +59,6 @@ public class LocationService extends Service implements LocationListener,
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG ,"service started");
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         dbHandler = new DBHandler(this);
         locations = dbHandler.getNotesLocations();
@@ -122,7 +118,6 @@ public class LocationService extends Service implements LocationListener,
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         if (googleApiClient != null && googleApiClient.isConnected())
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, LocationService.this);
-        Log.i(TAG, "Location updates requested with " + locationRequest.getInterval() + " interval");
     }
 
     private void removeLocationUpdates() {
@@ -140,34 +135,35 @@ public class LocationService extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        sendAccuracyBroadcast((int)location.getAccuracy() , location.getTime());
-        smallestDistance = 20000;
-        alertDistance = location.getAccuracy() > 100 ? 100 : 20;
         if (locations.isEmpty()) {
             removeLocationUpdates();
             return;
         }
+        if(location.getAccuracy()>1000) return;
 
-        if (location.getAccuracy()<1000) {
+        smallestDistance = 20000;
+        alertDistance = location.getAccuracy() > 100 ? 100 : 20;
 
-            for (Location noteLocation : locations) {
-                place = dbHandler.getPlaceByLocation(noteLocation);
-                int tempProximity = dbHandler.getPlaceProximity(place);
-                placeProximity = (tempProximity > 200) ? tempProximity : 0;
-                noteCurrentDistance = noteLocation.distanceTo(location);
-                if (noteCurrentDistance < alertDistance + placeProximity) {
-                    showNotification(place);
-                }
-                smallestDistance = noteLocation.distanceTo(location)<smallestDistance?noteLocation.distanceTo(location):smallestDistance;
+        for (Location noteLocation : locations) {
+            place = dbHandler.getPlaceByLocation(noteLocation);
+            int tempProximity = dbHandler.getPlaceProximity(place);
+            placeProximity = (tempProximity > 200) ? tempProximity : 0;
+            noteCurrentDistance = noteLocation.distanceTo(location);
+            if (noteCurrentDistance < alertDistance + placeProximity) {
+                showNotification(place);
             }
+            smallestDistance = noteLocation.distanceTo(location)<smallestDistance?noteLocation.distanceTo(location):smallestDistance;
         }
-        if(wifiConnected){
-            interval = 300000;
-        }else{
-            interval = batterySaver ? (long) (new IntervalGenerator().getInterval(smallestDistance) * 1.5)
-                    :new IntervalGenerator().getInterval(smallestDistance);
-        }
-        Log.i(TAG, "smallestDistance: " + smallestDistance + " Interval: " + interval + " LocationRequest.getInterval: " + locationRequest.getInterval());
+
+        interval = wifiConnected ? 300000
+                : batterySaver ? (long) (new IntervalGenerator().getInterval(smallestDistance) * 1.5)
+                : new IntervalGenerator().getInterval(smallestDistance);
+//        if(wifiConnected){
+//            interval = 300000;
+//        }else{
+//            interval = batterySaver ? (long) (new IntervalGenerator().getInterval(smallestDistance) * 1.5)
+//                    :new IntervalGenerator().getInterval(smallestDistance);
+//        }
         if (interval != locationRequest.getInterval()) requestLocationUpdates(interval);
     }
 
@@ -194,15 +190,6 @@ public class LocationService extends Service implements LocationListener,
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
     }
-
-    private void sendAccuracyBroadcast(int accuracy , long time){
-        Intent intent = new Intent();
-        intent.setAction("ACCURACY");
-        intent.putExtra("ACCURACY" , accuracy);
-        intent.putExtra("TIME" , time);
-        sendBroadcast(intent);
-    }
-
 
 //    @Override
 //    public void onTaskRemoved(Intent rootIntent) {
