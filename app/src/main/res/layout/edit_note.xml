@@ -23,7 +23,7 @@
             android:textAlignment="center"
             android:gravity="center"
             android:textColor="@android:color/black"
-            android:id="@+id/note_text_view"/>
+            android:id="@+id/note_tv"/>
 
     </LinearLayout>
 

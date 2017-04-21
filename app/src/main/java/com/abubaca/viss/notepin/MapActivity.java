@@ -66,7 +66,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         placeNoteUtils = new PlaceNoteUtils(this);
-        addPlaceButton = (Button)findViewById(R.id.add_place_button);
+        addPlaceButton = (Button)findViewById(R.id.add_place_btn);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
     }
 
@@ -215,7 +215,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 pointLocation(placeLocation , zoom);
 
                 placeAddress = place.getName().toString();
-                addPlaceButton.setVisibility(View.VISIBLE);
                 getSupportActionBar().setTitle(placeAddress);
                 String addPlace = getResources().getString(R.string.add_place);
                 addPlaceButton.setText(String.format(addPlace , placeAddress));
@@ -237,7 +236,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals("GET_ADDRESS")){
                 placeAddress = intent.getStringExtra("ADDRESS");
-                addPlaceButton.setVisibility(View.VISIBLE);
                 pbLayout.setVisibility(View.INVISIBLE);
                 String addPlace = getResources().getString(R.string.add_place);
                 getSupportActionBar().setTitle(placeAddress);
@@ -270,6 +268,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG , "google api client connected");
         getLastKnownLocation();
         if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)) return;
         requestLocationUpdates();
@@ -287,6 +286,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.i(TAG , "location cheanged. accuracy: "+location.getAccuracy());
         if(location.getAccuracy()>1000) return;
         if(location.getAccuracy()>500) Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_SHORT).show();
         if(location.getAccuracy()<100) removeLocationUpdates();

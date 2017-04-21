@@ -17,19 +17,19 @@
 
     <string name="help_header">Usage instructions.</string>
     <string name="help_content">At first you have to add at least one place in your placelist.\n
-        Click the green plus button and navigate to your desired place.\n
+        Click the green plus button and locate this exact place.\n
         When your pin is at the desired position on the map,
         click the green button at the bottom of your screen,
         give it a name and save it.\n\n
-        Then, you can click on a place in your placelist, and type a note.\n
-        By clicking ok, you are all set.\n
+        Then, you can click on this place in your placelist, and type a note.\n
+        By clicking OK, you are all set.\n
         A notification will pop-up when you arrive at this particular place.
     </string>
 
     <string name="battery_saver_header">Battery saver mode.</string>
-    <string name="battery_saver_content">By default, battery consumption is very low.
-        But if you are an outdoor person, and you spend lots of hours on the streets,
-        battery saver mode(green battery heart icon) is ideal for you.\n\n
+    <string name="battery_saver_content">By default, battery consumption is insignificant .
+        But if you are an outdoor person, or you spend lots of hours on the move, it\'s not.
+        So in that situation, battery saver mode(green battery heart icon) is ideal for you.\n\n
         The reason is that this app tries to get your location regularly, at a certain interval.
         With battery saver mode, this interval is increased, so the phone consumes less battery.
     </string>
@@ -37,7 +37,7 @@
     <string name="caution_header">Caution.</string>
     <string name="caution_content">This application uses location and internet services, in order to get information about your location and trigger a notification.\n
         Location settings on your device MUST be turned on.\n\n
-        In cases like bad data reception, or location difficulties, notifications may be delayed (or even missed) after you arrive at a certain place.
+        In cases like bad cellular data reception, or location fetching difficulties, notifications may be delayed (or even missed) after you arrive at a certain place.
         To resolve this, it is recommended to have your wifi turned on, even if you are not connected on a network.\n\n
         Have fun :D</string>
 

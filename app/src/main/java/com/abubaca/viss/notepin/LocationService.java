@@ -113,7 +113,8 @@ public class LocationService extends Service implements LocationListener,
         removeLocationUpdates();
         locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
-        locationRequest.setSmallestDisplacement(10.0f);
+        float smallestDisplacement = interval>25000 ? 20.0f : interval>15000 ? 10.0f : 5.0f;
+        locationRequest.setSmallestDisplacement(smallestDisplacement);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         if (googleApiClient != null && googleApiClient.isConnected())
@@ -182,7 +183,7 @@ public class LocationService extends Service implements LocationListener,
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.drawable.notification);
         builder.setLargeIcon(BitmapFactory.decodeResource(getResources() , R.mipmap.notification_large_icon));
-        builder.setLights(Color.GREEN, 2000, 3000);
+        builder.setLights(Color.CYAN, 2000, 3000);
         builder.setVibrate(new long[]{300, 600, 300, 800});
         builder.setContentIntent(pendingIntent);
 

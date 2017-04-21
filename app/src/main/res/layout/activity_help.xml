@@ -15,13 +15,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_margin="30dp">
 
             <TextView
                 android:text="@string/help_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="10dp"
                 android:textAlignment="center"
                 android:textSize="21sp"/>
 
@@ -29,7 +30,7 @@
                 android:text="@string/help_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="10dp"
                 android:textSize="17sp"
                 android:lineSpacingExtra="5dp"/>
 
@@ -37,7 +38,7 @@
                 android:text="@string/battery_saver_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                android:layout_marginTop="20dp"
                 android:textAlignment="center"
                 android:textSize="21sp"/>
 
@@ -45,7 +46,7 @@
                 android:text="@string/battery_saver_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="10dp"
                 android:textSize="17sp"
                 android:lineSpacingExtra="5dp"/>
 
@@ -53,7 +54,7 @@
                 android:text="@string/caution_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                android:layout_marginTop="20dp"
                 android:textAlignment="center"
                 android:textSize="21sp"/>
 
@@ -61,7 +62,7 @@
                 android:text="@string/caution_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="10dp"
                 android:textSize="17sp"
                 android:lineSpacingExtra="5dp"/>
 

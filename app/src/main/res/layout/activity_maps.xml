@@ -32,13 +32,10 @@
             android:orientation="vertical">
 
             <Button
-                android:textSize="17dp"
+                android:textSize="20sp"
                 android:paddingRight="10dp"
                 android:paddingLeft="10dp"
-                android:visibility="invisible"
-                android:layout_gravity="center"
                 android:gravity="center"
-                android:drawableTint="@color/freshCutDayLightGreen"
                 android:drawableEnd="@drawable/add"
                 android:drawableRight="@drawable/add"
                 android:drawablePadding="5dp"
@@ -46,13 +43,14 @@
                 android:background="@color/freshCutDayLightGreen"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/add_place_button"
+                android:id="@+id/add_place_btn"
                 android:textAllCaps="false"/>
         </LinearLayout>
 
     </LinearLayout>
 
     <LinearLayout
+        android:visibility="invisible"
         android:orientation="vertical"
         android:id="@+id/pb_layout"
         android:layout_width="match_parent"
@@ -68,9 +66,9 @@
             style="@android:style/Widget.ProgressBar.Small" />
 
         <TextView
-            android:textSize="18sp"
+            android:textSize="21sp"
             android:gravity="center"
-            android:layout_margin="10dp"
+            android:layout_margin="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/getting_location" />

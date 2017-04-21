@@ -22,7 +22,7 @@ public class Starter {
         this.activity = activity;
     }
 
-    void startStopFusedLocationService(){
+    void startStopLocationService(){
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
             return;

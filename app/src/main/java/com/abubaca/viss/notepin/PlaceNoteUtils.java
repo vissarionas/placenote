@@ -81,7 +81,7 @@ public class PlaceNoteUtils {
 
         ImageButton btnDelete;
         final TextView noteTextView;
-        noteTextView = (TextView)editView.findViewById(R.id.note_text_view);
+        noteTextView = (TextView)editView.findViewById(R.id.note_tv);
         btnDelete = (ImageButton)editView.findViewById(R.id.btn_delete);
         if(note.isEmpty()){
             btnDelete.setVisibility(View.INVISIBLE);
@@ -141,7 +141,7 @@ public class PlaceNoteUtils {
                         String note = noteEditText.getText().toString();
                         if(!note.contentEquals("")){
                             dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_ACTIVE, 0 , null);
-                            new Starter(activity).startStopFusedLocationService();
+                            new Starter(activity).startStopLocationService();
                         }else{
                             dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_EMPTY, 0 , null);
                         }
@@ -162,7 +162,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.updatePlaceNote(placeName , "" , Constants.NOTE_STATE_EMPTY, 0 , null);
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startStopFusedLocationService();
+                        new Starter(activity).startStopLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -218,7 +218,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.deletePlace(placeName);
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startStopFusedLocationService();
+                        new Starter(activity).startStopLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -240,7 +240,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearNotes();
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startStopFusedLocationService();
+                        new Starter(activity).startStopLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -261,7 +261,7 @@ public class PlaceNoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearDb();
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startStopFusedLocationService();
+                        new Starter(activity).startStopLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel , new DialogInterface.OnClickListener() {

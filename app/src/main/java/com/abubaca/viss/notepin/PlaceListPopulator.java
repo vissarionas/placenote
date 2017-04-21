@@ -2,7 +2,6 @@ package com.abubaca.viss.notepin;
 
 import android.app.Activity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -23,7 +22,7 @@ public class PlaceListPopulator {
     PlaceListPopulator(final Activity activity){
         this.activity = activity;
         dbHandler = new DBHandler(activity);
-        placeLV = (ListView)activity.findViewById(R.id.place_gv);
+        placeLV = (ListView)activity.findViewById(R.id.place_lv);
         noPlacesTV = (TextView)activity.findViewById(R.id.no_places_tv);
         noPlacesTV.setOnClickListener(new View.OnClickListener() {
             @Override

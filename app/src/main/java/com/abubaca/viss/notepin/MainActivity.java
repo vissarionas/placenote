@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.drawer_icon);
         placeNoteUtils = new PlaceNoteUtils(this);
-        addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_floating_action_button);
+        addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_fab);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
-        new Starter(this).startStopFusedLocationService();
+        new Starter(this).startStopLocationService();
         super.onResume();
     }
 
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
-        new Starter(this).startStopFusedLocationService();
+        new Starter(this).startStopLocationService();
         return super.onOptionsItemSelected(item);
     }
 
