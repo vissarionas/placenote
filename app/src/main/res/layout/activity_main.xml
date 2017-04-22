@@ -41,7 +41,8 @@
             android:tint="@android:color/white"
             android:id="@+id/add_place_fab"
             android:layout_gravity="bottom|end"
-            android:layout_margin="35dp"
+            android:layout_marginRight="35dp"
+            android:layout_marginBottom="20dp"
             app:backgroundTint="@color/freshCutDayLightGreen"
             app:fabSize="normal"
             app:elevation="5dp"/>

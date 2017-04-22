@@ -14,7 +14,7 @@
         <LinearLayout android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical"
-            android:layout_weight="0.3"
+            android:layout_weight="0.2"
             android:layout_margin="2dp">
 
             <fragment
@@ -28,7 +28,7 @@
         <LinearLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_weight="1.7"
+            android:layout_weight="1.8"
             android:orientation="vertical">
 
             <Button
@@ -50,7 +50,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:visibility="invisible"
         android:orientation="vertical"
         android:id="@+id/pb_layout"
         android:layout_width="match_parent"

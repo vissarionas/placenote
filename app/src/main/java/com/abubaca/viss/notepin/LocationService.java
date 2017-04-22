@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -49,7 +50,6 @@ public class LocationService extends Service implements LocationListener,
     DBHandler dbHandler;
     Boolean wifiConnected = false;
     Boolean batterySaver = true;
-    String log;
 
     @Nullable
     @Override
@@ -101,10 +101,9 @@ public class LocationService extends Service implements LocationListener,
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Check wifi status and start google api client according to the value of wifiConnected boolean
             if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                wifiConnected = info.isConnected();
+//                wifiConnected = info.isConnected();
             }
         }
     };
@@ -119,6 +118,7 @@ public class LocationService extends Service implements LocationListener,
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         if (googleApiClient != null && googleApiClient.isConnected())
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, LocationService.this);
+        Log.i(TAG , "location request. interval: "+interval);
     }
 
     private void removeLocationUpdates() {
@@ -148,7 +148,7 @@ public class LocationService extends Service implements LocationListener,
         for (Location noteLocation : locations) {
             place = dbHandler.getPlaceByLocation(noteLocation);
             int tempProximity = dbHandler.getPlaceProximity(place);
-            placeProximity = (tempProximity > 200) ? tempProximity : 0;
+            placeProximity = (tempProximity > 300) ? tempProximity : 0;
             noteCurrentDistance = noteLocation.distanceTo(location);
             if (noteCurrentDistance < alertDistance + placeProximity) {
                 showNotification(place);
@@ -183,7 +183,7 @@ public class LocationService extends Service implements LocationListener,
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.drawable.notification);
         builder.setLargeIcon(BitmapFactory.decodeResource(getResources() , R.mipmap.notification_large_icon));
-        builder.setLights(Color.CYAN, 2000, 3000);
+        builder.setLights(Color.RED, 2000, 3000);
         builder.setVibrate(new long[]{300, 600, 300, 800});
         builder.setContentIntent(pendingIntent);
 
