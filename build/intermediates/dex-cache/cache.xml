@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="false"
+        jar="/home/viss/.android/build-cache/7a252eb26cedc315fdfe80e1e8193b2d0c5375cf/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="b43f286591e4cff994aab0192b03c7c7076b3c84">
+        <dex dex="/home/viss/Android_projects/notepin/app/build/intermediates/pre-dexed/debug/classes_e7f46328012059fc1000f61c1fc48de128ffe485.jar" />
+    </item>
+
+</items>

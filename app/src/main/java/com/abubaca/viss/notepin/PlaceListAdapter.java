@@ -2,6 +2,7 @@ package com.abubaca.viss.notepin;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -73,6 +74,8 @@ public class PlaceListAdapter extends BaseAdapter {
             String place = placeNotes.get(position).getPlace();
             String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
             placeText.setText(subPlace);
+            placeText.setTypeface(Typeface.SANS_SERIF);
+            placeText.setAllCaps(true);
             String note = placeNotes.get(position).getNote();
             String subNote = note.length()>20 ? note.substring(0,18)+"..":note;
             noteText.setText(subNote);

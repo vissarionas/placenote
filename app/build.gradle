@@ -31,5 +31,4 @@ dependencies {
     compile 'com.google.android.gms:play-services-places:10.2.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-beta5'
     testCompile 'junit:junit:4.12'
-    compile 'cn.pedant.sweetalert:library:1.3'
 }

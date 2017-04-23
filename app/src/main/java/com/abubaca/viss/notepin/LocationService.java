@@ -112,13 +112,11 @@ public class LocationService extends Service implements LocationListener,
         removeLocationUpdates();
         locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
-        float smallestDisplacement = interval>25000 ? 20.0f : interval>15000 ? 10.0f : 5.0f;
-        locationRequest.setSmallestDisplacement(smallestDisplacement);
+        locationRequest.setSmallestDisplacement(10.0f);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         if (googleApiClient != null && googleApiClient.isConnected())
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, LocationService.this);
-        Log.i(TAG , "location request. interval: "+interval);
     }
 
     private void removeLocationUpdates() {
@@ -140,8 +138,6 @@ public class LocationService extends Service implements LocationListener,
             removeLocationUpdates();
             return;
         }
-        if(location.getAccuracy()>1000) return;
-
         smallestDistance = 20000;
         alertDistance = location.getAccuracy() > 100 ? 100 : 20;
 
