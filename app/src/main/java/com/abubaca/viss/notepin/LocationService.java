@@ -103,7 +103,7 @@ public class LocationService extends Service implements LocationListener,
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-//                wifiConnected = info.isConnected();
+                wifiConnected = info.isConnected();
             }
         }
     };
@@ -112,7 +112,9 @@ public class LocationService extends Service implements LocationListener,
         removeLocationUpdates();
         locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
-        locationRequest.setSmallestDisplacement(10.0f);
+        float smallestDisplacement = interval != 300000 && interval>50000 ? 50 :
+                interval != 300000 && interval > 10000 ? 20 :10;
+        locationRequest.setSmallestDisplacement(smallestDisplacement);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         if (googleApiClient != null && googleApiClient.isConnected())
@@ -134,6 +136,7 @@ public class LocationService extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
+        if (location.getAccuracy()>1000) return;
         if (locations.isEmpty()) {
             removeLocationUpdates();
             return;
@@ -179,8 +182,8 @@ public class LocationService extends Service implements LocationListener,
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.drawable.notification);
         builder.setLargeIcon(BitmapFactory.decodeResource(getResources() , R.mipmap.notification_large_icon));
-        builder.setLights(Color.RED, 2000, 3000);
-        builder.setVibrate(new long[]{300, 600, 300, 800});
+        builder.setLights(Color.RED, 1000, 2000);
+        builder.setVibrate(new long[]{300, 600, 300, 600});
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();

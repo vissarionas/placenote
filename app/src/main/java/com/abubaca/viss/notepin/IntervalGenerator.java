@@ -11,17 +11,17 @@ public class IntervalGenerator {
         if(isBetween(distance,0,200)){
             interval = 5000;
         }else if(isBetween(distance,200,500)){
-            interval = 9000;
+            interval = 10000;
         }else if(isBetween(distance,500,1000)){
-            interval = 16000;
+            interval = 20000;
         }else if(isBetween(distance,1000,2500)){
-            interval = 40000;
+            interval = 50000;
         }else if(isBetween(distance,2500,5000)){
-            interval = 80000;
+            interval = 90000;
     }   else if(isBetween(distance,5000,10000)) {
             interval = 160000;
         }else{
-            interval = 200000;
+            interval = 220000;
         }
         return interval;
     }
