@@ -210,11 +210,4 @@ class DBHandler extends SQLiteOpenHelper{
         dbClose();
         return places.contains(place);
     }
-
-    Cursor getFullCursor(){
-        dbInit();
-        dbClose();
-        return this.cursor;
-    }
-
 }
