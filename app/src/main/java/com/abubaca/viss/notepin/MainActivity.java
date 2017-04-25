@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity
 
     static final String TAG = "MAIN_ACTIVITY";
 
-    private PlaceNoteUtils placeNoteUtils;
+    private PlacenoteUtils placenoteUtils;
     private FloatingActionButton addPlaceFloatingActionButton;
     private Boolean notified = false;
     private ActionBarDrawerToggle drawerToggle;
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.drawer_icon);
-        placeNoteUtils = new PlaceNoteUtils(this);
+        placenoteUtils = new PlacenoteUtils(this);
         addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_fab);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity
         //Check if the activity started by the pending intent of a notification
         if(!notified && getIntent().getAction().equals("NOTIFICATION")){
             String place = getIntent().getStringExtra("PLACE");
-            placeNoteUtils.viewNote(place);
+            placenoteUtils.viewNote(place);
             notified = true;
         }
         new PlaceListPopulator(this).populate();
@@ -156,10 +156,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case (R.id.nav_remove_places):
-                placeNoteUtils.clearDB();
+                placenoteUtils.clearDB();
                 break;
             case (R.id.nav_clear_notes):
-                placeNoteUtils.clearNotes();
+                placenoteUtils.clearNotes();
                 break;
             case (R.id.nav_help):
                 new Starter(this).startHelpActivity();

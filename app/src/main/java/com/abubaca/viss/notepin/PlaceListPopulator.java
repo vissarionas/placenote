@@ -35,17 +35,17 @@ public class PlaceListPopulator {
     }
 
     void populate(){
-        List<PlaceNote> placeNotes = dbHandler.getPlaceNotes();
-        if(placeNotes.size()>0) {
+        List<Placenote> placenotes = dbHandler.getPlaceNotes();
+        if(placenotes.size()>0) {
             placeLV.setVisibility(View.VISIBLE);
             noPlacesTV.setVisibility(View.INVISIBLE);
-            PlaceListAdapter adapter = new PlaceListAdapter(activity, placeNotes);
+            PlaceListAdapter adapter = new PlaceListAdapter(activity, placenotes);
             placeLV.setAdapter(adapter);
         }else{
             noPlacesTV.setClickable(true);
             noPlacesTV.setVisibility(View.VISIBLE);
             noPlacesTV.setText(R.string.no_places);
-            PlaceListAdapter adapter = new PlaceListAdapter(activity , placeNotes);
+            PlaceListAdapter adapter = new PlaceListAdapter(activity , placenotes);
             placeLV.setAdapter(adapter);
             placeLV.setVisibility(View.INVISIBLE);
         }

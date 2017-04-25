@@ -58,14 +58,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected static final String TAG = "MAP_ACTIVITY";
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
     private LinearLayout pbLayout;
-    private PlaceNoteUtils placeNoteUtils;
+    private PlacenoteUtils placenoteUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        placeNoteUtils = new PlaceNoteUtils(this);
+        placenoteUtils = new PlacenoteUtils(this);
         addPlaceButton = (Button)findViewById(R.id.add_place_btn);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
     }
@@ -75,7 +75,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                placeNoteUtils.addNewPlace(placeAddress , lat , lng , proximity);
+                placenoteUtils.addNewPlace(placeAddress , lat , lng , proximity);
             }
         });
         registerReceiver(broadcastReceiver , filter);

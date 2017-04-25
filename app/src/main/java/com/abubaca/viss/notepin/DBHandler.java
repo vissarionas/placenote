@@ -104,17 +104,17 @@ class DBHandler extends SQLiteOpenHelper{
         dbClose();
     }
 
-    List<PlaceNote> getPlaceNotes(){
+    List<Placenote> getPlaceNotes(){
         dbInit();
-        List<PlaceNote> placeNotes = new ArrayList<>();
+        List<Placenote> placenotes = new ArrayList<>();
         if(cursor.getCount()>0) {
             do {
-                PlaceNote placeNote = new PlaceNote(cursor.getString(0), cursor.getString(3) , cursor.getInt(4));
-                placeNotes.add(placeNote);
+                Placenote placenote = new Placenote(cursor.getString(0), cursor.getString(3) , cursor.getInt(4));
+                placenotes.add(placenote);
             }while(cursor.moveToNext());
         }
         dbClose();
-        return placeNotes;
+        return placenotes;
     }
 
     List<Location> getNotesLocations(){
@@ -137,6 +137,30 @@ class DBHandler extends SQLiteOpenHelper{
         }
         dbClose();
         return placeLocations;
+    }
+
+    List<PlacenoteLocProx> getNotesNameLocProx(){
+        dbInit();
+        List<PlacenoteLocProx> placeLocProx = new ArrayList<>();
+        Double lat , lng;
+
+        if(cursor.getCount()>0){
+            do {
+                if (!cursor.getString(3).isEmpty() && cursor.getInt(4) == Constants.NOTE_STATE_ACTIVE
+                        && cursor.getInt(5) == 0) {
+                    Location singlePlaceLocation = new Location("");
+                    lat = Double.valueOf(cursor.getString(1));
+                    lng = Double.valueOf(cursor.getString(2));
+                    singlePlaceLocation.setLatitude(lat);
+                    singlePlaceLocation.setLongitude(lng);
+
+                    PlacenoteLocProx singlePlaceLocProx = new PlacenoteLocProx(cursor.getString(0) , singlePlaceLocation , cursor.getInt(6));
+                    placeLocProx.add(singlePlaceLocProx);
+                }
+            } while (cursor.moveToNext());
+        }
+        dbClose();
+        return placeLocProx;
     }
 
     String getPlaceNote(String place){

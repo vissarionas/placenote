@@ -44,9 +44,8 @@ public class LocationService extends Service implements LocationListener,
 
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
-    List<Location> locations;
+    List<PlacenoteLocProx> placenoteLocProxList;
     long interval;
-    String place;
     Integer placeProximity;
     float noteCurrentDistance , alertDistance, smallestDistance;
     DBHandler dbHandler;
@@ -64,8 +63,8 @@ public class LocationService extends Service implements LocationListener,
         Log.i(TAG , "service started");
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         dbHandler = new DBHandler(this);
-        locations = dbHandler.getNotesLocations();
-        if(locations.size()>0){
+        placenoteLocProxList = dbHandler.getNotesNameLocProx();
+        if(placenoteLocProxList.size()>0){
             interval = wifiConnected ? wifiInterval : dataInterval;
             startGoogleApiClient();
             registerNetworkStateReciever();
@@ -110,7 +109,14 @@ public class LocationService extends Service implements LocationListener,
             if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 wifiConnected = info.isConnected();
-                if(info.getState().equals(NetworkInfo.State.CONNECTED)) requestLocationUpdates(interval , null);
+                if(info.getState().equals(NetworkInfo.State.CONNECTED)) {
+                    requestLocationUpdates(interval , 1);
+                    return;
+                }
+                if(info.getState().equals(NetworkInfo.State.DISCONNECTED)) {
+                    requestLocationUpdates(interval , null);
+                    return;
+                }
             }
         }
     };
@@ -146,24 +152,23 @@ public class LocationService extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG , "location changed. acc: "+location.getAccuracy());
-        if (location.getAccuracy()>500) return;
-        if (locations.isEmpty()) {
-            removeLocationUpdates();
-            return;
-        }
-        smallestDistance = 20000;
-        alertDistance = location.getAccuracy() > 100 ? 100 : 30;
+        float accuracy = location.getAccuracy();
+        Log.i(TAG , "location changed. acc: "+accuracy);
+        if (accuracy>500) return;
 
-        for (Location noteLocation : locations) {
-            place = dbHandler.getPlaceByLocation(noteLocation);
-            int tempProximity = dbHandler.getPlaceProximity(place);
+        smallestDistance = 20000;
+        alertDistance = accuracy > 100 ? 100 : 30;
+
+        for (PlacenoteLocProx placenoteLocProx : placenoteLocProxList) {
+            Location tempLocation = placenoteLocProx.getLocation();
+            int tempProximity = placenoteLocProx.getProximity();
             placeProximity = (tempProximity > 200) ? tempProximity : 0;
-            noteCurrentDistance = noteLocation.distanceTo(location);
+            noteCurrentDistance = tempLocation.distanceTo(location);
             if (noteCurrentDistance < alertDistance + placeProximity) {
-                showNotification(place);
+                showNotification(placenoteLocProx.getName());
+                break;
             }
-            float tempDistance = noteLocation.distanceTo(location);
+            float tempDistance = tempLocation.distanceTo(location);
             smallestDistance = tempDistance<smallestDistance ? tempDistance : smallestDistance;
         }
 
@@ -181,7 +186,9 @@ public class LocationService extends Service implements LocationListener,
 
     private void showNotification(String place) {
         dbHandler.updatePlaceNote(place, null, Constants.NOTE_STATE_ALERTED, 1, null);
-        locations = dbHandler.getNotesLocations();
+        placenoteLocProxList = dbHandler.getNotesNameLocProx();
+        if(placenoteLocProxList.isEmpty()) removeLocationUpdates();
+
         Intent intent = new Intent(this, MainActivity.class);
         intent.setAction("NOTIFICATION");
         intent.putExtra("PLACE" , place);

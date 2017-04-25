@@ -29,30 +29,30 @@ public class PlaceListAdapter extends BaseAdapter {
 
     private LayoutInflater layoutInflater;
     private ImageView stateIV;
-    private List<PlaceNote> placeNotes;
+    private List<Placenote> placenotes;
     private Context context;
     private Activity activity;
-    private PlaceNoteUtils placeNoteUtils;
+    private PlacenoteUtils placenoteUtils;
     private List<String> selectedPlaces;
     private LinearLayout listItemSurface;
 
-    PlaceListAdapter(Activity activity , List<PlaceNote> placeNotes){
-        this.placeNotes = placeNotes;
+    PlaceListAdapter(Activity activity , List<Placenote> placenotes){
+        this.placenotes = placenotes;
         this.context = activity;
         this.activity = activity;
         selectedPlaces = new ArrayList<>();
-        placeNoteUtils = new PlaceNoteUtils(activity);
+        placenoteUtils = new PlacenoteUtils(activity);
         layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount() {
-        return placeNotes.size();
+        return placenotes.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return placeNotes.get(position);
+        return placenotes.get(position);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class PlaceListAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        if(placeNotes.size()>0){
+        if(placenotes.size()>0){
             convertView = layoutInflater.inflate(R.layout.place_note_item , parent , false);
             TextView placeText = (TextView)convertView.findViewById(R.id.placeText);
             TextView noteText = (TextView)convertView.findViewById(R.id.noteText);
@@ -70,13 +70,13 @@ public class PlaceListAdapter extends BaseAdapter {
 
             final ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
             listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item);
-            setStateColor(placeNotes.get(position).getState());
-            String place = placeNotes.get(position).getPlace();
+            setStateColor(placenotes.get(position).getState());
+            String place = placenotes.get(position).getPlace();
             String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
             placeText.setText(subPlace);
             placeText.setTypeface(Typeface.SANS_SERIF);
             placeText.setAllCaps(true);
-            String note = placeNotes.get(position).getNote();
+            String note = placenotes.get(position).getNote();
             String subNote = note.length()>20 ? note.substring(0,18)+"..":note;
             noteText.setText(subNote);
             listItemMenuButton.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +88,7 @@ public class PlaceListAdapter extends BaseAdapter {
             listItemSurface.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    placeNoteUtils.viewNote(getPlace(position));
+                    placenoteUtils.viewNote(getPlace(position));
                 }
             });
             listItemSurface.setOnLongClickListener(new View.OnLongClickListener() {
@@ -113,16 +113,16 @@ public class PlaceListAdapter extends BaseAdapter {
                 String place = getPlace(position);
                 switch (item.getItemId()){
                     case R.id.edit_name:
-                        placeNoteUtils.editPlace(place);
+                        placenoteUtils.editPlace(place);
                         return true;
                     case R.id.view_on_map:
                         new Starter(activity).startViewPlaceActivity(place);
                         return true;
                     case R.id.clear_note:
-                        placeNoteUtils.clearNote(place);
+                        placenoteUtils.clearNote(place);
                         return true;
                     case R.id.delete_place:
-                        placeNoteUtils.deletePlace(place);
+                        placenoteUtils.deletePlace(place);
                         return true;
                 }
                 return true;
@@ -132,7 +132,7 @@ public class PlaceListAdapter extends BaseAdapter {
     }
 
     private String getPlace(int position){
-        return placeNotes.get(position).getPlace();
+        return placenotes.get(position).getPlace();
     }
 
     private void setStateColor(int state){
