@@ -71,7 +71,7 @@ public class PlaceListAdapter extends BaseAdapter {
             final ImageButton listItemMenuButton = (ImageButton)convertView.findViewById(R.id.list_item_menu);
             listItemSurface = (LinearLayout)convertView.findViewById(R.id.list_item);
             setStateColor(placenotes.get(position).getState());
-            String place = placenotes.get(position).getPlace();
+            String place = placenotes.get(position).getName();
             String subPlace = place.length()>20 ? place.substring(0,18)+".." : place;
             placeText.setText(subPlace);
             placeText.setTypeface(Typeface.SANS_SERIF);
@@ -132,7 +132,7 @@ public class PlaceListAdapter extends BaseAdapter {
     }
 
     private String getPlace(int position){
-        return placenotes.get(position).getPlace();
+        return placenotes.get(position).getName();
     }
 
     private void setStateColor(int state){

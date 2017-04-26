@@ -38,12 +38,12 @@ public class LocationService extends Service implements LocationListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "LOCATION_SERVICE";
-    private static final long WIFI_INTERVAL = 400000;
+    private static final long WIFI_INTERVAL = 500000;
     private static final long DATA_INTERVAL = 2000;
 
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
-    List<PlacenoteLocProx> placenoteLocProxList;
+    List<Placenote> placenotes;
     long interval;
     Integer placeProximity;
     float noteCurrentDistance, smallestDistance;
@@ -61,8 +61,8 @@ public class LocationService extends Service implements LocationListener,
     public int onStartCommand(Intent intent, int flags, int startId) {
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         dbHandler = new DBHandler(this);
-        placenoteLocProxList = dbHandler.getNotesNameLocProx();
-        if(placenoteLocProxList.size()>0){
+        placenotes = dbHandler.getPlacenotesLocationProximity();
+        if(placenotes.size()>0){
             interval = wifiConnected ? WIFI_INTERVAL : DATA_INTERVAL;
             startGoogleApiClient();
             registerNetworkStateReciever();
@@ -112,7 +112,7 @@ public class LocationService extends Service implements LocationListener,
 
     private void requestLocationUpdates(long interval) {
         removeLocationUpdates();
-        float smallestDisplacement = interval > 10000 ? 20.0f : interval > 5000 ? 5.0f : 1.0f;
+        float smallestDisplacement = interval > 10000 ? 20.0f : interval > 5000 ? 10.0f : 1.0f;
         locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
         locationRequest.setSmallestDisplacement(smallestDisplacement);
@@ -139,15 +139,14 @@ public class LocationService extends Service implements LocationListener,
     @Override
     public void onLocationChanged(Location location) {
         if (location.getAccuracy() > 500) return;
-
         smallestDistance = 20000;
 
-        for (PlacenoteLocProx placenoteLocProx : placenoteLocProxList) {
-            Location tempLocation = placenoteLocProx.getLocation();
-            placeProximity = placenoteLocProx.getProximity();
+        for (Placenote placenote : placenotes) {
+            Location tempLocation = placenote.getLocation();
+            placeProximity = placenote.getProximity();
             noteCurrentDistance = tempLocation.distanceTo(location);
             if (noteCurrentDistance < placeProximity) {
-                showNotification(placenoteLocProx.getName());
+                showNotification(placenote.getName());
                 break;
             }
             float tempDistance = tempLocation.distanceTo(location);
@@ -163,8 +162,8 @@ public class LocationService extends Service implements LocationListener,
 
     private void showNotification(String place) {
         dbHandler.updatePlaceNote(place, null, Constants.NOTE_STATE_ALERTED, 1, null);
-        placenoteLocProxList = dbHandler.getNotesNameLocProx();
-        if(placenoteLocProxList.isEmpty()) removeLocationUpdates();
+        placenotes = dbHandler.getPlacenotesLocationProximity();
+        if(placenotes.isEmpty()) removeLocationUpdates();
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.setAction("NOTIFICATION");

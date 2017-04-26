@@ -1,5 +1,7 @@
 package com.abubaca.viss.notepin;
 
+import android.location.Location;
+
 /**
  * Created by viss on 1/3/17.
  */
@@ -7,7 +9,8 @@ package com.abubaca.viss.notepin;
 class Placenote {
 
     private String place , note;
-    private int state;
+    private int state , proximity;
+    private Location location;
 
     Placenote(String place , String note , int state){
         this.place = place;
@@ -15,12 +18,26 @@ class Placenote {
         this.state = state;
     }
 
-    public String getPlace(){
+    Placenote(String place , Location location , int proximity){
+        this.place = place;
+        this.location = location;
+        this.proximity = proximity;
+    }
+
+    public String getName(){
         return this.place;
     }
 
     public String getNote(){
         return this.note;
+    }
+
+    public Location getLocation(){
+        return this.location;
+    }
+
+    public int getProximity(){
+        return this.proximity;
     }
 
     int getState(){
