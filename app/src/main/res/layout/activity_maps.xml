@@ -9,12 +9,12 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/freshCutDayWhite"
-        android:weightSum="2">
+        android:weightSum="3">
 
         <LinearLayout android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical"
-            android:layout_weight="0.2"
+            android:layout_weight="0.4"
             android:layout_margin="2dp">
 
             <fragment
@@ -28,17 +28,17 @@
         <LinearLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_weight="1.8"
+            android:layout_weight="2.6"
             android:orientation="vertical">
 
             <Button
-                android:textSize="20sp"
-                android:paddingRight="10dp"
-                android:paddingLeft="10dp"
+                android:textSize="19sp"
+                android:paddingRight="7dp"
+                android:paddingLeft="7dp"
                 android:gravity="center"
                 android:drawableEnd="@drawable/add"
                 android:drawableRight="@drawable/add"
-                android:drawablePadding="5dp"
+                android:drawablePadding="4dp"
                 android:textColor="@android:color/white"
                 android:background="@color/freshCutDayLightGreen"
                 android:layout_width="match_parent"

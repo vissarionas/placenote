@@ -8,11 +8,11 @@ public class IntervalGenerator {
 
     long getInterval(float distance){
         long interval;
-        if(isBetween(distance,0,200)){
-            interval = 2000;
-        }else if(isBetween(distance,200,500)){
+        if(isBetween(distance,0,300)){
+            interval = 5000;
+        }else if(isBetween(distance,300,600)){
             interval = 10000;
-        }else if(isBetween(distance,500,1000)){
+        }else if(isBetween(distance,600,1000)){
             interval = 60000;
         }else if(isBetween(distance,1000,2500)){
             interval = 100000;

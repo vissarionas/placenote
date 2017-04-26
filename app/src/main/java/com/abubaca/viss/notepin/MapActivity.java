@@ -28,6 +28,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceTypes;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,6 +38,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.List;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
@@ -49,7 +52,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Marker marker;
     private String placeAddress = null;
     private Double lat , lng;
-    private int proximity = 150;
+    private int proximity = 50;
     private Button addPlaceButton;
     private GoogleApiClient googleApiClient;
     private Location lastKnownLocation;
@@ -148,10 +151,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void requestLocationUpdates(){
+        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)) return;
+
         removeLocationUpdates();
         LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(2000);
-        locationRequest.setFastestInterval(1000);
+        locationRequest.setInterval(0);
         locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapActivity.this);
@@ -167,6 +171,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             return;
         }
         lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+    }
+
+    private void getGoogleMap(){
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -201,8 +208,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Location northeastBound = new Location("");
                     northeastBound.setLatitude(place.getViewport().northeast.latitude);
                     northeastBound.setLongitude(place.getViewport().northeast.longitude);
-                    proximity = Math.round(northeastBound.distanceTo(placeLocation));
-                    proximity = place.getPlaceTypes().contains(1011)?proximity*4:proximity;
+                    int placeRadius = Math.round(northeastBound.distanceTo(placeLocation));
+                    List<Integer> placeTypes = place.getPlaceTypes();
+                    proximity = placeTypes.contains(1021)?50:
+                            placeTypes.contains(1011)?placeRadius*3:
+                            placeRadius;
                 }
 
                 lat = placeLocation.getLatitude();
@@ -268,9 +278,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG , "google api client connected");
+        getGoogleMap();
         getLastKnownLocation();
-        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)) return;
         requestLocationUpdates();
     }
 
@@ -286,9 +295,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG , "location cheanged. accuracy: "+location.getAccuracy());
         if(location.getAccuracy()>1000) return;
-        if(location.getAccuracy()>500) Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_SHORT).show();
+        if(location.getAccuracy()>300) Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_SHORT).show();
         if(location.getAccuracy()<100) removeLocationUpdates();
         lastKnownLocation = location;
         presentUserLocation(lastKnownLocation);

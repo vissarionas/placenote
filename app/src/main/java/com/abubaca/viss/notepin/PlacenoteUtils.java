@@ -43,7 +43,7 @@ public class PlacenoteUtils {
         addPlaceET.setSelection(addPlaceET.getText().length());
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setMessage(R.string.name_your_place);
+        dialogBuilder.setMessage(R.string.type_place_name);
         dialogBuilder.setView(addPlaceView);
         dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
