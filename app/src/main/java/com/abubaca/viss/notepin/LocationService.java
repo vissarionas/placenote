@@ -112,7 +112,7 @@ public class LocationService extends Service implements LocationListener,
 
     private void requestLocationUpdates(long interval) {
         removeLocationUpdates();
-        float smallestDisplacement = interval > 10000 ? 20.0f : interval > 5000 ? 10.0f : 1.0f;
+        float smallestDisplacement = interval > 30000 ? 20.0f : interval > 15000 ? 10.0f : 1.0f;
         locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
         locationRequest.setSmallestDisplacement(smallestDisplacement);
