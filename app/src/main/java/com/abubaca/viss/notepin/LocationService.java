@@ -38,15 +38,17 @@ public class LocationService extends Service implements LocationListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "LOCATION_SERVICE";
-    private static final long WIFI_INTERVAL = 500000;
-    private static final long DATA_INTERVAL = 2000;
+
+    private static final long WIFI_INTERVAL = 300000;
+    private static final long BATTERY_SAVER_DATA_INTERVAL = 150000;
+    private static final long DATA_INTERVAL = 90000;
 
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
     List<Placenote> placenotes;
     long interval;
     Integer placeProximity;
-    float noteCurrentDistance, smallestDistance;
+    float noteCurrentDistance;
     DBHandler dbHandler;
     Boolean wifiConnected = false;
     Boolean batterySaver = false;
@@ -63,9 +65,9 @@ public class LocationService extends Service implements LocationListener,
         dbHandler = new DBHandler(this);
         placenotes = dbHandler.getPlacenotesLocationProximity();
         if(placenotes.size()>0){
-            interval = wifiConnected ? WIFI_INTERVAL : DATA_INTERVAL;
+            interval = wifiConnected ? WIFI_INTERVAL : batterySaver ? BATTERY_SAVER_DATA_INTERVAL : DATA_INTERVAL;
             startGoogleApiClient();
-            registerNetworkStateReciever();
+            registerNetworkStateReceiver();
         }else{
             removeLocationUpdates();
         }
@@ -76,7 +78,7 @@ public class LocationService extends Service implements LocationListener,
 
     private void startGoogleApiClient(){
         if (googleApiClient != null && googleApiClient.isConnected()) {
-            requestLocationUpdates(interval);
+            requestLocationUpdates();
         } else {
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -89,10 +91,10 @@ public class LocationService extends Service implements LocationListener,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        requestLocationUpdates(interval);
+        requestLocationUpdates();
     }
 
-    void registerNetworkStateReciever(){
+    void registerNetworkStateReceiver(){
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
@@ -104,18 +106,17 @@ public class LocationService extends Service implements LocationListener,
             if(intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)){
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 wifiConnected = info.isConnected();
-                interval = wifiConnected ? WIFI_INTERVAL : DATA_INTERVAL;
-                requestLocationUpdates(interval);
+                requestLocationUpdates();
             }
         }
     };
 
-    private void requestLocationUpdates(long interval) {
+    private void requestLocationUpdates() {
         removeLocationUpdates();
-        float smallestDisplacement = interval > 30000 ? 20.0f : interval > 15000 ? 10.0f : 1.0f;
+        interval = wifiConnected ? WIFI_INTERVAL : batterySaver ? BATTERY_SAVER_DATA_INTERVAL : DATA_INTERVAL;
         locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
-        locationRequest.setSmallestDisplacement(smallestDisplacement);
+        locationRequest.setSmallestDisplacement(5.0f);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         if (googleApiClient != null && googleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, LocationService.this);
@@ -138,26 +139,16 @@ public class LocationService extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        if (location.getAccuracy() > 500) return;
-        smallestDistance = 20000;
+        if (location.getAccuracy()>500) return;
 
         for (Placenote placenote : placenotes) {
-            Location tempLocation = placenote.getLocation();
             placeProximity = placenote.getProximity();
-            noteCurrentDistance = tempLocation.distanceTo(location);
+            noteCurrentDistance = placenote.getLocation().distanceTo(location);
             if (noteCurrentDistance < placeProximity) {
                 showNotification(placenote.getName());
                 break;
             }
-            float tempDistance = tempLocation.distanceTo(location);
-            smallestDistance = tempDistance<smallestDistance ? tempDistance : smallestDistance;
         }
-
-        interval = wifiConnected ? WIFI_INTERVAL
-                : batterySaver ? (long) (new IntervalGenerator().getInterval(smallestDistance) * 1.5)
-                : new IntervalGenerator().getInterval(smallestDistance);
-
-        if (interval != locationRequest.getInterval()) requestLocationUpdates(interval);
     }
 
     private void showNotification(String place) {

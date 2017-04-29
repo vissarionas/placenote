@@ -28,7 +28,6 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceTypes;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,6 +47,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener{
 
+    private static final String TAG = "MAP_ACTIVITY";
+
     private GoogleMap map;
     private Marker marker;
     private String placeAddress = null;
@@ -58,7 +59,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Location lastKnownLocation;
     private static final int FINE_LOCATION_PERMISSION_REQUEST = 0x1;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 0x2;
-    protected static final String TAG = "MAP_ACTIVITY";
+
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
     private LinearLayout pbLayout;
     private PlacenoteUtils placenoteUtils;
@@ -308,5 +309,4 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         long lastKnownLocationTime = location.getTime();
         return (time - lastKnownLocationTime < 120000);
     }
-
 }
