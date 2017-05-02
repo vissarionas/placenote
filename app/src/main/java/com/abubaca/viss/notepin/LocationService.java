@@ -40,8 +40,8 @@ public class LocationService extends Service implements LocationListener,
     private static final String TAG = "LOCATION_SERVICE";
 
     private static final long WIFI_INTERVAL = 300000;
-    private static final long BATTERY_SAVER_DATA_INTERVAL = 150000;
-    private static final long DATA_INTERVAL = 90000;
+    private static final long BATTERY_SAVER_DATA_INTERVAL = 90000;
+    private static final long DATA_INTERVAL = 60000;
 
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
