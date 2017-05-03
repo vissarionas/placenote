@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Notepin</string>
+    <string name="app_name">Placenote</string>
     <string name="action_battery_save">Battery saver</string>
     <string name="action_remove_places">Remove all places</string>
     <string name="action_remove_notes">Clear all notes</string>
