@@ -59,11 +59,8 @@
     <string name="type_place_name">Type place name</string>
     <string name="place_exists">Place already exists</string>
 
-    <string name="address_generator_error_message">Address unavailable.
-        \nSlow Internet connection might be the issue.
-    </string>
-    <string name="bad_accuracy">Approximate location found
-Check your location settings for better accuracy</string>
+    <string name="address_generator_error_message">Address unavailable.</string>
+    <string name="bad_accuracy">Approximate location found.\nAdjust your location settings for better accuracy</string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>

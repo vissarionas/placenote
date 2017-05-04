@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -19,17 +20,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -44,7 +48,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.List;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
-import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -54,9 +57,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final String TAG = "MAP_ACTIVITY";
     private static final int FINE_LOCATION_PERMISSION_REQUEST = 0x1;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 0x2;
-    private static final int START_LOCATION_SETTTINGS_REQUEST = 0x3;
-
-
+    private static final int REQUEST_CHECK_SETTINGS = 0x3;
     private GoogleMap map;
     private Marker marker;
     private String placeAddress = null;
@@ -65,12 +66,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Button addPlaceButton;
     private GoogleApiClient googleApiClient;
     private Location lastKnownLocation;
-    private ProgressBar locationStatusPB;
-    private TextView locationStatusTV;
-
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
     private LinearLayout pbLayout;
     private PlacenoteUtils placenoteUtils;
+    private LocationRequest locationRequest;
+    private Boolean locationEnableCanceled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,18 +80,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         placenoteUtils = new PlacenoteUtils(this);
         addPlaceButton = (Button)findViewById(R.id.add_place_btn);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
-        locationStatusPB = (ProgressBar)findViewById(R.id.location_status_pb);
-        locationStatusTV = (TextView)findViewById(R.id.location_status_tv);
     }
 
     @Override
     protected void onResume() {
-        Log.i(TAG ,"on resume");
-        if(!isLocationEnabled()){
-            Toast.makeText(getApplicationContext() , "Device Location is off" , Toast.LENGTH_LONG).show();
-            locationStatusTV.setText("Location is turned off.\nGo to location settings.");
-            locationStatusPB.setVisibility(View.INVISIBLE);
-        }addPlaceButton.setOnClickListener(new View.OnClickListener() {
+        getGoogleMap();
+        addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 placenoteUtils.addNewPlace(placeAddress , lat , lng , proximity);
@@ -117,9 +111,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
-                lastKnownLocation.setLatitude(point.latitude);
-                lastKnownLocation.setLongitude(point.longitude);
-                presentUserLocation(lastKnownLocation);
+                if(lastKnownLocation!=null) {
+                    lastKnownLocation.setLatitude(point.latitude);
+                    lastKnownLocation.setLongitude(point.longitude);
+                    presentUserLocation(lastKnownLocation);
+                }
             }
         });
 
@@ -154,9 +150,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void connectGoogleApiClient() {
+        Log.i(TAG , "connecting googleapiclient");
         if(googleApiClient!=null) {
-            googleApiClient.connect();
+            Log.i(TAG , "googleapiclient is NOT null");
+            if(!googleApiClient.isConnected()){
+                Log.i(TAG , "googleapiclient is NOT connected");
+                googleApiClient.connect();
+            }else{
+                Log.i(TAG , "googleapiclient isconnected");
+                googleApiClient.reconnect();
+            }
         }else{
+            Log.i(TAG , "googleapiclient is null");
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -166,15 +171,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void requestLocationUpdates(){
-        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)) return;
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        createLocationUpdates();
+        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)) {
+            presentUserLocation(lastKnownLocation);
+            return;
+        }
+        if(!locationEnableCanceled) checkLocationService(locationRequest);
+    }
 
+    private void createLocationUpdates(){
         removeLocationUpdates();
-        LocationRequest locationRequest = new LocationRequest();
+        locationRequest = new LocationRequest();
         locationRequest.setInterval(0);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapActivity.this);
     }
 
     private void removeLocationUpdates(){
@@ -187,6 +198,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             return;
         }
         lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if(location.getAccuracy()>1000) return;
+        if(location.getAccuracy()>300) Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_LONG).show();
+        if(location.getAccuracy()<100) removeLocationUpdates();
+        lastKnownLocation = location;
+        presentUserLocation(lastKnownLocation);
     }
 
     private void getGoogleMap(){
@@ -213,7 +233,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i(TAG , "request code: "+requestCode+" result code: "+resultCode);
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 removeLocationUpdates();
@@ -227,6 +246,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     northeastBound.setLongitude(place.getViewport().northeast.longitude);
                     int placeRadius = Math.round(northeastBound.distanceTo(placeLocation));
                     List<Integer> placeTypes = place.getPlaceTypes();
+                    Log.i(TAG , placeTypes.toString());
                     proximity = placeTypes.contains(1021)?50:
                                     placeTypes.contains(1011)?placeRadius*3:
                                         placeTypes.contains(1009)?placeRadius/2:
@@ -255,30 +275,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             } else if (resultCode == RESULT_CANCELED) {
                 // The user canceled the operation.
             }
-        }else if(requestCode == START_LOCATION_SETTTINGS_REQUEST){
-            this.onResume();
         }
-    }
-
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals("GET_ADDRESS")){
-                placeAddress = intent.getStringExtra("ADDRESS");
-                pbLayout.setVisibility(View.INVISIBLE);
-                String addPlace = getResources().getString(R.string.add_place);
-                getSupportActionBar().setTitle(placeAddress);
-                addPlaceButton.setText(String.format(addPlace , placeAddress));
+        if(requestCode == REQUEST_CHECK_SETTINGS){
+            if(resultCode == RESULT_OK) {
+                this.recreate();
+            }else if(resultCode == RESULT_CANCELED){
+                locationEnableCanceled = true;
             }
         }
-    };
-
-    private void presentUserLocation(Location location){
-        this.lat = location.getLatitude();
-        this.lng = location.getLongitude();
-        getAddress(location.getLatitude() , location.getLongitude());
-        pointLocation(location , 18.0f);
     }
 
     private void getAddress(Double lat , Double lng){
@@ -296,11 +300,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        getGoogleMap();
-        getLastKnownLocation();
-        requestLocationUpdates();
+    private void presentUserLocation(Location location){
+        this.lat = location.getLatitude();
+        this.lng = location.getLongitude();
+        getAddress(location.getLatitude() , location.getLongitude());
+        pointLocation(location , 18.0f);
     }
 
     @Override
@@ -311,15 +315,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if(location.getAccuracy()>1000) return;
-        if(location.getAccuracy()>300) Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_SHORT).show();
-        if(location.getAccuracy()<100) removeLocationUpdates();
-        lastKnownLocation = location;
-        presentUserLocation(lastKnownLocation);
     }
 
     @NonNull
@@ -334,8 +329,53 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return service.isProviderEnabled(LocationManager.GPS_PROVIDER) || service.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
-    private void startLocationSettings() {
-        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        startActivityForResult(intent , START_LOCATION_SETTTINGS_REQUEST);
+    private void checkLocationService(final LocationRequest locationRequest){
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
+                final Status status = locationSettingsResult.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        // All location settings are satisfied. The client can
+                        // initialize location requests here.
+                        getLastKnownLocation();
+                        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapActivity.this);
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied, but this can be fixed
+                        // by showing the user a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            status.startResolutionForResult(MapActivity.this , REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way
+                        // to fix the settings so we won't show the dialog.
+                        break;
+                }
+            }
+        });
     }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals("GET_ADDRESS")){
+                placeAddress = intent.getStringExtra("ADDRESS");
+                pbLayout.setVisibility(View.INVISIBLE);
+                String addPlace = getResources().getString(R.string.add_place);
+                getSupportActionBar().setTitle(placeAddress);
+                addPlaceButton.setText(String.format(addPlace , placeAddress));
+            }
+        }
+    };
 }
