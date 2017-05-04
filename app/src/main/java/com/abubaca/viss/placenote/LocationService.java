@@ -163,7 +163,7 @@ public class LocationService extends Service implements LocationListener,
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSound(Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.notification));
-        builder.setContentTitle(place);
+        builder.setContentTitle(place.toUpperCase());
         builder.setContentText(dbHandler.getPlaceNote(place));
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.drawable.notification);

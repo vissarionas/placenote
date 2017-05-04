@@ -14,6 +14,7 @@ import java.util.List;
 public class PlaceListPopulator {
 
     private final static String TAG = "LIST_POPULATOR";
+
     private Activity activity;
     private TextView noPlacesTV;
     private ListView placeLV;

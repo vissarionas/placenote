@@ -42,10 +42,11 @@
         Have fun :D</string>
 
     <string name="add_new_place">Add a new place</string>
-    <string name="confirm_delete_places">Are you sure you want to delete all places?\nThis cannot be undone.</string>
     <string name="no_places">Your placelist is empty.\n\nClick here or the plus button, and add your first place.</string>
-    <string name="confirm_delete_note">Are you sure you want to delete this note?</string>
-    <string name="confirm_delete_all_notes">Are you sure you want to delete all notes?\nThis cannot be undone.</string>
+    <string name="confirm_delete_places">Warning.\nAll places will be removed.\nAre you sure?</string>
+    <string name="confirm_delete_all_notes">Warning.\nAll notes will be deleted.\nAre you sure?</string>
+    <string name="confirm_delete_selected_notes">Selected notes will be deleted.\nAre you sure?</string>
+    <string name="confirm_delete_note">Delete this note?</string>
     <string name="confirm_delete_place">Are you sure you want to remove %1$s ?</string>
     <string name="type_a_note_here">type a note here</string>
     <string name="place_name">Place name</string>

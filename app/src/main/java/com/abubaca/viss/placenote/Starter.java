@@ -2,10 +2,13 @@ package com.abubaca.viss.placenote;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 /**
  * Created by viss on 2/24/17.
@@ -60,4 +63,8 @@ public class Starter {
         intent.putExtra(Intent.EXTRA_SUBJECT, R.string.app_name);
         activity.startActivity(Intent.createChooser(intent, "Contact via email"));
     }
+
+
+
+
 }

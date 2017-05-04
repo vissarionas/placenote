@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="listSelectedItemGrey">#408e8e8d</color>
+    <color name="listSelectedItemGrey">#40b1b1b1</color>
     <color name="handsOnGrey">#4E4D4A</color>
     <color name="handsOnDarkGrey">#353432</color>
 

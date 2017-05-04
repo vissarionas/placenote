@@ -59,12 +59,14 @@
 
 
         <ProgressBar
+            android:id="@+id/location_status_pb"
             android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@android:style/Widget.ProgressBar.Small" />
 
         <TextView
+            android:id="@+id/location_status_tv"
             android:textSize="21sp"
             android:gravity="center"
             android:layout_margin="15dp"

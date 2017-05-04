@@ -2,8 +2,8 @@ package com.abubaca.viss.placenote;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,6 @@ import java.util.List;
 public class PlaceListAdapter extends BaseAdapter {
 
     private final static String TAG = "PLACENOTE_ADAPTER";
-
 
     private LayoutInflater layoutInflater;
     private ImageView stateIV;
@@ -90,28 +90,36 @@ public class PlaceListAdapter extends BaseAdapter {
             listItemSurface.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!multipleSelected) placenoteUtils.viewNote(getPlace(position));
+                    String place = getPlace(position);
+                    if(!multipleSelected){
+                        placenoteUtils.viewNote(place);
+                    }else{
+                        addRemoveSelectedPlace(place , v);
+                    }
                 }
             });
             listItemSurface.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     String place = getPlace(position);
-                        if(!selectedPlaces.contains(place)){
-                            selectedPlaces.add(place);
-                            v.setBackgroundResource(R.drawable.background_selected);
-                        }else{
-                            selectedPlaces.remove(place);
-                            v.setBackgroundResource(R.drawable.background);
-                        }
-
-                    Log.i(TAG , "selected places: "+selectedPlaces);
-                    multipleSelected = selectedPlaces.size()>0;
+                    addRemoveSelectedPlace(place , v);
                     return true;
                 }
             });
         }
         return convertView;
+    }
+
+    private void addRemoveSelectedPlace(String place , View view){
+        if(!selectedPlaces.contains(place)){
+            selectedPlaces.add(place);
+            view.setBackgroundResource(R.drawable.background_selected);
+        }else{
+            selectedPlaces.remove(place);
+            view.setBackgroundResource(R.drawable.background);
+        }
+        sendSelectedItemsBroadcast(selectedPlaces);
+        multipleSelected = selectedPlaces.size()>0;
     }
 
     private void showMenu(View view , final int position){
@@ -161,6 +169,13 @@ public class PlaceListAdapter extends BaseAdapter {
                 stateIV.setImageResource(R.drawable.note_alert);
                 break;
         }
+    }
+
+    private void sendSelectedItemsBroadcast(List<String> selectedPlaces){
+        Intent intent = new Intent();
+        intent.setAction("SELECTED_ITEMS");
+        intent.putStringArrayListExtra ("SELECTED_PLACES" , (ArrayList<String>) selectedPlaces);
+        activity.sendBroadcast(intent);
     }
 
 }

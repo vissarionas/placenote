@@ -1,5 +1,9 @@
 package com.abubaca.viss.placenote;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -10,9 +14,13 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
     implements NavigationView.OnNavigationItemSelectedListener {
@@ -20,11 +28,14 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MAIN_ACTIVITY";
 
     private PlacenoteUtils placenoteUtils;
-    private FloatingActionButton addPlaceFloatingActionButton;
+    private FloatingActionButton addPlaceFAB;
     private Boolean notified = false;
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
     private Boolean batterySaver = false;
+    private IntentFilter filter = new IntentFilter("SELECTED_ITEMS");
+    private List<String> selectedPlaces = new ArrayList<>();
+    private MenuItem clearItem , batteryItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +44,17 @@ public class MainActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.drawer_icon);
         placenoteUtils = new PlacenoteUtils(this);
-        addPlaceFloatingActionButton = (FloatingActionButton)findViewById(R.id.add_place_fab);
+        addPlaceFAB = (FloatingActionButton)findViewById(R.id.add_place_fab);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         setupDrawer();
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterReceiver(broadcastReceiver);
+        super.onPause();
     }
 
     private void setupDrawer() {
@@ -70,6 +87,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
+        addPlaceFAB.show();
         //Check if the activity started by the pending intent of a notification
         if(!notified && getIntent().getAction().equals("NOTIFICATION")){
             String place = getIntent().getStringExtra("PLACE");
@@ -77,14 +95,16 @@ public class MainActivity extends AppCompatActivity
             notified = true;
         }
         new PlaceListPopulator(this).populate();
-        addPlaceFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+        addPlaceFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                addPlaceFAB.hide();
                 new Starter(MainActivity.this).startMapActivity();
             }
         });
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         new Starter(this).startLocationService();
+        registerReceiver(broadcastReceiver , filter);
         super.onResume();
     }
 
@@ -93,6 +113,11 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if(selectedPlaces.size()>0) {
+            selectedPlaces.clear();
+            handleMenuItemVisibility();
+            addPlaceFAB.show();
+            new PlaceListPopulator(this).populate();
         } else {
             super.onBackPressed();
         }
@@ -100,12 +125,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.getItem(0);
-        item.setChecked(batterySaver);
-        if(item.isChecked()){
-            item.setIcon(R.drawable.battery_saver_on);
+        batteryItem = menu.findItem(R.id.action_battery_save);
+        clearItem = menu.findItem(R.id.action_clear_notes);
+        handleMenuItemVisibility();
+
+        batteryItem.setChecked(batterySaver);
+        if(batteryItem.isChecked()){
+            batteryItem.setIcon(R.drawable.battery_saver_on);
         }else{
-            item.setIcon(R.drawable.battery_saver_off);
+            batteryItem.setIcon(R.drawable.battery_saver_off);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -139,6 +167,11 @@ public class MainActivity extends AppCompatActivity
                     new CustomToast().makeToast(this, Constants.WARNING_TOAST , getResources().getString(R.string.battery_saver_off));
                 }
                 break;
+            case R.id.action_clear_notes:
+                if(selectedPlaces.size()>0){
+                    placenoteUtils.clearSelectedNotes(selectedPlaces);
+                }
+                break;
         }
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
         new Starter(this).startLocationService();
@@ -159,7 +192,7 @@ public class MainActivity extends AppCompatActivity
                 placenoteUtils.clearDB();
                 break;
             case (R.id.nav_clear_notes):
-                placenoteUtils.clearNotes();
+                placenoteUtils.clearAllNotes();
                 break;
             case (R.id.nav_help):
                 new Starter(this).startHelpActivity();
@@ -172,6 +205,24 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            selectedPlaces = intent.getStringArrayListExtra("SELECTED_PLACES");
+            if(selectedPlaces.size()>0) {
+                addPlaceFAB.hide();
+            }else{
+                addPlaceFAB.show();
+            }
+            handleMenuItemVisibility();
+        }
+    };
+
+    private void handleMenuItemVisibility(){
+        clearItem.setVisible(selectedPlaces.size()>0);
+        batteryItem.setVisible(selectedPlaces.size() == 0);
     }
 }
 

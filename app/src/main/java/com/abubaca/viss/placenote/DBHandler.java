@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,13 +66,25 @@ class DBHandler extends SQLiteOpenHelper{
         dbClose();
     }
 
-    void clearNotes(){
+    void clearAllNotes(){
         dbInit();
         ContentValues values = new ContentValues();
         values.put("NOTE" , "");
         values.put("STATE" , Constants.NOTE_STATE_EMPTY);
         values.put("NOTIFIED" , 0);
         db.update("PLACENOTES" , values , null , null );
+        dbClose();
+    }
+
+    void clearSelectedNotes(List<String> selectedPlaces){
+        dbInit();
+        ContentValues values = new ContentValues();
+        values.put("NOTE" , "");
+        values.put("STATE" , Constants.NOTE_STATE_EMPTY);
+        values.put("NOTIFIED" , 0);
+        for(String place : selectedPlaces){
+            db.update("PLACENOTES" , values , "PLACE IN (?)" , new String[]{place} );
+        }
         dbClose();
     }
 
@@ -115,28 +128,6 @@ class DBHandler extends SQLiteOpenHelper{
         }
         dbClose();
         return placenotes;
-    }
-
-    List<Location> getNotesLocations(){
-        dbInit();
-        Double lat , lng;
-        List<Location> placeLocations = new ArrayList<>();
-
-        if(cursor.getCount()>0){
-            do {
-                if (!cursor.getString(3).isEmpty() && cursor.getInt(4) == Constants.NOTE_STATE_ACTIVE
-                        && cursor.getInt(5) == 0) {
-                    Location singlePlaceLocation = new Location("");
-                    lat = Double.valueOf(cursor.getString(1));
-                    lng = Double.valueOf(cursor.getString(2));
-                    singlePlaceLocation.setLatitude(lat);
-                    singlePlaceLocation.setLongitude(lng);
-                    placeLocations.add(singlePlaceLocation);
-                }
-            } while (cursor.moveToNext());
-        }
-        dbClose();
-        return placeLocations;
     }
 
     List<Placenote> getPlacenotesLocationProximity(){
@@ -186,30 +177,6 @@ class DBHandler extends SQLiteOpenHelper{
         placeLocation.setLatitude(Double.valueOf(cursor.getString(1)));
         placeLocation.setLongitude(Double.valueOf(cursor.getString(2)));
         return placeLocation;
-    }
-
-    String getPlaceByLocation(Location location){
-        dbInit();
-        String lat = String.valueOf(location.getLatitude());
-        String lng = String.valueOf(location.getLongitude());
-        if(cursor.getCount()>0){
-            do {
-                if (cursor.getString(1).contentEquals(lat) && cursor.getString(2).contentEquals(lng)) break;
-            }while(cursor.moveToNext());
-        }
-        dbClose();
-        return cursor.getString(0);
-    }
-
-    int getPlaceProximity(String place){
-        dbInit();
-        if(cursor.getCount()>0){
-            do{
-                if(cursor.getString(0).contentEquals(place)) break;
-            }while(cursor.moveToNext());
-        }
-        dbClose();
-        return cursor.getInt(6);
     }
 
     Boolean isNotified(String place){

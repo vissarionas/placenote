@@ -3,9 +3,11 @@ package com.abubaca.viss.placenote;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by viss on 2/24/17.
@@ -91,7 +96,7 @@ public class PlacenoteUtils {
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setView(editView);
-        dialogBuilder.setTitle(place);
+        dialogBuilder.setTitle(place.toUpperCase());
         final Dialog dialog = dialogBuilder.create();
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -232,19 +237,43 @@ public class PlacenoteUtils {
         alert.show();
     }
 
-    void clearNotes() {
+    void clearAllNotes() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(R.string.confirm_delete_all_notes)
                 .setCancelable(false)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbHandler.clearNotes();
+                        dbHandler.clearAllNotes();
                         new PlaceListPopulator(activity).populate();
                         new Starter(activity).startLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.setCancelable(true);
+        alert.show();
+    }
+
+    void clearSelectedNotes(final List<String> selectedPlaces) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(R.string.confirm_delete_selected_notes)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dbHandler.clearSelectedNotes(selectedPlaces);
+                        new PlaceListPopulator(activity).populate();
+                        new Starter(activity).startLocationService();
+                        selectedPlaces.clear();
+                        sendSelectedItemsBroadcast(selectedPlaces);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        sendSelectedItemsBroadcast(selectedPlaces);
                         dialog.cancel();
                     }
                 });
@@ -272,5 +301,12 @@ public class PlacenoteUtils {
         AlertDialog alert = builder.create();
         alert.setCancelable(true);
         alert.show();
+    }
+
+    private void sendSelectedItemsBroadcast(List<String> selectedPlaces){
+        Intent intent = new Intent();
+        intent.setAction("SELECTED_ITEMS");
+        intent.putStringArrayListExtra ("SELECTED_PLACES" , (ArrayList<String>) selectedPlaces);
+        activity.sendBroadcast(intent);
     }
 }

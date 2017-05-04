@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -40,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
 
+import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -48,6 +52,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         com.google.android.gms.location.LocationListener{
 
     private static final String TAG = "MAP_ACTIVITY";
+    private static final int FINE_LOCATION_PERMISSION_REQUEST = 0x1;
+    private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 0x2;
+    private static final int START_LOCATION_SETTTINGS_REQUEST = 0x3;
+
 
     private GoogleMap map;
     private Marker marker;
@@ -57,8 +65,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Button addPlaceButton;
     private GoogleApiClient googleApiClient;
     private Location lastKnownLocation;
-    private static final int FINE_LOCATION_PERMISSION_REQUEST = 0x1;
-    private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 0x2;
+    private ProgressBar locationStatusPB;
+    private TextView locationStatusTV;
 
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
     private LinearLayout pbLayout;
@@ -72,11 +80,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         placenoteUtils = new PlacenoteUtils(this);
         addPlaceButton = (Button)findViewById(R.id.add_place_btn);
         pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
+        locationStatusPB = (ProgressBar)findViewById(R.id.location_status_pb);
+        locationStatusTV = (TextView)findViewById(R.id.location_status_tv);
     }
 
     @Override
     protected void onResume() {
-        addPlaceButton.setOnClickListener(new View.OnClickListener() {
+        Log.i(TAG ,"on resume");
+        if(!isLocationEnabled()){
+            Toast.makeText(getApplicationContext() , "Device Location is off" , Toast.LENGTH_LONG).show();
+            locationStatusTV.setText("Location is turned off.\nGo to location settings.");
+            locationStatusPB.setVisibility(View.INVISIBLE);
+        }addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 placenoteUtils.addNewPlace(placeAddress , lat , lng , proximity);
@@ -129,7 +144,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_search:
-                searchIntent();
+                if(isLocationEnabled()) searchIntent();
                 break;
             case android.R.id.home:
                 onBackPressed();
@@ -157,7 +172,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         removeLocationUpdates();
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(0);
-        locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
+        locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapActivity.this);
     }
@@ -198,6 +213,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG , "request code: "+requestCode+" result code: "+resultCode);
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 removeLocationUpdates();
@@ -215,7 +231,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     placeTypes.contains(1011)?placeRadius*3:
                                         placeTypes.contains(1009)?placeRadius/2:
                                             placeRadius;
-                    Log.i(TAG , "placetypes: "+placeTypes+" proximity: "+proximity);
                 }
 
                 lat = placeLocation.getLatitude();
@@ -240,6 +255,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             } else if (resultCode == RESULT_CANCELED) {
                 // The user canceled the operation.
             }
+        }else if(requestCode == START_LOCATION_SETTTINGS_REQUEST){
+            this.onResume();
         }
     }
 
@@ -310,5 +327,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         long time= System.currentTimeMillis();
         long lastKnownLocationTime = location.getTime();
         return (time - lastKnownLocationTime < 120000);
+    }
+
+    private boolean isLocationEnabled(){
+        LocationManager service = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return service.isProviderEnabled(LocationManager.GPS_PROVIDER) || service.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    private void startLocationSettings() {
+        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivityForResult(intent , START_LOCATION_SETTTINGS_REQUEST);
     }
 }
