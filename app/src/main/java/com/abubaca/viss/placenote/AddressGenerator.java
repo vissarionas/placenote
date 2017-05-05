@@ -19,6 +19,7 @@ import java.util.Locale;
 
 public class AddressGenerator extends Service {
 
+    private final static String TAG = "ADDRESS_GENERATOR";
     private Geocoder geocoder;
 
     @Override

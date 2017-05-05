@@ -116,7 +116,7 @@ public class LocationService extends Service implements LocationListener,
         interval = wifiConnected ? WIFI_INTERVAL : batterySaver ? BATTERY_SAVER_DATA_INTERVAL : DATA_INTERVAL;
         locationRequest = new LocationRequest();
         locationRequest.setInterval(interval);
-        locationRequest.setSmallestDisplacement(5.0f);
+        locationRequest.setSmallestDisplacement(2.0f);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
         if (googleApiClient != null && googleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, LocationService.this);

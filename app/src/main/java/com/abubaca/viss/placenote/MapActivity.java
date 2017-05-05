@@ -84,30 +84,36 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onResume() {
-        super.onResume();
         getGoogleMap();
+        startGoogleApiClient();
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 placenoteUtils.addNewPlace(placeAddress , lat , lng , proximity);
+                try {
+                    unregisterReceiver(broadcastReceiver);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
             }
         });
         registerReceiver(broadcastReceiver , filter);
-        connectGoogleApiClient();
+        super.onResume();
     }
 
     @Override
-    protected void onPause() {
-        this.unregisterReceiver(broadcastReceiver);
-        super.onPause();
+    protected void onStop() {
+        try {
+            unregisterReceiver(broadcastReceiver);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        super.onStop();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-//        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
-//            presentUserLocation(lastKnownLocation);
-//        }
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
@@ -149,31 +155,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-    private void connectGoogleApiClient() {
-        if(googleApiClient!=null) {
-            if(!googleApiClient.isConnected()){
-                googleApiClient.connect();
-            }else{
-                googleApiClient.reconnect();
-            }
-        }else{
-            googleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-            googleApiClient.connect();
-        }
+    private void startGoogleApiClient() {
+        if(googleApiClient!=null && googleApiClient.isConnected()) return;
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        googleApiClient.connect();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        createLocationUpdates();
+        createLocationUpdateObject();
         if(!locationEnableCanceled) checkLocationService(locationRequest);
     }
 
-    private void createLocationUpdates(){
-        removeLocationUpdates();
+    private void createLocationUpdateObject(){
         locationRequest = new LocationRequest();
         locationRequest.setInterval(0);
         locationRequest.setExpirationDuration(60000);
@@ -240,8 +239,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     List<Integer> placeTypes = place.getPlaceTypes();
                     Log.i(TAG , placeTypes.toString());
                     proximity = placeTypes.contains(1021)?100:
-                            (int) (placeTypes.contains(1011) ? placeRadius * 3 :
-                                    placeTypes.contains(1009) ? placeRadius * 0.7f :
+                            (placeTypes.contains(1011) ? placeRadius * 3 :
+                                    placeTypes.contains(1009) ? placeRadius/2 :
                                             placeRadius);
                 }
 
@@ -334,6 +333,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         // All location settings are satisfied. The client can
                         // initialize location requests here.
                         getLastKnownLocation();
+                        Log.i(TAG , "lastknownlocation: "+lastKnownLocation);
+                        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
+                            Log.i(TAG , "lastknownlocation is fresh");
+                            presentUserLocation(lastKnownLocation);
+                            break;
+                        }
                         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapActivity.this);
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
