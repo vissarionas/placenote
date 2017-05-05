@@ -62,7 +62,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Marker marker;
     private String placeAddress = null;
     private Double lat , lng;
-    private int proximity = 50;
+    private int proximity = 100;
     private Button addPlaceButton;
     private GoogleApiClient googleApiClient;
     private Location lastKnownLocation;
@@ -84,6 +84,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onResume() {
+        super.onResume();
         getGoogleMap();
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,7 +94,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
         registerReceiver(broadcastReceiver , filter);
         connectGoogleApiClient();
-        super.onResume();
     }
 
     @Override
@@ -105,9 +105,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
-            presentUserLocation(lastKnownLocation);
-        }
+//        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
+//            presentUserLocation(lastKnownLocation);
+//        }
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
@@ -150,18 +150,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void connectGoogleApiClient() {
-        Log.i(TAG , "connecting googleapiclient");
         if(googleApiClient!=null) {
-            Log.i(TAG , "googleapiclient is NOT null");
             if(!googleApiClient.isConnected()){
-                Log.i(TAG , "googleapiclient is NOT connected");
                 googleApiClient.connect();
             }else{
-                Log.i(TAG , "googleapiclient isconnected");
                 googleApiClient.reconnect();
             }
         }else{
-            Log.i(TAG , "googleapiclient is null");
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -174,10 +169,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         createLocationUpdates();
-        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)) {
-            presentUserLocation(lastKnownLocation);
-            return;
-        }
         if(!locationEnableCanceled) checkLocationService(locationRequest);
     }
 
@@ -185,6 +176,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         removeLocationUpdates();
         locationRequest = new LocationRequest();
         locationRequest.setInterval(0);
+        locationRequest.setExpirationDuration(60000);
         locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
@@ -247,10 +239,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     int placeRadius = Math.round(northeastBound.distanceTo(placeLocation));
                     List<Integer> placeTypes = place.getPlaceTypes();
                     Log.i(TAG , placeTypes.toString());
-                    proximity = placeTypes.contains(1021)?50:
-                                    placeTypes.contains(1011)?placeRadius*3:
-                                        placeTypes.contains(1009)?placeRadius/2:
-                                            placeRadius;
+                    proximity = placeTypes.contains(1021)?100:
+                            (int) (placeTypes.contains(1011) ? placeRadius * 3 :
+                                    placeTypes.contains(1009) ? placeRadius * 0.7f :
+                                            placeRadius);
                 }
 
                 lat = placeLocation.getLatitude();
@@ -270,8 +262,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
                 // TODO: Handle the error.
-                Log.i(TAG, status.getStatusMessage());
-
             } else if (resultCode == RESULT_CANCELED) {
                 // The user canceled the operation.
             }
