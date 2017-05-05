@@ -84,7 +84,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onResume() {
+        //Load google map fragment
         getGoogleMap();
+        //start google api client
         startGoogleApiClient();
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -208,7 +210,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void searchIntent(){
-        pbLayout.setVisibility(View.INVISIBLE);
         try {
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -219,13 +220,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         } catch (GooglePlayServicesNotAvailableException e) {
             // TODO: Handle the error.
         }
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+                pbLayout.setVisibility(View.INVISIBLE);
                 removeLocationUpdates();
                 Place place = PlaceAutocomplete.getPlace(this, data);
                 Location placeLocation = new Location("");
