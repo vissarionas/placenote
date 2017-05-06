@@ -120,6 +120,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onMapClick(LatLng point) {
                 if(lastKnownLocation!=null) {
+                    pbLayout.setVisibility(View.VISIBLE);
                     lastKnownLocation.setLatitude(point.latitude);
                     lastKnownLocation.setLongitude(point.longitude);
                     presentUserLocation(lastKnownLocation);
@@ -295,6 +296,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         this.lng = location.getLongitude();
         getAddress(location.getLatitude() , location.getLongitude());
         pointLocation(location , 18.0f);
+        pbLayout.setVisibility(View.INVISIBLE);
     }
 
     @Override

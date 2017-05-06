@@ -111,12 +111,15 @@ public class PlaceListAdapter extends BaseAdapter {
     }
 
     private void addRemoveSelectedPlace(String place , View view){
+        ImageButton menuBTN = (ImageButton)view.findViewById(R.id.list_item_menu);
         if(!selectedPlaces.contains(place)){
             selectedPlaces.add(place);
             view.setBackgroundResource(R.drawable.background_selected);
+            menuBTN.setVisibility(View.INVISIBLE);
         }else{
             selectedPlaces.remove(place);
             view.setBackgroundResource(R.drawable.background);
+            menuBTN.setVisibility(View.VISIBLE);
         }
         sendSelectedItemsBroadcast(selectedPlaces);
         multipleSelected = selectedPlaces.size()>0;

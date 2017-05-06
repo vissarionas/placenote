@@ -52,7 +52,7 @@
     <string name="place_name">Place name</string>
     <string name="note">Note</string>
 
-    <string name="getting_location">Getting location..</string>
+    <string name="getting_location">Getting location info..</string>
     <string name="maps_title">Map</string>
     <string name="map_search">Search</string>
     <string name="add_place">Add %1$s to your placelist</string>

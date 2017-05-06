@@ -11,7 +11,7 @@
 
     <item
         android:id="@+id/action_clear_notes"
-        android:icon="@drawable/clear"
+        android:icon="@drawable/trash_can_main"
         android:title="Clear Notes"
         app:showAsAction="ifRoom"
         android:visible="false"/>
