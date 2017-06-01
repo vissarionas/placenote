@@ -16,6 +16,7 @@
 
 
         <LinearLayout
+            android:layout_weight="0.2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -40,15 +41,6 @@
                     android:layout_marginRight="10dp"
                     android:textSize="18sp"
                     android:layout_weight="0.2"/>
-
-                <ImageButton
-                    android:id="@+id/list_item_menu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/dots_menu"
-                    android:layout_weight="1.8"/>
 
             </LinearLayout>
 
@@ -85,6 +77,14 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/list_item_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="@android:color/transparent"
+            android:src="@drawable/dots_menu"/>
 
     </LinearLayout>
 

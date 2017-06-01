@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -84,10 +86,11 @@ public class PlacenoteUtils {
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
 
-        ImageButton btnDelete;
+        ImageButton btnDelete , btnEdit;
         final TextView noteTextView;
         noteTextView = (TextView)editView.findViewById(R.id.note_tv);
         btnDelete = (ImageButton)editView.findViewById(R.id.btn_delete);
+        btnEdit = (ImageButton)editView.findViewById(R.id.btn_edit);
         if(note.isEmpty()){
             btnDelete.setVisibility(View.INVISIBLE);
         }else{
@@ -119,6 +122,13 @@ public class PlacenoteUtils {
                 dialog.dismiss();
             }
         });
+        btnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editNote(place);
+                dialog.dismiss();
+            }
+        });
     }
 
     private void editNote(final String place){
@@ -135,7 +145,8 @@ public class PlacenoteUtils {
         }else{
             noteEditText.setHint(R.string.type_a_note_here);
         }
-        noteEditText.setInputType(InputType.TYPE_CLASS_TEXT);
+        noteEditText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        noteEditText.setSingleLine(false);
         noteEditText.setSelection(noteEditText.getText().length());
 
         dialogBuilder.setView(noteEditText);
