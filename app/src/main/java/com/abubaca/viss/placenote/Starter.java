@@ -1,14 +1,8 @@
 package com.abubaca.viss.placenote;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.net.Uri;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 /**
  * Created by viss on 2/24/17.
@@ -18,7 +12,6 @@ public class Starter {
 
     private static final String TAG = "STARTER";
 
-    private static final int FINE_LOCATION_REQUEST = 0x1;
     private Activity activity;
 
     Starter(Activity activity){
@@ -26,10 +19,6 @@ public class Starter {
     }
 
     void startLocationService(){
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
-            return;
-        }
         Intent i = new Intent(activity , LocationService.class);
         activity.startService(i);
     }
@@ -63,8 +52,4 @@ public class Starter {
         intent.putExtra(Intent.EXTRA_SUBJECT, R.string.app_name);
         activity.startActivity(Intent.createChooser(intent, "Contact via email"));
     }
-
-
-
-
 }

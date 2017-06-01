@@ -1,15 +1,18 @@
 package com.abubaca.viss.placenote;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +30,8 @@ public class MainActivity extends AppCompatActivity
     implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MAIN_ACTIVITY";
+    private static final int FINE_LOCATION_REQUEST = 0x1;
+
 
     private PlacenoteUtils placenoteUtils;
     private FloatingActionButton addPlaceFAB;
@@ -99,6 +105,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 addPlaceFAB.hide();
+                if (ActivityCompat.checkSelfPermission(getApplicationContext() , Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
+                    return;
+                }
                 new Starter(MainActivity.this).startMapActivity();
             }
         });
@@ -106,6 +116,22 @@ public class MainActivity extends AppCompatActivity
         new Starter(this).startLocationService();
         registerReceiver(broadcastReceiver , filter);
         super.onResume();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
+            if (requestCode == FINE_LOCATION_REQUEST){
+                new Starter(MainActivity.this).startMapActivity();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
