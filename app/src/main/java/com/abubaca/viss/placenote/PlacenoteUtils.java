@@ -28,7 +28,6 @@ import java.util.List;
 
 public class PlacenoteUtils {
 
-    private final static String TAG = "PLACENOTE_UTILS";
     private Activity activity;
     private DBHandler dbHandler;
 

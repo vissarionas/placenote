@@ -58,21 +58,21 @@
         android:gravity="center">
 
 
-        <ProgressBar
-            android:id="@+id/location_status_pb"
-            android:layout_gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@android:style/Widget.ProgressBar.Small" />
-
         <TextView
             android:id="@+id/location_status_tv"
-            android:textSize="21sp"
-            android:gravity="center"
-            android:layout_margin="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/getting_location" />
+            android:layout_margin="15dp"
+            android:gravity="center"
+            android:text="@string/getting_location"
+            android:textSize="21sp" />
+
+        <ProgressBar
+            android:id="@+id/location_status_pb"
+            style="@android:style/Widget.Material.Light.ProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
 
     </LinearLayout>

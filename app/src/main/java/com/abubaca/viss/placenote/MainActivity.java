@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.security.Permissions;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity
     private IntentFilter filter = new IntentFilter("SELECTED_ITEMS");
     private List<String> selectedPlaces = new ArrayList<>();
     private MenuItem clearItem , batteryItem;
+    private TextView noPlacesTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity
         placenoteUtils = new PlacenoteUtils(this);
         addPlaceFAB = (FloatingActionButton)findViewById(R.id.add_place_fab);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        noPlacesTV = (TextView)findViewById(R.id.no_places_tv);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         setupDrawer();
@@ -104,12 +107,13 @@ public class MainActivity extends AppCompatActivity
         addPlaceFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addPlaceFAB.hide();
                 if (ActivityCompat.checkSelfPermission(getApplicationContext() , Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
                     return;
                 }
                 new Starter(MainActivity.this).startMapActivity();
+                noPlacesTV.setVisibility(View.INVISIBLE);
+                addPlaceFAB.hide();
             }
         });
         batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
@@ -126,12 +130,6 @@ public class MainActivity extends AppCompatActivity
                 new Starter(MainActivity.this).startMapActivity();
             }
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
