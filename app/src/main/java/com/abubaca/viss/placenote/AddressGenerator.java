@@ -6,10 +6,13 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,10 +52,9 @@ public class AddressGenerator extends Service {
         if(addresses.size()>0) {
             android.location.Address address = addresses.get(0);
             if (address != null) {
+                String[] addressArray = address.getAddressLine(0).split(",");
                 StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < address.getMaxAddressLineIndex()-1; i++) {
-                    sb.append(address.getAddressLine(i));
-                }
+                sb.append(addressArray[0].toString());
                 return sb.toString();
             }
         }
