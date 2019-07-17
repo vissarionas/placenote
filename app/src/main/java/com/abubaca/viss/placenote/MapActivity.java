@@ -52,7 +52,7 @@ import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener{
+        com.google.android.gms.location.LocationListener {
 
     private static final String TAG = "MAP_ACTIVITY";
     private static final int FINE_LOCATION_PERMISSION_REQUEST = 0x1;
@@ -61,11 +61,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private GoogleMap map;
     private Marker marker;
     private String placeAddress = null;
-    private Double lat , lng;
+    private Double lat, lng;
     private int proximity = 100;
     private Button addPlaceButton;
     private GoogleApiClient googleApiClient;
-    private Location lastKnownLocation;
+    private Location lastLocation;
     private IntentFilter filter = new IntentFilter("GET_ADDRESS");
     private LinearLayout pbLayout;
     private PlacenoteUtils placenoteUtils;
@@ -78,8 +78,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         placenoteUtils = new PlacenoteUtils(this);
-        addPlaceButton = (Button)findViewById(R.id.add_place_btn);
-        pbLayout = (LinearLayout)findViewById(R.id.pb_layout);
+        addPlaceButton = (Button) findViewById(R.id.add_place_btn);
+        pbLayout = (LinearLayout) findViewById(R.id.pb_layout);
     }
 
     @Override
@@ -91,15 +91,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                placenoteUtils.addNewPlace(placeAddress , lat , lng , proximity);
-                try {
-                    unregisterReceiver(broadcastReceiver);
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                }
+            placenoteUtils.addNewPlace(placeAddress, lat, lng, proximity);
+            try {
+                unregisterReceiver(broadcastReceiver);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
             }
         });
-        registerReceiver(broadcastReceiver , filter);
+        registerReceiver(broadcastReceiver, filter);
         super.onResume();
     }
 
@@ -119,37 +119,37 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
-                if(lastKnownLocation!=null) {
-                    pbLayout.setVisibility(View.VISIBLE);
-                    lastKnownLocation.setLatitude(point.latitude);
-                    lastKnownLocation.setLongitude(point.longitude);
-                    presentUserLocation(lastKnownLocation);
-                }
+            if (lastLocation != null) {
+                pbLayout.setVisibility(View.VISIBLE);
+                lastLocation.setLatitude(point.latitude);
+                lastLocation.setLongitude(point.longitude);
+                presentUserLocation(lastLocation);
+            }
             }
         });
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (marker!=null) {
-                    marker.remove();
-                }
-                return false;
+            if (marker != null) {
+                marker.remove();
+            }
+            return false;
             }
         });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.map_menu , menu);
+        getMenuInflater().inflate(R.menu.map_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_search:
-                if(isLocationEnabled()) searchIntent();
+                if (isLocationEnabled()) searchIntent();
                 break;
             case android.R.id.home:
                 onBackPressed();
@@ -158,63 +158,63 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-    private void startGoogleApiClient() {
-        if(googleApiClient!=null && googleApiClient.isConnected()) return;
-
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        googleApiClient.connect();
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        createLocationUpdateObject();
-        if(!locationEnableCanceled) checkLocationService(locationRequest);
-    }
-
-    private void createLocationUpdateObject(){
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(0);
-        locationRequest.setExpirationDuration(60000);
-        locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-    }
-
-    private void removeLocationUpdates(){
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient , this);
-    }
-
-    protected void getLastKnownLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION_REQUEST);
-            return;
-        }
-        lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if(location.getAccuracy()>1000) return;
-        if(location.getAccuracy()>300) Toast.makeText(getApplicationContext() , R.string.bad_accuracy , Toast.LENGTH_LONG).show();
-        if(location.getAccuracy()<100) removeLocationUpdates();
-        lastKnownLocation = location;
-        presentUserLocation(lastKnownLocation);
-    }
-
-    private void getGoogleMap(){
+    private void getGoogleMap() {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
-    private void searchIntent(){
+    private void startGoogleApiClient() {
+        if (googleApiClient != null && googleApiClient.isConnected()) return;
+        googleApiClient = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build();
+        googleApiClient.connect();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        createLocationUpdateObject();
+        if (!locationEnableCanceled) checkLocationService(locationRequest);
+    }
+
+    private void createLocationUpdateObject() {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(0);
+        locationRequest.setExpirationDuration(60000);
+        locationRequest.setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
+    }
+
+    private void removeLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+    }
+
+    protected void getLastLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION_REQUEST);
+            return;
+        }
+        lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location.getAccuracy() > 1000) return;
+        if (location.getAccuracy() > 300)
+            Toast.makeText(getApplicationContext(), R.string.bad_accuracy, Toast.LENGTH_LONG).show();
+        if (location.getAccuracy() < 100) removeLocationUpdates();
+        lastLocation = location;
+        presentUserLocation(lastLocation);
+    }
+
+    private void searchIntent() {
         try {
             Intent intent =
-                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                            .build(this);
+                new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                    .build(this);
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException e) {
             // TODO: Handle the error.
@@ -233,69 +233,68 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Location placeLocation = new Location("");
                 placeLocation.setLatitude(place.getLatLng().latitude);
                 placeLocation.setLongitude(place.getLatLng().longitude);
-                if(place.getViewport()!=null) {
+                if (place.getViewport() != null) {
                     Location northeastBound = new Location("");
                     northeastBound.setLatitude(place.getViewport().northeast.latitude);
                     northeastBound.setLongitude(place.getViewport().northeast.longitude);
                     int placeRadius = Math.round(northeastBound.distanceTo(placeLocation));
                     List<Integer> placeTypes = place.getPlaceTypes();
-                    Log.i(TAG , placeTypes.toString());
-                    proximity = placeTypes.contains(1021)?100:
+                    Log.i(TAG, placeTypes.toString());
+                    proximity = placeTypes.contains(1021) ? 100 :
                             (placeTypes.contains(1011) ? placeRadius * 3 :
-                                    placeTypes.contains(1009) ? placeRadius/2 :
+                                    placeTypes.contains(1009) ? placeRadius / 2 :
                                             placeRadius);
                 }
 
                 lat = placeLocation.getLatitude();
                 lng = placeLocation.getLongitude();
-                float zoom = (proximity<200)?18.0f:
-                                (proximity<500)?17.0f:
-                                    (proximity<1000)?16.0f:
-                                        (proximity<5000)?15.0f:
-                                            (proximity<10000)?14.0f:13.0f;
-                pointLocation(placeLocation , zoom);
+                float zoom = (proximity < 200) ? 18.0f :
+                        (proximity < 500) ? 17.0f :
+                                (proximity < 1000) ? 16.0f :
+                                        (proximity < 5000) ? 15.0f :
+                                                (proximity < 10000) ? 14.0f : 13.0f;
+                pointLocation(placeLocation, zoom);
 
                 placeAddress = place.getName().toString();
                 getSupportActionBar().setTitle(placeAddress);
                 String addPlace = getResources().getString(R.string.add_place);
-                addPlaceButton.setText(String.format(addPlace , placeAddress));
+                addPlaceButton.setText(String.format(addPlace, placeAddress));
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Status status = PlaceAutocomplete.getStatus(this, data);
                 // TODO: Handle the error.
             } else if (resultCode == RESULT_CANCELED) {
                 // The user canceled the operation.
             }
         }
-        if(requestCode == REQUEST_CHECK_SETTINGS){
-            if(resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == RESULT_OK) {
                 this.recreate();
-            }else if(resultCode == RESULT_CANCELED){
+            } else if (resultCode == RESULT_CANCELED) {
                 locationEnableCanceled = true;
             }
         }
     }
 
-    private void getAddress(Double lat , Double lng){
+    private void getAddress(Double lat, Double lng) {
         Intent intent = new Intent(MapActivity.this, AddressGenerator.class);
-        intent.putExtra("lat" , lat);
-        intent.putExtra("lng" , lng);
+        intent.putExtra("lat", lat);
+        intent.putExtra("lng", lng);
         startService(intent);
     }
 
-    private void pointLocation(Location location , float zoom){
-        LatLng tempLatLng = new LatLng(location.getLatitude() , location.getLongitude());
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng , zoom));
-        if(marker!=null) marker.remove();
+    private void pointLocation(Location location, float zoom) {
+        LatLng tempLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(tempLatLng, zoom));
+        if (marker != null) marker.remove();
         marker = map.addMarker(new MarkerOptions().position(tempLatLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
     }
 
-    private void presentUserLocation(Location location){
+    private void presentUserLocation(Location location) {
         this.lat = location.getLatitude();
         this.lng = location.getLongitude();
-        getAddress(location.getLatitude() , location.getLongitude());
-        pointLocation(location , 18.0f);
+        getAddress(location.getLatitude(), location.getLongitude());
+        pointLocation(location, 18.0f);
         pbLayout.setVisibility(View.INVISIBLE);
     }
 
@@ -310,18 +309,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @NonNull
-    private Boolean locationIsFresh(Location location){
-        long time= System.currentTimeMillis();
+    private Boolean locationIsFresh(Location location) {
+        long time = System.currentTimeMillis();
         long lastKnownLocationTime = location.getTime();
         return (time - lastKnownLocationTime < 120000);
     }
 
-    private boolean isLocationEnabled(){
+    private boolean isLocationEnabled() {
         LocationManager service = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         return service.isProviderEnabled(LocationManager.GPS_PROVIDER) || service.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
-    private void checkLocationService(final LocationRequest locationRequest){
+    private void checkLocationService(final LocationRequest locationRequest) {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
         PendingResult<LocationSettingsResult> result =
@@ -333,16 +332,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 final Status status = locationSettingsResult.getStatus();
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
-                        // All location settings are satisfied. The client can
-                        // initialize location requests here.
-                        getLastKnownLocation();
-                        Log.i(TAG , "lastknownlocation: "+lastKnownLocation);
-                        if(lastKnownLocation!=null && locationIsFresh(lastKnownLocation)){
-                            Log.i(TAG , "lastknownlocation is fresh");
-                            presentUserLocation(lastKnownLocation);
+                        getLastLocation();
+                        if (lastLocation != null && locationIsFresh(lastLocation)) {
+                            presentUserLocation(lastLocation);
                             break;
                         }
-                        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient , locationRequest , MapActivity.this);
+                        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, MapActivity.this);
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         // Location settings are not satisfied, but this can be fixed
