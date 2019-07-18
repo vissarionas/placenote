@@ -13,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -63,7 +62,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private FusedLocationProviderClient fusedLocationProviderClient;
   private Location userLocation;
   private String placeAddress = null;
-  private Double lat, lng;
   private int proximity = 100;
   private Button addPlaceButton;
   private GoogleApiClient googleApiClient;
@@ -89,7 +87,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     addPlaceButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        placenoteUtils.addNewPlace(placeAddress, lat, lng, proximity);
+        placenoteUtils.addNewPlace(placeAddress, userLocation.getLatitude(), userLocation.getLongitude(), proximity);
         try {
           unregisterReceiver(broadcastReceiver);
         } catch (IllegalArgumentException e) {
@@ -184,6 +182,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             .setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
   }
 
+  private void updateUserLocation(Location location) {
+    userLocation = location;
+  }
+
   private LocationCallback getLocationCallback() {
      return new LocationCallback() {
       @Override
@@ -192,7 +194,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
           return;
         }
         for (Location location : locationResult.getLocations()) {
-          Log.e("LOCATION", "Acc: " + location.getAccuracy());
+          updateUserLocation(location);
           showUserLocation(location);
           removeLocationUpdates();
         }
@@ -255,8 +257,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                   placeRadius);
         }
 
-        lat = placeLocation.getLatitude();
-        lng = placeLocation.getLongitude();
+        userLocation = placeLocation;
         float zoom = (proximity < 200) ? 18.0f :
                 (proximity < 500) ? 17.0f :
                         (proximity < 1000) ? 16.0f :

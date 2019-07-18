@@ -176,5 +176,4 @@ public class PlaceListAdapter extends BaseAdapter {
     intent.putStringArrayListExtra ("SELECTED_PLACES" , (ArrayList<String>) selectedPlaces);
     activity.sendBroadcast(intent);
   }
-
 }

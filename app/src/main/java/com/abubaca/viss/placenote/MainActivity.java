@@ -28,10 +28,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-  private static final String TAG = "MAIN_ACTIVITY";
   private static final int FINE_LOCATION_REQUEST = 0x1;
-
-
   private PlacenoteUtils placenoteUtils;
   private FloatingActionButton addPlaceFAB;
   private Boolean notified = false;

@@ -33,7 +33,7 @@ public class PlacenoteUtils {
         dbHandler = new DBHandler(activity);
     }
 
-    void addNewPlace(String nameSuggestion , final Double lat , final Double lng  , final int proximity){
+    void addNewPlace(String nameSuggestion , final Double latitude , final Double longitude  , final int proximity){
         LayoutInflater inflater = activity.getLayoutInflater();
         View addPlaceView = inflater.inflate(R.layout.add_place , null);
         addPlaceView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -54,7 +54,7 @@ public class PlacenoteUtils {
                 if(!addPlaceET.getText().toString().isEmpty()){
                     String place = addPlaceET.getText().toString();
                     if(!dbHandler.placeExists(place)){
-                        dbHandler.insertToDb(place, String.valueOf(lat), String.valueOf(lng), "" , proximity);
+                        dbHandler.insertToDb(place, latitude, longitude, "" , proximity);
                         activity.finish();
                     }else{
                         new CustomToast().makeToast(activity , Constants.WARNING_TOAST , activity.getString(R.string.place_exists));

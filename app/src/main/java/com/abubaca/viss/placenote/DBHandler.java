@@ -91,7 +91,7 @@ class DBHandler extends SQLiteOpenHelper{
         dbClose();
     }
 
-    void insertToDb(String place, String lat, String lng , String note , int proximity){
+    void insertToDb(String place, Double lat, Double lng , String note , int proximity){
         dbInit();
         ContentValues values = new ContentValues();
         values.put("PLACE",place);
@@ -137,8 +137,8 @@ class DBHandler extends SQLiteOpenHelper{
                 if (!cursor.getString(3).isEmpty() && cursor.getInt(4) == Constants.NOTE_STATE_ACTIVE
                         && cursor.getInt(5) == 0) {
                     Location singlePlaceLocation = new Location("");
-                    latitude = Double.valueOf(cursor.getString(1));
-                    longitude = Double.valueOf(cursor.getString(2));
+                    latitude = cursor.getDouble(1);
+                    longitude = cursor.getDouble(2);
                     singlePlaceLocation.setLatitude(latitude);
                     singlePlaceLocation.setLongitude(longitude);
 
@@ -171,8 +171,10 @@ class DBHandler extends SQLiteOpenHelper{
         }
         dbClose();
         Location placeLocation = new Location("");
-        placeLocation.setLatitude(Double.valueOf(cursor.getString(1)));
-        placeLocation.setLongitude(Double.valueOf(cursor.getString(2)));
+        Double latitude = cursor.getDouble(1);
+        Double longitude = cursor.getDouble(2);
+        placeLocation.setLatitude(latitude);
+        placeLocation.setLongitude(longitude);
         return placeLocation;
     }
 
