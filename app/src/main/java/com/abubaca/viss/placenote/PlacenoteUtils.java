@@ -2,20 +2,15 @@ package com.abubaca.viss.placenote;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -45,7 +40,7 @@ public class PlacenoteUtils {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
-        final EditText addPlaceET = (EditText)addPlaceView.findViewById(R.id.placeNameET);
+        final EditText addPlaceET = addPlaceView.findViewById(R.id.placeNameET);
 
         addPlaceET.setText(nameSuggestion);
         addPlaceET.setSelection(addPlaceET.getText().length());
@@ -89,9 +84,9 @@ public class PlacenoteUtils {
 
         ImageButton btnDelete , btnEdit;
         final TextView noteTextView;
-        noteTextView = (TextView)editView.findViewById(R.id.note_tv);
-        btnDelete = (ImageButton)editView.findViewById(R.id.btn_delete);
-        btnEdit = (ImageButton)editView.findViewById(R.id.btn_edit);
+        noteTextView = editView.findViewById(R.id.note_tv);
+        btnDelete = editView.findViewById(R.id.btn_delete);
+        btnEdit = editView.findViewById(R.id.btn_edit);
         if(note.isEmpty()){
             btnDelete.setVisibility(View.INVISIBLE);
         }else{
@@ -158,7 +153,7 @@ public class PlacenoteUtils {
                         String note = noteEditText.getText().toString();
                         if(!note.contentEquals("")){
                             dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_ACTIVE, 0 , null);
-                            new Starter(activity).startLocationService();
+                            new ActivityStarter(activity).startLocationService();
                         }else{
                             dbHandler.updatePlaceNote(place , note , Constants.NOTE_STATE_EMPTY, 0 , null);
                         }
@@ -179,7 +174,7 @@ public class PlacenoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.updatePlaceNote(placeName , "" , Constants.NOTE_STATE_EMPTY, 0 , null);
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startLocationService();
+                        new ActivityStarter(activity).startLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -235,7 +230,7 @@ public class PlacenoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.deletePlace(placeName);
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startLocationService();
+                        new ActivityStarter(activity).startLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -257,7 +252,7 @@ public class PlacenoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearAllNotes();
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startLocationService();
+                        new ActivityStarter(activity).startLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -278,7 +273,7 @@ public class PlacenoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearSelectedNotes(selectedPlaces);
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startLocationService();
+                        new ActivityStarter(activity).startLocationService();
                         selectedPlaces.clear();
                         sendSelectedItemsBroadcast(selectedPlaces);
                     }
@@ -302,7 +297,7 @@ public class PlacenoteUtils {
                     public void onClick(DialogInterface dialog, int id) {
                         dbHandler.clearDb();
                         new PlaceListPopulator(activity).populate();
-                        new Starter(activity).startLocationService();
+                        new ActivityStarter(activity).startLocationService();
                     }
                 })
                 .setNegativeButton(R.string.cancel , new DialogInterface.OnClickListener() {

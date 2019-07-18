@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +19,6 @@ import java.util.List;
  */
 
 class DBHandler extends SQLiteOpenHelper{
-
-    private final static String TAG = "DBHANDLER";
 
     private static int databaseVersion = 1;
     private final static String createTableQuery = "CREATE TABLE IF NOT EXISTS PLACENOTES(PLACE TEXT , " +
@@ -133,17 +130,17 @@ class DBHandler extends SQLiteOpenHelper{
     List<Placenote> getPlacenotesLocationProximity(){
         dbInit();
         List<Placenote> placenotes = new ArrayList<>();
-        Double lat , lng;
+        Double latitude , longitude;
 
         if(cursor.getCount()>0){
             do {
                 if (!cursor.getString(3).isEmpty() && cursor.getInt(4) == Constants.NOTE_STATE_ACTIVE
                         && cursor.getInt(5) == 0) {
                     Location singlePlaceLocation = new Location("");
-                    lat = Double.valueOf(cursor.getString(1));
-                    lng = Double.valueOf(cursor.getString(2));
-                    singlePlaceLocation.setLatitude(lat);
-                    singlePlaceLocation.setLongitude(lng);
+                    latitude = Double.valueOf(cursor.getString(1));
+                    longitude = Double.valueOf(cursor.getString(2));
+                    singlePlaceLocation.setLatitude(latitude);
+                    singlePlaceLocation.setLongitude(longitude);
 
                     Placenote singlePlacenote = new Placenote(cursor.getString(0) , singlePlaceLocation , cursor.getInt(6));
                     placenotes.add(singlePlacenote);

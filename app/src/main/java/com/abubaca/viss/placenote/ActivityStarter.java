@@ -8,13 +8,11 @@ import android.net.Uri;
  * Created by viss on 2/24/17.
  */
 
-public class Starter {
-
-    private static final String TAG = "STARTER";
+public class ActivityStarter {
 
     private Activity activity;
 
-    Starter(Activity activity){
+    ActivityStarter(Activity activity){
         this.activity = activity;
     }
 

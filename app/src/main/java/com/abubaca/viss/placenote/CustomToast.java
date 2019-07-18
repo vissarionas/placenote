@@ -17,7 +17,7 @@ class CustomToast {
     void makeToast(Activity activity , int state , String text){
         LayoutInflater layoutInflater = activity.getLayoutInflater();
         View toastView = layoutInflater.inflate(R.layout.custom_toast_view, (ViewGroup)activity.findViewById(R.id.toastLL));
-        TextView textView = (TextView)toastView.findViewById(R.id.toastTV);
+        TextView textView = toastView.findViewById(R.id.toastTV);
         textView.setText(text);
         switch (state){
             case Constants.SUCCESS_TOAST:

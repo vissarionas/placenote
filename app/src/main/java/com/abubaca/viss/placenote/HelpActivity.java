@@ -24,7 +24,7 @@ public class HelpActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_email:
-                new Starter(this).startEmailClient();
+                new ActivityStarter(this).startEmailClient();
                 break;
             case android.R.id.home:
                 onBackPressed();

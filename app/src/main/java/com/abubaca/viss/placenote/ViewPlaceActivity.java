@@ -16,56 +16,51 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private static final String TAG = "EDIT_PLACE";
-    private DBHandler dbHandler;
-    private String placeName;
-    private Double lat , lng;
-    private Marker marker;
+  private DBHandler dbHandler;
+  private String placeName;
+  private Double latitude, longitude;
+  private Marker marker;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_place_map);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        dbHandler = new DBHandler(getApplicationContext());
-        placeName = getIntent().getStringExtra("PLACENAME");
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_view_place_map);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    dbHandler = new DBHandler(getApplicationContext());
+    placeName = getIntent().getStringExtra("PLACENAME");
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
+    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+            .findFragmentById(R.id.map);
+    mapFragment.getMapAsync(this);
+  }
 
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==android.R.id.home) onBackPressed();
-        return super.onOptionsItemSelected(item);
-    }
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if(item.getItemId()==android.R.id.home) onBackPressed();
+    return super.onOptionsItemSelected(item);
+  }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Location location = dbHandler.getPlaceLocation(placeName);
-        lat = location.getLatitude();
-        lng = location.getLongitude();
-        String subtitleLat, subtitleLng;
-        subtitleLat = String.valueOf(lat);
-        subtitleLng = String.valueOf(lng);
-        if(subtitleLat.length()>10) subtitleLat = subtitleLat.substring(0,10);
-        if(subtitleLng.length()>10) subtitleLng = subtitleLng.substring(0,10);
-        getSupportActionBar().setTitle(placeName);
-        getSupportActionBar().setSubtitle(subtitleLat+" - "+subtitleLng);
-    }
+  @Override
+  protected void onResume() {
+    super.onResume();
+    Location location = dbHandler.getPlaceLocation(placeName);
+    latitude = location.getLatitude();
+    longitude = location.getLongitude();
+    String subtitleLatitude, subtitleLongitude;
+    subtitleLatitude = String.valueOf(latitude);
+    subtitleLongitude = String.valueOf(longitude);
+    if(subtitleLatitude.length()>10) subtitleLatitude = subtitleLatitude.substring(0,10);
+    if(subtitleLongitude.length()>10) subtitleLongitude = subtitleLongitude.substring(0,10);
+    getSupportActionBar().setTitle(placeName);
+    getSupportActionBar().setSubtitle(subtitleLatitude+" - "+subtitleLongitude);
+  }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat , lng), 17.0f));
-//        map.getUiSettings().setScrollGesturesEnabled(false);
-        //remove previously placed Marker
-        if (marker != null) marker.remove();
-
-        //place marker where user just clicked
-        marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng))
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
-    }
+  @Override
+  public void onMapReady(GoogleMap googleMap) {
+    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17.0f));
+    if (marker != null) marker.remove();
+    marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
+            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+  }
 }

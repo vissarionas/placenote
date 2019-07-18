@@ -17,13 +17,11 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,10 +50,10 @@ public class MainActivity extends AppCompatActivity
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setHomeAsUpIndicator(R.drawable.drawer_icon);
     placenoteUtils = new PlacenoteUtils(this);
-    addPlaceFAB = (FloatingActionButton)findViewById(R.id.add_place_fab);
-    drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-    noPlacesTV = (TextView)findViewById(R.id.no_places_tv);
-    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+    addPlaceFAB = findViewById(R.id.add_place_fab);
+    drawerLayout = findViewById(R.id.drawer_layout);
+    noPlacesTV = findViewById(R.id.no_places_tv);
+    NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
     setupDrawer();
   }
@@ -111,13 +109,13 @@ public class MainActivity extends AppCompatActivity
           ActivityCompat.requestPermissions(MainActivity.this , new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST );
           return;
         }
-        new Starter(MainActivity.this).startMapActivity();
+        new ActivityStarter(MainActivity.this).startMapActivity();
         noPlacesTV.setVisibility(View.INVISIBLE);
         addPlaceFAB.hide();
       }
     });
     batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
-    new Starter(this).startLocationService();
+    new ActivityStarter(this).startLocationService();
     registerReceiver(broadcastReceiver , filter);
     super.onResume();
   }
@@ -127,14 +125,14 @@ public class MainActivity extends AppCompatActivity
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if(grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
       if (requestCode == FINE_LOCATION_REQUEST){
-        new Starter(MainActivity.this).startMapActivity();
+        new ActivityStarter(MainActivity.this).startMapActivity();
       }
     }
   }
 
   @Override
   public void onBackPressed() {
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
     } else if(selectedPlaces.size()>0) {
@@ -198,7 +196,7 @@ public class MainActivity extends AppCompatActivity
         break;
     }
     batterySaver = new Preferences().getBatterySaverState(getApplicationContext());
-    new Starter(this).startLocationService();
+    new ActivityStarter(this).startLocationService();
     return super.onOptionsItemSelected(item);
   }
 
@@ -219,14 +217,14 @@ public class MainActivity extends AppCompatActivity
         placenoteUtils.clearAllNotes();
         break;
       case (R.id.nav_help):
-        new Starter(this).startHelpActivity();
+        new ActivityStarter(this).startHelpActivity();
         break;
       case (R.id.nav_privacy_policy):
-        new Starter(this).startPrivacyPolicyWeb();
+        new ActivityStarter(this).startPrivacyPolicyWeb();
         break;
     }
 
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);
     return true;
   }

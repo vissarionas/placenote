@@ -60,8 +60,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private static final int REQUEST_CHECK_SETTINGS = 0x3;
   private GoogleMap map;
   private Marker marker;
-  private Location userLocation;
   private FusedLocationProviderClient fusedLocationProviderClient;
+  private Location userLocation;
   private String placeAddress = null;
   private Double lat, lng;
   private int proximity = 100;
@@ -70,7 +70,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
   private IntentFilter filter = new IntentFilter("GET_ADDRESS");
   private LinearLayout pbLayout;
   private PlacenoteUtils placenoteUtils;
-  private LocationCallback locationCallback;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +84,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
   @Override
   protected void onResume() {
-    createLocationCallback();
     getGoogleMap();
     startGoogleApiClient();
     addPlaceButton.setOnClickListener(new View.OnClickListener() {
@@ -186,8 +184,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             .setPriority(PRIORITY_BALANCED_POWER_ACCURACY);
   }
 
-  private void createLocationCallback() {
-    locationCallback = new LocationCallback() {
+  private LocationCallback getLocationCallback() {
+     return new LocationCallback() {
       @Override
       public void onLocationResult(LocationResult locationResult) {
         if (locationResult == null) {
@@ -202,6 +200,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     };
   }
   private void removeLocationUpdates() {
+    LocationCallback locationCallback = getLocationCallback();
     fusedLocationProviderClient.removeLocationUpdates(locationCallback);
   }
 
@@ -219,6 +218,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       return;
     }
     LocationRequest locationRequest = getLocationRequestObject();
+    LocationCallback locationCallback = getLocationCallback();
     fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
   }
 
