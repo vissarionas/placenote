@@ -127,7 +127,7 @@ class DBHandler extends SQLiteOpenHelper{
         return placenotes;
     }
 
-    List<Placenote> getPlacenotesLocationProximity(){
+    List<Placenote> getPlacenotesLocationAndProximity(){
         dbInit();
         List<Placenote> placenotes = new ArrayList<>();
         Double latitude , longitude;
@@ -136,14 +136,14 @@ class DBHandler extends SQLiteOpenHelper{
             do {
                 if (!cursor.getString(3).isEmpty() && cursor.getInt(4) == Constants.NOTE_STATE_ACTIVE
                         && cursor.getInt(5) == 0) {
-                    Location singlePlaceLocation = new Location("");
+                    Location placeLocation = new Location("");
                     latitude = cursor.getDouble(1);
                     longitude = cursor.getDouble(2);
-                    singlePlaceLocation.setLatitude(latitude);
-                    singlePlaceLocation.setLongitude(longitude);
+                    placeLocation.setLatitude(latitude);
+                    placeLocation.setLongitude(longitude);
 
-                    Placenote singlePlacenote = new Placenote(cursor.getString(0) , singlePlaceLocation , cursor.getInt(6));
-                    placenotes.add(singlePlacenote);
+                    Placenote placenote = new Placenote(cursor.getString(0) , placeLocation , cursor.getInt(6));
+                    placenotes.add(placenote);
                 }
             } while (cursor.moveToNext());
         }

@@ -45,16 +45,13 @@
         <activity
             android:name="com.abubaca.viss.placenote.MapActivity"
             android:label="@string/maps_title"
-            android:parentActivityName="com.abubaca.viss.placenote.MainActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.abubaca.viss.placenote.ViewPlaceActivity"
-            android:parentActivityName="com.abubaca.viss.placenote.MainActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.abubaca.viss.placenote.HelpActivity"
             android:label="@string/help"
-            android:parentActivityName="com.abubaca.viss.placenote.MainActivity"
             android:screenOrientation="portrait" />
 
         <service

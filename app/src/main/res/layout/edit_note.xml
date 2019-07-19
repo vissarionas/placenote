@@ -31,7 +31,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/trash_can"
-            android:id="@+id/btn_delete"/>
+            android:id="@+id/btn_delete"
+            android:contentDescription="TODO" />
 
         <ImageButton
             android:layout_weight="0.5"
@@ -39,7 +40,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/edit_text"
-            android:id="@+id/btn_edit"/>
+            android:id="@+id/btn_edit"
+            android:contentDescription="TODO" />
 
     </LinearLayout>
 

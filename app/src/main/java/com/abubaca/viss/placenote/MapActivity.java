@@ -201,6 +201,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
       }
     };
   }
+
   private void removeLocationUpdates() {
     LocationCallback locationCallback = getLocationCallback();
     fusedLocationProviderClient.removeLocationUpdates(locationCallback);

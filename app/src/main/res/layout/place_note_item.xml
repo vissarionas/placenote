@@ -59,6 +59,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1.9"
+                    android:contentDescription="TODO"
                     android:src="@drawable/note_inactive">
                 </ImageView>
 
@@ -84,7 +85,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:background="@android:color/transparent"
-            android:src="@drawable/dots_menu"/>
+            android:contentDescription="TODO"
+            android:src="@drawable/dots_menu" />
 
     </LinearLayout>
 
