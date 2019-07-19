@@ -2,6 +2,7 @@ package com.abubaca.viss.placenote;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -21,6 +22,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -31,6 +33,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
 
@@ -61,7 +64,7 @@ public class LocationService
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+            if (Objects.equals(intent.getAction(), WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 wifiConnected = info.isConnected();
                 requestLocationUpdates();
@@ -194,19 +197,27 @@ public class LocationService
         intent.putExtra("PLACE" , place);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSound(Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.notification));
-        builder.setContentTitle(place.toUpperCase());
-        builder.setContentText(dbHandler.getPlaceNote(place));
-        builder.setAutoCancel(true);
-        builder.setSmallIcon(R.drawable.notification);
-        builder.setLargeIcon(BitmapFactory.decodeResource(getResources() , R.mipmap.notification_large_icon));
-        builder.setLights(Color.RED, 500, 1000);
-        builder.setVibrate(new long[]{300, 600, 300, 600});
-        builder.setContentIntent(pendingIntent);
+        NotificationChannel channel;
+        channel = new NotificationChannel(
+                "placenote",
+                "placenote channel",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription("Placenote notification channel");
 
-        Notification notification = builder.build();
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "placenote");
+        notificationBuilder.setSound(Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.notification));
+        notificationBuilder.setContentTitle(place.toUpperCase());
+        notificationBuilder.setContentText(dbHandler.getPlaceNote(place));
+        notificationBuilder.setAutoCancel(true);
+        notificationBuilder.setSmallIcon(R.drawable.notification);
+        notificationBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources() , R.mipmap.notification_large_icon));
+        notificationBuilder.setLights(Color.RED, 500, 1000);
+        notificationBuilder.setVibrate(new long[]{300, 600, 300, 600});
+        notificationBuilder.setContentIntent(pendingIntent);
+
+        Notification notification = notificationBuilder.build();
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(channel);
         notificationManager.notify(0, notification);
     }
 }
